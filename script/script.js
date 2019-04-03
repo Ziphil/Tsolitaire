@@ -245,29 +245,34 @@ class History {
 
 class RecordEntry {
 
-  constructor(tile, tilePosition, round, elapsedTime = null) {
+  constructor(elapsedTime, type, tile, tilePosition, round) {
+    this.elapsedTime = elapsedTime;
+    this.type = type;
     this.tile = tile;
     this.tilePosition = tilePosition;
     this.round = round;
-    this.elapsedTime = elapsedTime;
-    this.withdrawn = false;
-  }
-
-  withdraw() {
-    this.withdrawn = true;
   }
 
   toString(short) {
-    let row = ROW_SYMBOLS[Math.floor(this.tilePosition / 6)];
-    let column = COLUMN_SYMBOLS[this.tilePosition % 6];
-    let tileNumber = this.tile.number;
-    let rotation = ROTATION_SYMBOLS[this.tile.rotation % this.tile.symmetry];
-    let string = row + column + tileNumber + rotation;
-    if (this.withdrawn) {
-      string += "*";
+    let string = "";
+
+    if(this.type==1) {
+      string += "Undo";
     }
+    else if(this.type==2) {
+      string += "Redo";
+    }
+    else {
+      if (!short)
+        string += this.round + ": ";
+      let row = ROW_SYMBOLS[Math.floor(this.tilePosition / 6)];
+      let column = COLUMN_SYMBOLS[this.tilePosition % 6];
+      let tileNumber = this.tile.number;
+      let rotation = ROTATION_SYMBOLS[this.tile.rotation % this.tile.symmetry];
+      string += row + column + tileNumber + rotation;
+    }
+
     if (!short) {
-      string = this.round + ": " + string;
       if (this.elapsedTime != null) {
         let minute = ("0" + Math.floor(this.elapsedTime / 60)).slice(-2);
         let second = ("0" + (this.elapsedTime % 60)).slice(-2);
@@ -276,7 +281,6 @@ class RecordEntry {
     }
     return string;
   }
-
 }
 
 
@@ -287,18 +291,18 @@ class Record {
   }
 
   place(tile, tilePosition, round, elapsedTime) {
-    let entry = new RecordEntry(tile, tilePosition, round, elapsedTime);
+    let entry = new RecordEntry(elapsedTime, 0, tile, tilePosition, round);
     this.entries.push(entry);
   }
 
-  undo() {
-    for (let i = this.entries.length - 1 ; i >= 0 ; i --) {
-      let entry = this.entries[i];
-      if (!entry.withdrawn) {
-        entry.withdraw();
-        break;
-      }
-    }
+  undo(elapsedTime) {
+    let entry = new RecordEntry(elapsedTime, 1);
+    this.entries.push(entry);
+  }
+
+  redo(elapsedTime) {
+    let entry = new RecordEntry(elapsedTime, 2);
+    this.entries.push(entry);
   }
 
   toString(short) {
@@ -399,26 +403,26 @@ class Tsuro {
     }
   }
 
-  undo() {
+  undo(elapsedTime = null) {
     let entry = this.history.undo();
     if (entry) {
       this.board = entry.board;
       this.stones = entry.stones;
       this.round --;
-      this.record.undo();
+      this.record.undo((elapsedTime != null) ? elapsedTime : this.elapsedTime);
       return true;
     } else {
       return false;
     }
   }
 
-  redo() {
+  redo(elapsedTime = null) {
     let entry = this.history.redo();
     if (entry) {
       this.board = entry.board;
       this.stones = entry.stones;
       this.round ++;
-      this.record.place(entry.tile, entry.tilePosition, this.round, this.elapsedTime);
+      this.record.redo((elapsedTime != null) ? elapsedTime : this.elapsedTime);
       return true;
     } else {
       return false;
