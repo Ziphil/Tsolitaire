@@ -327,12 +327,9 @@ class Tsuro {
     this.stones = INITIAL_STONES;
     this.board = new Board();
     this.history = new History(this.board, this.stones);
-    this.record = new Record();
-    this.beginDate = new Date();
     this.finishDate = null;
     this.round = 0;
     if (string != null) {
-      this.beginDate = null;
       this.load(string);
     }
   }
@@ -379,7 +376,6 @@ class Tsuro {
       this.stones = result.stones;
       this.round ++;
       this.history.place(this.board, this.stones, tile, tilePosition);
-      this.record.place(tile, tilePosition, this.round, (elapsedTime != null) ? elapsedTime : this.elapsedTime);
       if (this.finishDate == null && this.remainingHandSize <= 0) {
         this.finishDate = new Date();
       }
@@ -395,7 +391,6 @@ class Tsuro {
       this.board = entry.board;
       this.stones = entry.stones;
       this.round --;
-      this.record.undo((elapsedTime != null) ? elapsedTime : this.elapsedTime);
       return true;
     } else {
       return false;
@@ -408,7 +403,6 @@ class Tsuro {
       this.board = entry.board;
       this.stones = entry.stones;
       this.round ++;
-      this.record.redo((elapsedTime != null) ? elapsedTime : this.elapsedTime);
       return true;
     } else {
       return false;
@@ -498,20 +492,6 @@ class Tsuro {
     return this.unusedTiles.length;
   }
 
-  get elapsedTime() {
-    let beginDate = this.beginDate;
-    if (beginDate) {
-      let endDate = this.finishDate || new Date();
-      let elapsedTime = Math.floor((endDate.getTime() - beginDate.getTime()) / 1000);
-      if (elapsedTime > 3600) {
-        elapsedTime = 3600;
-      }
-      return elapsedTime;
-    } else {
-      return null;
-    }
-  }
-
 }
 
 
@@ -527,6 +507,8 @@ class Executor {
     this.tsuro = new Tsuro();
     this.nextHand = this.tsuro.nextHand;
     this.hoveredTilePosition = null;
+    this.record = new Record();
+    this.beginDate = new Date();
     this.render();
   }
 
@@ -545,6 +527,9 @@ class Executor {
       this.tsuro = new Tsuro();
     }
     this.nextHand = this.tsuro.nextHand;
+    this.hoveredTilePosition = null;
+    this.record = new Record();
+    this.beginDate = null;
     this.render();
   }
 
@@ -646,7 +631,7 @@ class Executor {
 
   prepareTimer() {
     setInterval(() => {
-      let elapsedTime = this.tsuro.elapsedTime;
+      let elapsedTime = this.elapsedTime;
       let minute = (elapsedTime != null) ? ("0" + Math.floor(elapsedTime / 60)).slice(-2) : "  ";
       let second = (elapsedTime != null) ? ("0" + (elapsedTime % 60)).slice(-2) : "  ";
       if ($("#minute").text() != minute) {
@@ -656,6 +641,20 @@ class Executor {
         $("#second").text(second);
       }
     }, 50);
+  }
+
+  get elapsedTime() {
+    let beginDate = this.beginDate;
+    if (beginDate) {
+      let endDate = this.finishDate || new Date();
+      let elapsedTime = Math.floor((endDate.getTime() - beginDate.getTime()) / 1000);
+      if (elapsedTime > 3600) {
+        elapsedTime = 3600;
+      }
+      return elapsedTime;
+    } else {
+      return null;
+    }
   }
 
   prepareCheckBoxes() {
@@ -676,8 +675,9 @@ class Executor {
   place(tilePosition) {
     let result = this.tsuro.place(this.nextHand, tilePosition);
     if (result) {
+      this.record.place(this.nextHand, tilePosition, this.tsuro.round, this.elapsedTime);
       this.nextHand = this.tsuro.nextHand;
-    }
+      }
     this.render();
   }
 
@@ -694,6 +694,7 @@ class Executor {
   undo() {
     let result = this.tsuro.undo();
     if (result) {
+      this.record.undo(this.elapsedTime);
       this.nextHand = this.tsuro.nextHand;
     }
     this.render();
@@ -702,6 +703,7 @@ class Executor {
   redo() {
     let result = this.tsuro.redo();
     if (result) {
+    this.record.redo(this.elapsedTime);
       this.nextHand = this.tsuro.nextHand;
     }
     this.render();
@@ -798,7 +800,7 @@ class Executor {
 
   renderInformation() {
     if ($("#show-information").is(":checked")) {
-      for (let entry of this.tsuro.record.entries) {
+      for (let entry of this.record.entries) {
         if (!entry.withdrawn) {
           let tileDiv = $("#board #tile-" + entry.tilePosition);
           let tileInformationDiv = $("<div>");
@@ -857,11 +859,11 @@ class Executor {
   }
 
   renderRecord() {
-    $("#history").val(this.tsuro.record.toString(false));
+    $("#history").val(this.record.toString(false));
   }
 
   tweet() {
-    let string = this.tsuro.record.toString(false);
+    let string = this.record.toString(false);
     let elapsedTime = this.tsuro.elapsedTime;
     let minute = ("0" + Math.floor(elapsedTime / 60)).slice(-2);
     let second = ("0" + (elapsedTime % 60)).slice(-2);
