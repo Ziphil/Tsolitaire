@@ -322,7 +322,8 @@ class Record {
 class Tsuro {
 
   constructor(string = null) {
-    this.hands = [];
+    this.unusedTiles = TILES.concat();
+    this.openedTiles = [];
     this.stones = INITIAL_STONES;
     this.board = new Board();
     this.history = new History(this.board, this.stones);
@@ -333,19 +334,10 @@ class Tsuro {
     if (string != null) {
       this.beginDate = null;
       this.load(string);
-    } else {
-      this.start();
     }
   }
 
-  start() {
-    let unusedTiles = TILES.concat();
-    Tsuro.shuffle(unusedTiles);
-    this.hands.push(...unusedTiles);
-  }
-
   load(string) {
-    let unusedTiles = TILES.concat();
     let regexp = new RegExp(RECORD_REGEXP, "g");
     let match;
     while ((match = regexp.exec(string)) != null) {
@@ -359,14 +351,10 @@ class Tsuro {
         if (!withdrawn) {
           if (row >= 0 && column >= 0 && tileNumber < TILES.length && rotation >= 0) {
             let tile = TILES[tileNumber];
+            this.nextHand = tile;
             let tilePosition = row * 6 + column;
-            this.hands[this.round] = tile;
             let result = this.place(tile.rotate(rotation), tilePosition, elapsedTime);
-            if (result) {
-              unusedTiles = unusedTiles.filter((tile) => {
-                return tile.number != tileNumber;
-              });
-            } else {
+            if (!result) {
               throw new Error("Invalid Move");
             }
           } else {
@@ -374,16 +362,14 @@ class Tsuro {
           }
         }
       } else {
+        //ここの意図がよくわからない（下位互換性？）
         let tileNumber = parseInt(match[10]);
         let tile = TILES[tileNumber];
-        this.hands[this.round] = tile;
         unusedTiles = unusedTiles.filter((tile) => {
           return tile.number != tileNumber;
         });
       }
     }
-    Tsuro.shuffle(unusedTiles);
-    this.hands.push(...unusedTiles);
   }
 
   place(tile, tilePosition, elapsedTime = null) {
@@ -481,25 +467,35 @@ class Tsuro {
     return false;
   }
 
-  static shuffle(array) {
-    for (let i = array.length - 1 ; i > 0 ; i --){
-      let j = Math.floor(Math.random() * (i + 1));
-      let temporary = array[i];
-      array[i] = array[j];
-      array[j] = temporary;
+  get nextHand() {
+    while(this.openedTiles.length <= this.round) {
+      let randomIndex = Math.floor(Math.random() * this.unusedTiles.length);
+      //ランダムに一枚引いて、openedの末尾に追加
+      this.openedTiles.push(this.unusedTiles.splice(randomIndex, 1)[0]);
+      if(this.unusedTiles.length <= 0) return null;
     }
+    return this.openedTiles[this.round];
+  }
+
+  //次の手を強制的に決定（load用）
+  set nextHand(tile) {
+    //既にランダムな手段で決定されていたらエラー（openedTilesとunusedTilesが重複したり抜けたりしそうなので）
+    if(this.openedTiles.length != this.round) throw new Error("Invalid operation");
+    if(this.openedTiles.some(x=>x.number == tile.number)) throw new Error("Invalid operation");
+    if(this.unusedTiles.filter(x=>x.number == tile.number).length != 1) throw new Error("Invalid operation");
+
+    this.openedTiles.push(tile);
+    this.unusedTiles = this.unusedTiles.filter((x)=>{
+      return x.number != tile.number;
+    });
   }
 
   get remainingHands() {
-    return this.hands.slice(this.round);
+    return this.unusedTiles;
   }
 
   get remainingHandSize() {
-    return this.hands.length - this.round;
-  }
-
-  get nextHand() {
-    return this.hands[this.round];
+    return this.unusedTiles.length;
   }
 
   get elapsedTime() {
@@ -828,9 +824,8 @@ class Executor {
 
   renderNextHandInformation() {
     if ($("#show-information").is(":checked")) {
-      let tile = this.tsuro.nextHand;
       let tileDiv = $("#next-tile");
-      if (tile) {
+      if (this.nextHand) {
         let tileInformationDiv = $("<div>");
         let tileNumber = tile.number;
         let rotation = ROTATION_SYMBOLS[this.nextHand.rotation % tile.symmetry];
