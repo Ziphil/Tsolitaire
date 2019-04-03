@@ -357,7 +357,7 @@ class Tsuro {
             let tile = TILES[tileNumber];
             let tilePosition = row * 6 + column;
             this.hands[this.round] = tile;
-            let result = this.place(rotation, tilePosition, elapsedTime);
+            let result = this.place(tile.rotate(rotation), tilePosition, elapsedTime);
             if (result) {
               unusedTiles = unusedTiles.filter((tile) => {
                 return tile.number != tileNumber;
@@ -382,10 +382,9 @@ class Tsuro {
     this.hands.push(...unusedTiles);
   }
 
-  place(rotation, tilePosition, elapsedTime = null) {
-    let result = this.check(rotation, tilePosition);
+  place(tile, tilePosition, elapsedTime = null) {
+    let result = this.check(tile, tilePosition);
     if (result != null) {
-      let tile = this.nextHand.rotate(rotation);
       this.board = result.board;
       this.stones = result.stones;
       this.round ++;
@@ -438,11 +437,10 @@ class Tsuro {
   // 置けるのであれば、置いた後の盤面と石の状態を返します。
   // その場所に石が面していなかったり石が盤外に出てしまうなどの理由で置けない場合は、null を返します。
   // また、全てのタイルを置き切っていて次のタイルがない場合も、null を返します。
-  check(rotation, tilePosition) {
+  check(tile, tilePosition) {
     let board = this.board;
-    if (this.nextHand && board.isEmpty(tilePosition) && board.isFacingStone(tilePosition, this.stones)) {
-      let placedTile = this.nextHand.rotate(rotation);
-      let nextBoard = this.board.place(placedTile, tilePosition);
+    if (tile && board.isEmpty(tilePosition) && board.isFacingStone(tilePosition, this.stones)) {
+      let nextBoard = this.board.place(tile, tilePosition);
       let nextStones = new Array(this.stones.length);
       for (let i = 0 ; i < this.stones.length ; i ++) {
         let stone = this.stones[i];
@@ -459,10 +457,10 @@ class Tsuro {
     }
   }
 
-  placeableTilePositions(rotation) {
+  placeableTilePositions(tile) {
     let tilePositions = [];
     for (let tilePosition = 0 ; tilePosition < 36 ; tilePosition ++) {
-      let result = this.check(rotation, tilePosition);
+      let result = this.check(tile, tilePosition);
       if (result != null) {
         tilePositions.push(tilePosition);
       }
@@ -470,9 +468,9 @@ class Tsuro {
     return tilePositions;
   }
 
-  isPlaceable() {
+  isPlaceable(tile) {
     for (let rotation = 0 ; rotation < 4 ; rotation ++) {
-      if (this.placeableTilePositions(rotation).length > 0) {
+      if (this.placeableTilePositions(tile.rotate(rotation)).length > 0) {
         return true;
       }
     }
@@ -527,7 +525,7 @@ class Executor {
       }
     }
     this.tsuro = new Tsuro();
-    this.rotation = 0;
+    this.nextHand = this.tsuro.nextHand;
     this.hoveredTilePosition = null;
     this.render();
   }
@@ -546,7 +544,7 @@ class Executor {
       alert("棋譜が異常です。新しいゲームを開始します。")
       this.tsuro = new Tsuro();
     }
-    this.rotation = 0;
+    this.nextHand = this.tsuro.nextHand;
     this.render();
   }
 
@@ -676,15 +674,15 @@ class Executor {
   }
 
   place(tilePosition) {
-    let result = this.tsuro.place(this.rotation, tilePosition);
+    let result = this.tsuro.place(this.nextHand, tilePosition);
     if (result) {
-      this.rotation = 0;
+      this.nextHand = this.tsuro.nextHand;
     }
     this.render();
   }
 
   rotate() {
-    this.rotation = (this.rotation + 1) % 4;
+    this.nextHand = this.nextHand.rotate();
     this.render();
   }
 
@@ -696,7 +694,7 @@ class Executor {
   undo() {
     let result = this.tsuro.undo();
     if (result) {
-      this.rotation = 0;
+      this.nextHand = this.tsuro.nextHand;
     }
     this.render();
   }
@@ -704,7 +702,7 @@ class Executor {
   redo() {
     let result = this.tsuro.redo();
     if (result) {
-      this.rotation = 0;
+      this.nextHand = this.tsuro.nextHand;
     }
     this.render();
   }
@@ -755,7 +753,7 @@ class Executor {
         tileDiv.append(tileTextureDiv);
       }
     }
-  } 
+  }
 
   renderStones() {
     let stones = this.tsuro.stones;
@@ -770,21 +768,20 @@ class Executor {
   }
 
   renderHoveredTile() {
-    let tile = this.tsuro.nextHand;
-    if (tile) {
+    if (this.nextHand) {
       let tilePosition = this.hoveredTilePosition;
       let tileDiv = $("#board #tile-" + tilePosition);
       let tileTextureDiv = $("<div>");
       tileTextureDiv.attr("class", "background hover");
-      tileTextureDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
-      tileTextureDiv.css("transform", "rotate(" + (this.rotation * 90) + "deg)");
+      tileTextureDiv.css("background-image", "url(\"image/" + (this.nextHand.number + 1) + ".png\")");
+      tileTextureDiv.css("transform", "rotate(" + (this.nextHand.rotation * 90) + "deg)");
       tileDiv.append(tileTextureDiv);
     }
   }
 
   renderPlaceableTilePositions() {
     if ($("#show-suggest").is(":checked")) {
-      let tilePositions = this.tsuro.placeableTilePositions(this.rotation);
+      let tilePositions = this.tsuro.placeableTilePositions(this.nextHand);
       for (let tilePosition of tilePositions) {
         let tileDiv = $("#board #tile-" + tilePosition);
         let highlightDiv = $("<div>");
@@ -792,7 +789,7 @@ class Executor {
         tileDiv.append(highlightDiv);
       }
     }
-    if ($("#show-mask").is(":checked") && !this.tsuro.isPlaceable() && this.tsuro.remainingHandSize > 0) {
+    if ($("#show-mask").is(":checked") && !this.tsuro.isPlaceable(this.nextHand) && this.tsuro.remainingHandSize > 0) {
       $("#mask").css("display", "flex");
     } else {
       $("#mask").css("display", "none");
@@ -814,14 +811,13 @@ class Executor {
   }
 
   renderNextHand() {
-    let tile = this.tsuro.nextHand;
     let tileDiv = $("#next-tile");
     tileDiv.empty();
-    if (tile) {
+    if (this.nextHand) {
       let tileTextureDiv = $("<div>");
       tileTextureDiv.attr("class", "background");
-      tileTextureDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
-      tileTextureDiv.css("transform", "rotate(" + (this.rotation * 90) + "deg)");
+      tileTextureDiv.css("background-image", "url(\"image/" + (this.nextHand.number + 1) + ".png\")");
+      tileTextureDiv.css("transform", "rotate(" + (this.nextHand.rotation * 90) + "deg)");
       tileDiv.append(tileTextureDiv);
     }
   }
@@ -833,7 +829,7 @@ class Executor {
       if (tile) {
         let tileInformationDiv = $("<div>");
         let tileNumber = tile.number;
-        let rotation = ROTATION_SYMBOLS[this.rotation % tile.symmetry];
+        let rotation = ROTATION_SYMBOLS[this.nextHand.rotation % tile.symmetry];
         let string = tileNumber + rotation;
         tileInformationDiv.attr("class", "information");
         tileInformationDiv.html(string);
