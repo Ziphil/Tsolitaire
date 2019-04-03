@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1170px">
+    <script src="script/jquery.js"></script>
+    <script src="script/script.js"></script>
+    <link rel="stylesheet" type="text/css" href="style/reset.css">
+    <link rel="stylesheet" type="text/css" href="style/style.css">
+    <title>Tsuro Solitaire</title>
+  </head>
+  <body>
+
+    <div class="title">
+      Tsuro Solitaire
+    </div>
+
+    <div class="content">
+      <div id="board">
+        <div id="mask">Game Over</div>
+      </div>
+      <div class="right">
+        <div class="next-container">
+          <div class="next">
+            <div class="next-label">Next</div>
+            <div id="next-tile"></div>
+            <div class="next-guide">Click to Rotate</div>
+          </div>
+          <div class="number">
+            <div id="remaining-size">35</div>
+          </div>
+          <div id="remaining"></div>
+        </div>
+        <div class="time">
+          <div class="time-label">Time</div>
+          <div id="minute">00</div>
+          <div class="colon">:</div>
+          <div id="second">00</div>
+        </div>
+        <div class="button">
+          <input id="undo" type="button" value="Undo" onclick="executor.undo()">　<input id="redo" type="button" value="Redo" onclick="executor.redo()"><br>
+          <input class="large" type="button" value="Start Game" onclick="executor.start()">　<input class="large" type="button" value="Load Record" onclick="executor.load()"><br>
+          <button type="button" onclick="executor.tweet()">Tweet</button>
+        </div>
+        <div class="check">
+          <div>
+          <input type="checkbox" name="show-suggest" id="show-suggest" checked><label for="show-suggest">サジェスト表示<hr>Show suggestion</label><br>
+          <input type="checkbox" name="show-remaining" id="show-remaining" checked><label for="show-remaining">残りタイル表示<hr>Show remaining tiles</label><br>
+          <input type="checkbox" name="show-mask" id="show-mask" checked><label for="show-mask">ゲームオーバー表示<hr>Show gameover overlay</label><br>
+          <input type="checkbox" name="show-information" id="show-information"><label for="show-information">タイル情報表示<hr>Show tile information</label>
+        </div>
+        </div>
+        <div class="history">
+          <textarea id="history"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule">
+      <div>
+        <ul>
+          <li>タイルを駒がある場所に置くと、 タイルに書かれた道に沿って駒が動きます。</li>
+          <li>駒を道に沿って動かすと盤外に出てしまう場合や、 駒と駒がぶつかってしまう場合は、 タイルを置くことができません。</li>
+          <li>駒が面していない場所にも、 タイルを置くことはできません。</li>
+          <li>全てのタイルを置いて 8 つの駒を 1 箇所に集めることができればクリアです。</li>
+          <li>盤面上で左クリックすることでタイルを設置でき、 右クリックすることでタイルを時計回りに回転ができます。</li>
+        </ul>
+        <hr>
+        <ul>
+          <li>When you put the tile in front of a stone, the stone will move along the path on the tile.</li>
+          <li>You cannot put the tile, if some stone goes out of the board or two stones collide with each other after moving along the path.</li>
+          <li>You also cannot put the tile on the cell which is not adjacent to any stone.</li>
+          <li>If you are able to gather all the eight stones around a cell, you will win the game.</li>
+          <li>Left-click on the board to place the next tile, or right-click to rotate it clockwise.</li>
+        </ul>
+      </div>
+    </div>
+
+  </body>
+</html>
