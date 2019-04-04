@@ -577,7 +577,7 @@ class Executor {
         return;
       }
     }
-    load(true);
+    this.load(true);
   }
 
   load(force, seed = "", record = "") {
