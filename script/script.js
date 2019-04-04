@@ -210,6 +210,7 @@ class HistoryEntry {
       tileTextureDiv.css("transform", "rotate(" + (this.tile.rotation * 90) + "deg)");
       tileDiv.append(tileTextureDiv);
     }
+    tileDiv.css("display", "inline-block");
     li.append(tileDiv);
 
     let dataDiv = $("<div>")
@@ -220,6 +221,8 @@ class HistoryEntry {
       let rotation = ROTATION_SYMBOLS[this.tile.rotation];
       dataDiv.text(row + column + number + rotation);
     }
+    else dataDiv.text("initial");
+    dataDiv.css("display", "inline-block");
     li.append(dataDiv);
 
     return li;
@@ -392,7 +395,7 @@ class Record {
         //ここの意図がよくわからない（下位互換性？）
         let number = parseInt(match[10]);
         let tile = TILES[number];
-        unusedTiles = unusedTiles.filter((tile) => {
+        deck = deck.filter((tile) => {
           return tile.number != number;
         });
       }
@@ -442,8 +445,8 @@ class Random {
 class Tsuro {
 
   constructor(random) {
-    this.unusedTiles = TILES.concat();
-    this.openedTiles = [];
+    this.deck = TILES.concat();
+    this.queue = [];
     this.stones = INITIAL_STONES;
     this.board = new Board();
     this.history = new History(this.board, this.stones);
@@ -459,7 +462,7 @@ class Tsuro {
       this.stones = result.stones;
       this.round ++;
       this.history.place(this.board, this.stones, tile, tilePosition);
-      if (this.finishDate == null && this.deckSize <= 0) {
+      if (this.finishDate == null && this.deck.length <= 0) {
         this.finishDate = new Date();
       }
       return true;
@@ -546,45 +549,37 @@ class Tsuro {
 
   get nextTile() {
     //ifではなくwhileにしたのは、一度もnextTileにアクセスせずにターンを終了するとopenedTileが飛び飛びになってしまうのを避けるため
-    while (this.openedTiles.length <= this.round) {
-      let randomIndex = this.random.new(this.unusedTiles.length);
+    while (this.queue.length <= this.round) {
+      let randomIndex = this.random.new(this.deck.length);
       //ランダムに一枚引いて、openedの末尾に追加
-      this.openedTiles.push(this.unusedTiles.splice(randomIndex, 1)[0]);
-      if (this.unusedTiles.length <= 0) return null;
+      this.queue.push(this.deck.splice(randomIndex, 1)[0]);
+      if (this.deck.length <= 0) return null;
     }
-    return this.openedTiles[this.round];
+    return this.queue[this.round];
   }
 
   //次の手を強制的に決定（load用）
   set nextTile(tile) {
     //既に手が決定していた場合
-    if(this.round < this.openedTiles.length){
+    if(this.round < this.queue.length){
        //決定した手と期待する手が同じなら問題ない。何もせず終了
-       if(this.openedTiles[this.round].number == tile.number) return;
+       if(this.queue[this.round].number == tile.number) return;
        //そうでなければエラー
        else throw new Error("Invalid operation");
     }
     //手前の手が未決定ならエラー（無理に設定するとopenedTileが飛び飛びになりそう）
-    if(this.openedTiles.length < this.round) throw new Error("Invalid operation");
-    //openedTilesとunusedTilesでタイルが重複したり抜けたりしそうならエラー
-    if(this.openedTiles.some(x=>x.number == tile.number)) throw new Error("Invalid operation");
-    if(this.unusedTiles.filter(x=>x.number == tile.number).length != 1) throw new Error("Invalid operation");
+    if(this.queue.length < this.round) throw new Error("Invalid operation");
+    //queueとdeckでタイルが重複したり抜けたりしそうならエラー
+    if(this.queue.some(x=>x.number == tile.number)) throw new Error("Invalid operation");
+    if(this.deck.filter(x=>x.number == tile.number).length != 1) throw new Error("Invalid operation");
 
-    this.openedTiles.push(tile);
-    this.unusedTiles = this.unusedTiles.filter((x)=>{
+    this.queue.push(tile);
+    this.deck = this.deck.filter((x)=>{
       return x.number != tile.number;
     });
 
     //乱数のつじつまを合わせる
     this.random.new(1);
-  }
-
-  get deck() {
-    return this.unusedTiles;
-  }
-
-  get deckSize() {
-    return this.unusedTiles.length;
   }
 
 }
@@ -735,6 +730,10 @@ class Executor {
   }
 
   prepareCheckBoxes() {
+    $("#show-timer").on("change", (event) => {
+      if(event.target.checked) $("#timer").css("display", "flex");
+      else $("#timer").css("display", "none");
+    });
     $("#show-suggest").on("change", (event) => {
       this.render();
     });
@@ -800,13 +799,12 @@ class Executor {
     this.renderInformation();
     this.renderNextTile();
     this.renderNextTileInformation();
-    this.renderDeckSize();
+    this.renderRest();
     this.renderDeck();
     this.renderQueue();
     this.renderHistory();
     this.renderButtons();
-    this.renderRecord();
-    this.renderSeed();
+    this.renderShareData();
   }
 
   renderTiles() {
@@ -859,7 +857,7 @@ class Executor {
         tileDiv.append(highlightDiv);
       }
     }
-    if ($("#show-gameover").is(":checked") && !this.tsuro.isPlaceable(this.nextTile) && this.tsuro.deckSize > 0) {
+    if ($("#show-gameover").is(":checked") && !this.tsuro.isPlaceable(this.nextTile) && this.tsuro.deck.length > 0) {
       $("#gameover").css("display", "flex");
     } else {
       $("#gameover").css("display", "none");
@@ -913,7 +911,6 @@ class Executor {
       let tileDiv = $("#deck #tile-" + i);
       tileDiv.empty();
     }
-      for (let tile of deck) {
 
     for (let tile of deck) {
       let tileDiv = $("#deck #tile-" + tile.number);
@@ -928,7 +925,7 @@ class Executor {
   }
 
   renderQueue() {
-    let queue = this.tsuro.openedTiles;
+    let queue = this.tsuro.queue;
     let queueDiv = $("#queue");
     queueDiv.empty();
 
@@ -962,10 +959,10 @@ class Executor {
     else $("#history-wrapper").css("display", "none");
   }
 
-  renderDeckSize() {
-    let deckSize = this.tsuro.deckSize;
-    let deckSizeDiv = $("#deck-size");
-    deckSizeDiv.text(deckSize);
+  renderRest() {
+    let rest = 35 - this.tsuro.round;
+    let restDiv = $("#rest");
+    restDiv.text(rest);
   }
 
   renderButtons() {
