@@ -690,7 +690,7 @@ class Executor {
   }
 
   prepareNextTile() {
-    let tileDiv = $("#new-tile");
+    let tileDiv = $("#next-tile");
     tileDiv.on("mousedown", (event) => {
       this.rotate();
     });
@@ -866,7 +866,7 @@ class Executor {
   }
 
   renderNextTile() {
-    let tileDiv = $("#new-tile");
+    let tileDiv = $("#next-tile");
     tileDiv.empty();
     if (this.nextTile) {
       let tileTextureDiv = $("<div>");
@@ -879,7 +879,7 @@ class Executor {
 
   renderNextTileInformation() {
     if ($("#show-information").is(":checked")) {
-      let tileDiv = $("#new-tile");
+      let tileDiv = $("#next-tile");
       if (this.nextTile) {
         let tileInformationDiv = $("<div>");
         let number = this.nextTile.number;
