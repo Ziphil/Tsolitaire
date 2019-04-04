@@ -485,19 +485,28 @@ class Tsuro {
   }
 
   get nextHand() {
-    while(this.openedTiles.length <= this.round) {
+    //ifではなくwhileにしたのは、一度もnextHandにアクセスせずにターンを終了するとopenedTileが飛び飛びになってしまうのを避けるため
+    while (this.openedTiles.length <= this.round) {
       let randomIndex = Math.floor(Math.random() * this.unusedTiles.length);
       //ランダムに一枚引いて、openedの末尾に追加
       this.openedTiles.push(this.unusedTiles.splice(randomIndex, 1)[0]);
-      if(this.unusedTiles.length <= 0) return null;
+      if (this.unusedTiles.length <= 0) return null;
     }
     return this.openedTiles[this.round];
   }
 
   //次の手を強制的に決定（load用）
   set nextHand(tile) {
-    //既にランダムな手段で決定されていたらエラー（openedTilesとunusedTilesが重複したり抜けたりしそうなので）
-    if(this.openedTiles.length != this.round) throw new Error("Invalid operation");
+    //既に手が決定していた場合
+    if(this.round < this.openedTiles.length){
+       //決定した手と期待する手が同じなら問題ない。何もせず終了
+       if(this.openedTiles[this.round].number == tile.number) return;
+       //そうでなければエラー
+       else throw new Error("Invalid operation");
+    }
+    //手前の手が未決定ならエラー（無理に設定するとopenedTileが飛び飛びになりそう）
+    if(this.openedTiles.length < this.round) throw new Error("Invalid operation");
+    //openedTilesとunusedTilesでタイルが重複したり抜けたりしそうならエラー
     if(this.openedTiles.some(x=>x.number == tile.number)) throw new Error("Invalid operation");
     if(this.unusedTiles.filter(x=>x.number == tile.number).length != 1) throw new Error("Invalid operation");
 
