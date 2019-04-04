@@ -913,35 +913,39 @@ class Executor {
       let tileDiv = $("#deck #tile-" + i);
       tileDiv.empty();
     }
-    if ($("#show-deck").is(":checked")) {
       for (let tile of deck) {
-        let tileDiv = $("#deck #tile-" + tile.number);
-        let tileTextureDiv = $("<div>");
-        tileTextureDiv.attr("class", "background");
-        tileTextureDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
-        tileTextureDiv.css("transform", "rotate(" + (tile.rotation * 90) + "deg)");
-        tileDiv.append(tileTextureDiv);
-      }
+
+    for (let tile of deck) {
+      let tileDiv = $("#deck #tile-" + tile.number);
+      let tileTextureDiv = $("<div>");
+      tileTextureDiv.attr("class", "background");
+      tileTextureDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
+      tileTextureDiv.css("transform", "rotate(" + (tile.rotation * 90) + "deg)");
+      tileDiv.append(tileTextureDiv);
     }
+    if ($("#show-deck").is(":checked")) $("#deck").css("display", "flex");
+    else $("#deck").css("display", "none");
   }
 
   renderQueue() {
     let queue = this.tsuro.openedTiles;
     let queueDiv = $("#queue");
     queueDiv.empty();
-    if ($("#show-queue").is(":checked")) {
-      for (let tile of queue) {
-        let tileDiv = $("<div>");
-        tileDiv.attr("class", "tile");
-        let tileTextureDiv = $("<div>");
-        tileTextureDiv.attr("class", "background");
-        tileTextureDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
-        tileTextureDiv.css("transform", "rotate(" + (tile.rotation * 90) + "deg)");
-        tileDiv.append(tileTextureDiv);
-        queueDiv.append(tileDiv);
-      }
+
+    for (let tile of queue) {
+      let tileDiv = $("<div>");
+      tileDiv.attr("class", "tile");
+      let tileTextureDiv = $("<div>");
+      tileTextureDiv.attr("class", "background");
+      tileTextureDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
+      tileTextureDiv.css("transform", "rotate(" + (tile.rotation * 90) + "deg)");
+      tileDiv.append(tileTextureDiv);
+      queueDiv.append(tileDiv);
     }
     queueDiv.children().eq(this.tsuro.round).addClass("next");
+
+    if ($("#show-queue").is(":checked")) queueDiv.css("display", "flex");
+    else queueDiv.css("display", "none");
   }
 
   renderHistory() {
@@ -949,12 +953,13 @@ class Executor {
     let historyUl = $("#history");
     historyUl.empty();
 
-    if ($("#show-history").is(":checked")) {
-      for (let entry of entries) {
-        historyUl.append(entry.toHTML());
-      }
+    for (let entry of entries) {
+      historyUl.append(entry.toHTML());
     }
-    historyUl.children().eq(this.tsuro.round).addClass("next");
+    historyUl.children().eq(this.tsuro.round).addClass("current");
+
+    if ($("#show-history").is(":checked")) $("#history-wrapper").css("display", "flex");
+    else $("#history-wrapper").css("display", "none");
   }
 
   renderDeckSize() {

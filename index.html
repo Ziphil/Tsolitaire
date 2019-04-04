@@ -49,15 +49,15 @@
           <div class="colon">:</div>
           <div id="second">00</div>
         </div>
-        <div class="history">
+        <div id="history-wrapper">
           <ul id="history">
           </ul>
         </div>
       </div>
       <div id="newgame-dialogue">
         <div>
-          seed:<input type="text" id="seed-input"></input><br>
-          record:<textarea id="record-input"></textarea><br>
+          Seed:<input type="text" id="seed-input"></input><br>
+          Record:<textarea id="record-input"></textarea><br>
           <input class="large" type="button" value="Start Game" onclick="executor.load($('#seed-input').val(), $('#record-input').val())">
           <input type="button" value="Cansel" onclick="$('#newgame-dialogue').css('display', 'none')">
         </div>
@@ -73,8 +73,8 @@
       </div>
       <div id="share-dialogue">
         <div>
-          <input type="text" id="seed-output" onclick="this.select()" readonly></input>
-          <textarea id="record-output" onclick="this.select()" readonly></textarea>
+          Seed:<input type="text" id="seed-output" onclick="this.select()" readonly></input>
+          Record:<textarea id="record-output" onclick="this.select()" readonly></textarea>
           <button type="button" onclick="executor.tweet()">Tweet</button>
           <input type="button" value="Close" onclick="$('#share-dialogue').css('display', 'none')">
         </div>
