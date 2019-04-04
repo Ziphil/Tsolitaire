@@ -56,9 +56,9 @@
       </div>
       <div id="newgame-dialogue">
         <div>
-          Seed:<input type="text" id="seed-input"></input><br>
-          Record:<textarea id="record-input"></textarea><br>
-          <input class="large" type="button" value="Start Game" onclick="executor.load($('#seed-input').val(), $('#record-input').val())">
+          Seed:<input type="text" id="load-seed"></input><br>
+          Record:<textarea id="load-record"></textarea><br>
+          <input class="large" type="button" value="Start Game" onclick="executor.load($('#load-seed').val(), $('#load-record').val())">
           <input type="button" value="Cansel" onclick="$('#newgame-dialogue').css('display', 'none')">
         </div>
       </div>
@@ -74,8 +74,9 @@
       </div>
       <div id="share-dialogue">
         <div>
-          Seed:<input type="text" id="seed-output" onclick="this.select()" readonly></input>
-          Record:<textarea id="record-output" onclick="this.select()" readonly></textarea>
+          Seed:<input type="text" id="share-seed" onclick="this.select()" readonly></input><br>
+          Record:<textarea id="share-record" onclick="this.select()" readonly></textarea><br>
+          Link:<input type="text" id="share-link" onclick="this.select()" readonly></input><br>
           <button type="button" onclick="executor.tweet()">Tweet</button>
           <input type="button" value="Close" onclick="$('#share-dialogue').css('display', 'none')">
         </div>

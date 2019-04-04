@@ -978,27 +978,28 @@ class Executor {
     }
   }
 
-  renderRecord() {
-    $("#record-output").val(this.record.toString(false));
-  }
-
-  renderSeed() {
-    $("#seed-output").val(this.random.seed);
+  renderShareData() {
+    $("#share-record").val(this.record.toString(false));
+    $("#share-seed").val(this.random.seed);
+    $("#share-link").val(this.generateURL());
   }
 
   tweet() {
-    let string = this.record.toString(false);
     let elapsedTime = this.elapsedTime;
     let minute = ("0" + Math.floor(elapsedTime / 60)).slice(-2);
     let second = ("0" + (elapsedTime % 60)).slice(-2);
-    let url = location.protocol + "//" + location.host + location.pathname;
+    let url = this.generateURL();
     let option = "width=" + TWITTER_WIDTH + ",height=" + TWITTER_HEIGHT + ",menubar=no,toolbar=no,scrollbars=no";
     let href = "https://twitter.com/intent/tweet";
-    url += "?s=" + this.random.seed + "&q=" + encodeURIComponent(string);
     href += "?text=" + TWITTER_MESSAGE.replace(/%t/g, minute + ":" + second);
     href += "&url=" + encodeURIComponent(url);
     href += "&hashtags=" + TWITTER_HASHTAG;
     window.open(href, "_blank", option);
+  }
+
+  generateURL(){
+    return location.protocol + "//" + location.host + location.pathname
+     + "?s=" + this.random.seed + "&q=" + encodeURIComponent(this.record.toString(false));
   }
 
 }

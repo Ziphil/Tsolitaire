@@ -372,13 +372,15 @@ div.content div.right div#history-wrapper ul#history li{
   list-style: none;
   border-top: 1px hsl(0, 0%, 90%) solid;
 }
+div.content div.right div#history-wrapper ul#history li.current{
+  background-color: hsl(240, 0%, 90%);
+}
 
 div.content div#newgame-dialogue,
 div.content div#settings-dialogue,
 div.content div#share-dialogue {
   color: white;
   line-height: 1;
-  border-radius: 15px;
   background-color: hsl(0, 0%, 0%, 0.5);
   display: none;
   flex-direction: column;
@@ -431,8 +433,9 @@ div.content div#share-dialogue textarea {
 
 div.content div#newgame-dialogue input[type="text"],
 div.content div#share-dialogue input[type="text"] {
+  height: 30px;
   margin: 0px 0px;
-  padding: 20px 20px;
+  padding: 0 10px;
   font: 16px "Inconsolata", monospace;
   line-height: 1.2;
   background-color: white;
