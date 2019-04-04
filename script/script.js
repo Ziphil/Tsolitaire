@@ -900,8 +900,8 @@ class Executor {
       let tileDiv = $("#next-tile");
       if (this.nextHand) {
         let tileInformationDiv = $("<div>");
-        let tileNumber = tile.number;
-        let rotation = ROTATION_SYMBOLS[this.nextHand.rotation % tile.symmetry];
+        let tileNumber = this.nextHand.number;
+        let rotation = ROTATION_SYMBOLS[this.nextHand.rotation % this.nextHand.symmetry];
         let string = tileNumber + rotation;
         tileInformationDiv.attr("class", "information");
         tileInformationDiv.html(string);
