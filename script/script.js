@@ -72,7 +72,7 @@ class Tile {
         nextConnections[i] = (connections[(i + 6) % 8] + 2) % 8;
       }
       let nextTile = new Tile(this.number, this.symmetry, nextConnections);
-      nextTile.rotation = (this.rotation + 1) % 4;
+      nextTile.rotation = (this.rotation + 1) % this.symmetry;
       nextTile = nextTile.rotate(rotation - 1);
       return nextTile;
     } else {
@@ -271,7 +271,7 @@ class RecordEntry {
       let row = ROW_SYMBOLS[Math.floor(this.tilePosition / 6)];
       let column = COLUMN_SYMBOLS[this.tilePosition % 6];
       let tileNumber = this.tileNumber;
-      let rotation = ROTATION_SYMBOLS[this.rotation % TILES[this.tileNumber].symmetry];
+      let rotation = ROTATION_SYMBOLS[this.rotation];
       string += row + column + tileNumber + rotation;
       if (this.withdrawn)
         string += "*";
@@ -901,7 +901,7 @@ class Executor {
       if (this.nextHand) {
         let tileInformationDiv = $("<div>");
         let tileNumber = this.nextHand.number;
-        let rotation = ROTATION_SYMBOLS[this.nextHand.rotation % this.nextHand.symmetry];
+        let rotation = ROTATION_SYMBOLS[this.nextHand.rotation];
         let string = tileNumber + rotation;
         tileInformationDiv.attr("class", "information");
         tileInformationDiv.html(string);
