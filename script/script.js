@@ -12,32 +12,32 @@ class Stone {
   opposite() {
     let tilePosition = this.tilePosition;
     let edgePosition = this.edgePosition;
-    let nextTilePosition = null;
-    let nextEdgePosition = null;
+    let newTilePosition = null;
+    let newEdgePosition = null;
     if (edgePosition == 0 || edgePosition == 1) {
       if (tilePosition >= 6) {
-        nextTilePosition = tilePosition - 6;
-        nextEdgePosition = 5 - edgePosition;
+        newTilePosition = tilePosition - 6;
+        newEdgePosition = 5 - edgePosition;
       }
     } else if (edgePosition == 2 || edgePosition == 3) {
       if (tilePosition % 6 != 5) {
-        nextTilePosition = tilePosition + 1;
-        nextEdgePosition = 9 - edgePosition;
+        newTilePosition = tilePosition + 1;
+        newEdgePosition = 9 - edgePosition;
       }
     } else if (edgePosition == 4 || edgePosition == 5) {
       if (tilePosition <= 29) {
-        nextTilePosition = tilePosition + 6;
-        nextEdgePosition = 5 - edgePosition;
+        newTilePosition = tilePosition + 6;
+        newEdgePosition = 5 - edgePosition;
       }
     } else if (edgePosition == 6 || edgePosition == 7) {
       if (tilePosition % 6 != 0) {
-        nextTilePosition = tilePosition - 1;
-        nextEdgePosition = 9 - edgePosition;
+        newTilePosition = tilePosition - 1;
+        newEdgePosition = 9 - edgePosition;
       }
     }
-    if (nextTilePosition != null && nextEdgePosition != null) {
-      let nextStone = new Stone(this.number, nextTilePosition, nextEdgePosition);
-      return nextStone;
+    if (newTilePosition != null && newEdgePosition != null) {
+      let newStone = new Stone(this.number, newTilePosition, newEdgePosition);
+      return newStone;
     } else {
       return null;
     }
@@ -59,22 +59,22 @@ class Tile {
   // 石のタイル位置を変化しません。
   movedStone(stone) {
     let edgePosition = stone.edgePosition;
-    let nextEdgePosition = this.connections[edgePosition];
-    let nextStone = new Stone(stone.number, stone.tilePosition, nextEdgePosition);
-    return nextStone;
+    let newEdgePosition = this.connections[edgePosition];
+    let newStone = new Stone(stone.number, stone.tilePosition, newEdgePosition);
+    return newStone;
   }
 
   rotate(rotation = 1) {
     if (rotation > 0) {
       let connections = this.connections;
-      let nextConnections = new Array(8);
+      let newConnections = new Array(8);
       for (let i = 0 ; i < 8 ; i ++) {
-        nextConnections[i] = (connections[(i + 6) % 8] + 2) % 8;
+        newConnections[i] = (connections[(i + 6) % 8] + 2) % 8;
       }
-      let nextTile = new Tile(this.number, this.symmetry, nextConnections);
-      nextTile.rotation = (this.rotation + 1) % this.symmetry;
-      nextTile = nextTile.rotate(rotation - 1);
-      return nextTile;
+      let newTile = new Tile(this.number, this.symmetry, newConnections);
+      newTile.rotation = (this.rotation + 1) % this.symmetry;
+      newTile = newTile.rotate(rotation - 1);
+      return newTile;
     } else {
       return this;
     }
@@ -90,11 +90,11 @@ class Board {
   }
 
   place(tile, tilePosition) {
-    let nextTiles = this.tiles.concat();
-    let nextBoard = new Board();
-    nextTiles[tilePosition] = tile;
-    nextBoard.tiles = nextTiles;
-    return nextBoard;
+    let newTiles = this.tiles.concat();
+    let newBoard = new Board();
+    newTiles[tilePosition] = tile;
+    newBoard.tiles = newTiles;
+    return newBoard;
   }
 
   isEmpty(tilePosition) {
@@ -114,12 +114,12 @@ class Board {
   // 石が盤外に出てしまう場合は null を返します。
   movedStone(stone) {
     let tiles = this.tiles;
-    let nextStone = stone;
-    while (nextStone && tiles[nextStone.tilePosition]) {
-      let tile = tiles[nextStone.tilePosition];
-      nextStone = tile.movedStone(nextStone).opposite();
+    let newStone = stone;
+    while (newStone && tiles[newStone.tilePosition]) {
+      let tile = tiles[newStone.tilePosition];
+      newStone = tile.movedStone(newStone).opposite();
     }
-    return nextStone;
+    return newStone;
   }
 
 }
@@ -246,10 +246,10 @@ class History {
 
 class RecordEntry {
 
-  constructor(elapsedTime, type, tileNumber, rotation, tilePosition, round, withdrawn=false) {
+  constructor(elapsedTime, type, number, rotation, tilePosition, round, withdrawn=false) {
     this.elapsedTime = elapsedTime;
     this.type = type;
-    this.tileNumber = tileNumber;
+    this.number = number;
     this.rotation = rotation;
     this.withdrawn = withdrawn;
     this.tilePosition = tilePosition;
@@ -270,9 +270,9 @@ class RecordEntry {
         string += this.round + ": ";
       let row = ROW_SYMBOLS[Math.floor(this.tilePosition / 6)];
       let column = COLUMN_SYMBOLS[this.tilePosition % 6];
-      let tileNumber = this.tileNumber;
+      let number = this.number;
       let rotation = ROTATION_SYMBOLS[this.rotation];
-      string += row + column + tileNumber + rotation;
+      string += row + column + number + rotation;
       if (this.withdrawn)
         string += "*";
     }
@@ -289,8 +289,8 @@ class RecordEntry {
 
   action(tsuro){
     if (this.type == 0 && !this.withdrawn) {
-      let tile = TILES[this.tileNumber];
-      tsuro.nextHand = tile;
+      let tile = TILES[this.number];
+      tsuro.nextTile = tile;
       let result = tsuro.place(tile.rotate(this.rotation), this.tilePosition);
       if (!result) {
         throw new Error("Invalid Move");
@@ -308,8 +308,8 @@ class Record {
     this.entries = [];
   }
 
-  place(tileNumber, rotation, tilePosition, round, elapsedTime, withdrawn=false) {
-    let entry = new RecordEntry(elapsedTime, 0, tileNumber, rotation, tilePosition, round, withdrawn);
+  place(number, rotation, tilePosition, round, elapsedTime, withdrawn=false) {
+    let entry = new RecordEntry(elapsedTime, 0, number, rotation, tilePosition, round, withdrawn);
     this.entries.push(entry);
   }
 
@@ -358,20 +358,20 @@ class Record {
           let row = ROW_SYMBOLS.indexOf(match[3]);
           let column = COLUMN_SYMBOLS.indexOf(match[4]);
           let tilePosition = row * 6 + column;
-          let tileNumber = parseInt(match[5]);
+          let number = parseInt(match[5]);
           let rotation = ROTATION_SYMBOLS.indexOf(match[6]);
           let withdrawn = !!match[7];
-          if (0 <= tilePosition && tilePosition < 36 && tileNumber < TILES.length && rotation >= 0)
-            record.place(tileNumber, rotation, tilePosition, round, elapsedTime, withdrawn);
+          if (0 <= tilePosition && tilePosition < 36 && number < TILES.length && rotation >= 0)
+            record.place(number, rotation, tilePosition, round, elapsedTime, withdrawn);
           else
             throw new Error("Invalid Record");
         }
       } else {
         //ここの意図がよくわからない（下位互換性？）
-        let tileNumber = parseInt(match[10]);
-        let tile = TILES[tileNumber];
+        let number = parseInt(match[10]);
+        let tile = TILES[number];
         unusedTiles = unusedTiles.filter((tile) => {
-          return tile.number != tileNumber;
+          return tile.number != number;
         });
       }
     }
@@ -394,7 +394,7 @@ class Random {
   }
 
   //0～n-1までの乱数を返す。
-  next(n) {
+  new(n) {
     let t;
     t = this.x ^ (this.x << 11);
     this.x = this.y; this.y = this.z; this.z = this.w;
@@ -437,7 +437,7 @@ class Tsuro {
       this.stones = result.stones;
       this.round ++;
       this.history.place(this.board, this.stones, tile, tilePosition);
-      if (this.finishDate == null && this.remainingHandSize <= 0) {
+      if (this.finishDate == null && this.deckSize <= 0) {
         this.finishDate = new Date();
       }
       return true;
@@ -485,18 +485,18 @@ class Tsuro {
   check(tile, tilePosition) {
     let board = this.board;
     if (tile && board.isEmpty(tilePosition) && board.isFacingStone(tilePosition, this.stones)) {
-      let nextBoard = this.board.place(tile, tilePosition);
-      let nextStones = new Array(this.stones.length);
+      let newBoard = this.board.place(tile, tilePosition);
+      let newStones = new Array(this.stones.length);
       for (let i = 0 ; i < this.stones.length ; i ++) {
         let stone = this.stones[i];
-        let nextStone = nextBoard.movedStone(stone);
-        if (nextStone != null) {
-          nextStones[i] = nextStone;
+        let newStone = newBoard.movedStone(stone);
+        if (newStone != null) {
+          newStones[i] = newStone;
         } else {
           return null;
         }
       }
-      return {board: nextBoard, stones: nextStones};
+      return {board: newBoard, stones: newStones};
     } else {
       return null;
     }
@@ -522,10 +522,10 @@ class Tsuro {
     return false;
   }
 
-  get nextHand() {
-    //ifではなくwhileにしたのは、一度もnextHandにアクセスせずにターンを終了するとopenedTileが飛び飛びになってしまうのを避けるため
+  get nextTile() {
+    //ifではなくwhileにしたのは、一度もnextTileにアクセスせずにターンを終了するとopenedTileが飛び飛びになってしまうのを避けるため
     while (this.openedTiles.length <= this.round) {
-      let randomIndex = this.random.next(this.unusedTiles.length);
+      let randomIndex = this.random.new(this.unusedTiles.length);
       //ランダムに一枚引いて、openedの末尾に追加
       this.openedTiles.push(this.unusedTiles.splice(randomIndex, 1)[0]);
       if (this.unusedTiles.length <= 0) return null;
@@ -534,7 +534,7 @@ class Tsuro {
   }
 
   //次の手を強制的に決定（load用）
-  set nextHand(tile) {
+  set nextTile(tile) {
     //既に手が決定していた場合
     if(this.round < this.openedTiles.length){
        //決定した手と期待する手が同じなら問題ない。何もせず終了
@@ -554,14 +554,14 @@ class Tsuro {
     });
 
     //乱数のつじつまを合わせる
-    this.random.next(1);
+    this.random.new(1);
   }
 
-  get remainingHands() {
+  get deck() {
     return this.unusedTiles;
   }
 
-  get remainingHandSize() {
+  get deckSize() {
     return this.unusedTiles.length;
   }
 
@@ -598,7 +598,7 @@ class Executor {
       this.tsuro = new Tsuro(this.random);
       this.record = new Record();
     }
-    this.nextHand = this.tsuro.nextHand;
+    this.nextTile = this.tsuro.nextTile;
     this.hoveredTilePosition = null;
     this.beginDate = null;
     this.render();
@@ -623,8 +623,8 @@ class Executor {
   prepare() {
     this.prepareTiles();
     this.prepareStones();
-    this.prepareNextHand();
-    this.prepareRemainingHands();
+    this.prepareNextTile();
+    this.prepareDeck();
     this.prepareTimer();
     this.prepareCheckBoxes();
     this.init();
@@ -663,8 +663,8 @@ class Executor {
     }
   }
 
-  prepareRemainingHands() {
-    let remainingHandDiv = $("#remaining");
+  prepareDeck() {
+    let deckDiv = $("#deck");
     for (let i = 0 ; i < 35 ; i ++) {
       let tileDiv = $("<div>");
       let rowNumber = Math.floor(i / 6)
@@ -674,7 +674,7 @@ class Executor {
         tileDiv.attr("class", "tile");
       }
       tileDiv.attr("id", "tile-" + i);
-      remainingHandDiv.append(tileDiv);
+      deckDiv.append(tileDiv);
     }
   }
 
@@ -689,8 +689,8 @@ class Executor {
     }
   }
 
-  prepareNextHand() {
-    let tileDiv = $("#next-tile");
+  prepareNextTile() {
+    let tileDiv = $("#new-tile");
     tileDiv.on("mousedown", (event) => {
       this.rotate();
     });
@@ -731,7 +731,7 @@ class Executor {
     $("#show-suggest").on("change", (event) => {
       this.render();
     });
-    $("#show-remaining").on("change", (event) => {
+    $("#show-deck").on("change", (event) => {
       this.render();
     });
     $("#show-mask").on("change", (event) => {
@@ -743,16 +743,16 @@ class Executor {
   }
 
   place(tilePosition) {
-    let result = this.tsuro.place(this.nextHand, tilePosition);
+    let result = this.tsuro.place(this.nextTile, tilePosition);
     if (result) {
-      this.record.place(this.nextHand.number, this.nextHand.rotation, tilePosition, this.tsuro.round, this.elapsedTime);
-      this.nextHand = this.tsuro.nextHand;
+      this.record.place(this.nextTile.number, this.nextTile.rotation, tilePosition, this.tsuro.round, this.elapsedTime);
+      this.nextTile = this.tsuro.nextTile;
       }
     this.render();
   }
 
   rotate() {
-    this.nextHand = this.nextHand.rotate();
+    this.nextTile = this.nextTile.rotate();
     this.render();
   }
 
@@ -765,7 +765,7 @@ class Executor {
     let result = this.tsuro.undo();
     if (result) {
       this.record.undo(this.elapsedTime);
-      this.nextHand = this.tsuro.nextHand;
+      this.nextTile = this.tsuro.nextTile;
     }
     this.render();
   }
@@ -774,7 +774,7 @@ class Executor {
     let result = this.tsuro.redo();
     if (result) {
     this.record.redo(this.elapsedTime);
-      this.nextHand = this.tsuro.nextHand;
+      this.nextTile = this.tsuro.nextTile;
     }
     this.render();
   }
@@ -785,10 +785,10 @@ class Executor {
     this.renderHoveredTile();
     this.renderPlaceableTilePositions();
     this.renderInformation();
-    this.renderNextHand();
-    this.renderNextHandInformation();
-    this.renderRemainingHands();
-    this.renderRemainingHandSize();
+    this.renderNextTile();
+    this.renderNextTileInformation();
+    this.renderDeck();
+    this.renderDeckSize();
     this.renderButtons();
     this.renderRecord();
     this.renderSeed();
@@ -810,15 +810,15 @@ class Executor {
     }
   }
 
-  renderRemainingHands() {
-    let remainingHands = this.tsuro.remainingHands;
+  renderDeck() {
+    let deck = this.tsuro.deck;
     for (let i = 0 ; i < 35 ; i ++) {
-      let tileDiv = $("#remaining #tile-" + i);
+      let tileDiv = $("#deck #tile-" + i);
       tileDiv.empty();
     }
-    if ($("#show-remaining").is(":checked")) {
-      for (let tile of remainingHands) {
-        let tileDiv = $("#remaining #tile-" + tile.number);
+    if ($("#show-deck").is(":checked")) {
+      for (let tile of deck) {
+        let tileDiv = $("#deck #tile-" + tile.number);
         let tileTextureDiv = $("<div>");
         tileTextureDiv.attr("class", "background");
         tileTextureDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
@@ -841,20 +841,20 @@ class Executor {
   }
 
   renderHoveredTile() {
-    if (this.nextHand) {
+    if (this.nextTile) {
       let tilePosition = this.hoveredTilePosition;
       let tileDiv = $("#board #tile-" + tilePosition);
       let tileTextureDiv = $("<div>");
       tileTextureDiv.attr("class", "background hover");
-      tileTextureDiv.css("background-image", "url(\"image/" + (this.nextHand.number + 1) + ".png\")");
-      tileTextureDiv.css("transform", "rotate(" + (this.nextHand.rotation * 90) + "deg)");
+      tileTextureDiv.css("background-image", "url(\"image/" + (this.nextTile.number + 1) + ".png\")");
+      tileTextureDiv.css("transform", "rotate(" + (this.nextTile.rotation * 90) + "deg)");
       tileDiv.append(tileTextureDiv);
     }
   }
 
   renderPlaceableTilePositions() {
     if ($("#show-suggest").is(":checked")) {
-      let tilePositions = this.tsuro.placeableTilePositions(this.nextHand);
+      let tilePositions = this.tsuro.placeableTilePositions(this.nextTile);
       for (let tilePosition of tilePositions) {
         let tileDiv = $("#board #tile-" + tilePosition);
         let highlightDiv = $("<div>");
@@ -862,7 +862,7 @@ class Executor {
         tileDiv.append(highlightDiv);
       }
     }
-    if ($("#show-mask").is(":checked") && !this.tsuro.isPlaceable(this.nextHand) && this.tsuro.remainingHandSize > 0) {
+    if ($("#show-mask").is(":checked") && !this.tsuro.isPlaceable(this.nextTile) && this.tsuro.deckSize > 0) {
       $("#mask").css("display", "flex");
     } else {
       $("#mask").css("display", "none");
@@ -883,26 +883,26 @@ class Executor {
     }
   }
 
-  renderNextHand() {
-    let tileDiv = $("#next-tile");
+  renderNextTile() {
+    let tileDiv = $("#new-tile");
     tileDiv.empty();
-    if (this.nextHand) {
+    if (this.nextTile) {
       let tileTextureDiv = $("<div>");
       tileTextureDiv.attr("class", "background");
-      tileTextureDiv.css("background-image", "url(\"image/" + (this.nextHand.number + 1) + ".png\")");
-      tileTextureDiv.css("transform", "rotate(" + (this.nextHand.rotation * 90) + "deg)");
+      tileTextureDiv.css("background-image", "url(\"image/" + (this.nextTile.number + 1) + ".png\")");
+      tileTextureDiv.css("transform", "rotate(" + (this.nextTile.rotation * 90) + "deg)");
       tileDiv.append(tileTextureDiv);
     }
   }
 
-  renderNextHandInformation() {
+  renderNextTileInformation() {
     if ($("#show-information").is(":checked")) {
-      let tileDiv = $("#next-tile");
-      if (this.nextHand) {
+      let tileDiv = $("#new-tile");
+      if (this.nextTile) {
         let tileInformationDiv = $("<div>");
-        let tileNumber = this.nextHand.number;
-        let rotation = ROTATION_SYMBOLS[this.nextHand.rotation];
-        let string = tileNumber + rotation;
+        let number = this.nextTile.number;
+        let rotation = ROTATION_SYMBOLS[this.nextTile.rotation];
+        let string = number + rotation;
         tileInformationDiv.attr("class", "information");
         tileInformationDiv.html(string);
         tileDiv.append(tileInformationDiv);
@@ -910,10 +910,10 @@ class Executor {
     }
   }
 
-  renderRemainingHandSize() {
-    let remainingHandSize = this.tsuro.remainingHandSize;
-    let remainingHandSizeDiv = $("#remaining-size");
-    remainingHandSizeDiv.text(remainingHandSize);
+  renderDeckSize() {
+    let deckSize = this.tsuro.deckSize;
+    let deckSizeDiv = $("#deck-size");
+    deckSizeDiv.text(deckSize);
   }
 
   renderButtons() {
@@ -930,7 +930,7 @@ class Executor {
   }
 
   renderRecord() {
-    $("#history").val(this.record.toString(false));
+    $("#record").val(this.record.toString(false));
   }
 
   renderSeed() {

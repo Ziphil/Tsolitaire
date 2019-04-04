@@ -189,7 +189,7 @@ div.content div.right div.next-container div.number {
   padding: 0px;
 }
 
-div.content div.right div.next-container div.number div#remaining-size {
+div.content div.right div.next-container div.number div#deck-size {
   width: 75px;
   font: italic 700 64px "Alegreya";
   color: hsl(28, 54%, 33%);
@@ -199,7 +199,7 @@ div.content div.right div.next-container div.number div#remaining-size {
   font-feature-settings: "tnum";
 }
 
-div.content div.right div.next-container div#remaining {
+div.content div.right div.next-container div#deck {
   width: 150px;
   height: 150px;
   margin: 0px 0px 0px 20px;
@@ -211,17 +211,17 @@ div.content div.right div.next-container div#remaining {
   flex-shrink: 0;
 }
 
-div.content div.right div.next-container div#remaining div.tile {
+div.content div.right div.next-container div#deck div.tile {
   width: 25px;
   height: 25px;
   background-color: hsl(28, 80%, 98%);
 }
 
-div.content div.right div.next-container div#remaining div.tile.alternative {
+div.content div.right div.next-container div#deck div.tile.alternative {
   background-color: hsl(28, 80%, 97%);
 }
 
-div.content div.right div.next-container div#remaining div.tile div.background {
+div.content div.right div.next-container div#deck div.tile div.background {
   width: 25px;
   height: 25px;
   background-size: contain;
@@ -375,7 +375,7 @@ div.content div.right div.check input[type="checkbox"]:checked +label::after {
   content: "";
 }
 
-div.content div.right div.history {
+div.content div.right div.record {
   width: 100%;
   margin: 0px 0px 0px 0px;
   padding: 0px;
@@ -384,7 +384,7 @@ div.content div.right div.history {
   flex-basis: 700px;
 }
 
-div.content div.right div.history textarea {
+div.content div.right div.record textarea {
   width: 100%;
   height: 100%;
   margin: 0px 0px;

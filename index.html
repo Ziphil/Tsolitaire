@@ -28,9 +28,9 @@
             <div class="next-guide">Click to Rotate</div>
           </div>
           <div class="number">
-            <div id="remaining-size">35</div>
+            <div id="deck-size">35</div>
           </div>
-          <div id="remaining"></div>
+          <div id="deck"></div>
         </div>
         <div class="time">
           <div class="time-label">Time</div>
@@ -40,20 +40,20 @@
         </div>
         <div class="button">
           <input id="undo" type="button" value="Undo" onclick="executor.undo()">　<input id="redo" type="button" value="Redo" onclick="executor.redo()"><br>
-          <input class="large" type="button" value="Start Game" onclick="executor.start()">　<input class="large" type="button" value="Load Record" onclick="executor.load(false, $("#seed").val(), $("#history").val())"><br>
+          <input class="large" type="button" value="Start Game" onclick="executor.start()">　<input class="large" type="button" value="Load Record" onclick="executor.load(false, $("#seed").val(), $("#record").val())"><br>
           <button type="button" onclick="executor.tweet()">Tweet</button>
         </div>
         <div class="check">
           <div>
           <input type="checkbox" name="show-suggest" id="show-suggest" checked><label for="show-suggest">サジェスト表示<hr>Show suggestion</label><br>
-          <input type="checkbox" name="show-remaining" id="show-remaining" checked><label for="show-remaining">残りタイル表示<hr>Show remaining tiles</label><br>
+          <input type="checkbox" name="show-deck" id="show-deck" checked><label for="show-deck">残りタイル表示<hr>Show deck tiles</label><br>
           <input type="checkbox" name="show-mask" id="show-mask" checked><label for="show-mask">ゲームオーバー表示<hr>Show gameover overlay</label><br>
           <input type="checkbox" name="show-information" id="show-information"><label for="show-information">タイル情報表示<hr>Show tile information</label>
         </div>
         </div>
-        <div class="history">
+        <div class="record">
           <input type="text" id="seed"></input>
-          <textarea id="history"></textarea>
+          <textarea id="record"></textarea>
         </div>
       </div>
     </div>
