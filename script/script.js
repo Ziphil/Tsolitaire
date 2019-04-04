@@ -937,8 +937,9 @@ class Executor {
     }
   }
 
+
   renderRecord() {
-    $("#record-putput").val(this.record.toString(false));
+    $("#record-output").val(this.record.toString(false));
   }
 
   renderSeed() {
