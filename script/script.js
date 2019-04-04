@@ -419,7 +419,7 @@ class Random {
 
 class Tsuro {
 
-  constructor(seed) {
+  constructor(random) {
     this.unusedTiles = TILES.concat();
     this.openedTiles = [];
     this.stones = INITIAL_STONES;
@@ -427,7 +427,7 @@ class Tsuro {
     this.history = new History(this.board, this.stones);
     this.finishDate = null;
     this.round = 0;
-    this.random = new Random(seed);
+    this.random = random;
   }
 
   place(tile, tilePosition) {
@@ -588,12 +588,14 @@ class Executor {
       }
     }
     try {
-      this.tsuro = new Tsuro(seed);
+      this.random = new Random(seed);
+      this.tsuro = new Tsuro(this.random);
       this.record = Record.parse(record);
       this.record.play(this.tsuro);
     } catch {
-      alert("棋譜が異常です。新しいゲームを開始します。")
-      this.tsuro = new Tsuro();
+      alert("棋譜が異常です。新しいゲームを開始します。");
+      this.random = new Random(seed);
+      this.tsuro = new Tsuro(this.random);
       this.record = new Record();
     }
     this.nextHand = this.tsuro.nextHand;
@@ -932,7 +934,7 @@ class Executor {
   }
 
   renderSeed() {
-    $("#seed").val(this.tsuro.random.seed);
+    $("#seed").val(this.random.seed);
   }
 
   tweet() {
@@ -943,7 +945,7 @@ class Executor {
     let url = location.protocol + "//" + location.host + location.pathname;
     let option = "width=" + TWITTER_WIDTH + ",height=" + TWITTER_HEIGHT + ",menubar=no,toolbar=no,scrollbars=no";
     let href = "https://twitter.com/intent/tweet";
-    url += "?s=" + this.tsuro.random.seed + "&q=" + encodeURIComponent(string);
+    url += "?s=" + this.random.seed + "&q=" + encodeURIComponent(string);
     href += "?text=" + TWITTER_MESSAGE.replace(/%t/g, minute + ":" + second);
     href += "&url=" + encodeURIComponent(url);
     href += "&hashtags=" + TWITTER_HASHTAG;
