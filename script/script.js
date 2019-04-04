@@ -379,10 +379,47 @@ class Record {
   }
 }
 
+class Random {
+  constructor(seed) {
+    if(seed==undefined || seed=="") seed = Math.floor(Math.random()*4294967296);
+    this.seed = seed;
+
+    this.x = 123456789;
+    this.y = 362436069;
+    this.z = 521288629;
+
+    if(Number.isInteger(seed)) this.w = seed;
+    else if(!isNaN(parseInt(seed))) this.w = parseInt(seed);
+    else this.w = Random.hash(seed);
+  }
+
+  //0～n-1までの乱数を返す。
+  next(n) {
+    let t;
+    t = this.x ^ (this.x << 11);
+    this.x = this.y; this.y = this.z; this.z = this.w;
+    this.w = (this.w ^ (this.w >>> 19)) ^ (t ^ (t >>> 8));
+
+    //mod計算（0を足すのは-0が気持ち悪いから）
+    let value = this.w % n + 0;
+    if (value < 0) value += n;
+    return value;
+  }
+  //適当なHash
+  static hash(object) {
+    var string = object+"";
+    var hash=0;
+    for(var i=0; i<string.length; i+=2){
+      if(string.length == i+1) hash ^= string.charCodeAt(i)<<16;
+      else hash ^= (string.charCodeAt(i)<<16)+string.charCodeAt(i+1);
+    }
+    return hash;
+  }
+}
 
 class Tsuro {
 
-  constructor() {
+  constructor(seed) {
     this.unusedTiles = TILES.concat();
     this.openedTiles = [];
     this.stones = INITIAL_STONES;
@@ -390,6 +427,7 @@ class Tsuro {
     this.history = new History(this.board, this.stones);
     this.finishDate = null;
     this.round = 0;
+    this.random = new Random(seed);
   }
 
   place(tile, tilePosition) {
@@ -487,7 +525,7 @@ class Tsuro {
   get nextHand() {
     //ifではなくwhileにしたのは、一度もnextHandにアクセスせずにターンを終了するとopenedTileが飛び飛びになってしまうのを避けるため
     while (this.openedTiles.length <= this.round) {
-      let randomIndex = Math.floor(Math.random() * this.unusedTiles.length);
+      let randomIndex = this.random.next(this.unusedTiles.length);
       //ランダムに一枚引いて、openedの末尾に追加
       this.openedTiles.push(this.unusedTiles.splice(randomIndex, 1)[0]);
       if (this.unusedTiles.length <= 0) return null;
@@ -514,6 +552,9 @@ class Tsuro {
     this.unusedTiles = this.unusedTiles.filter((x)=>{
       return x.number != tile.number;
     });
+
+    //乱数のつじつまを合わせる
+    this.random.next(1);
   }
 
   get remainingHands() {
@@ -546,15 +587,16 @@ class Executor {
 
   load(force) {
     if (!force) {
-      let result = confirm("棋譜を読み込みます。");
+      let result = confirm("入力されている棋譜、シードを読み込みます。");
       if (!result) {
         return;
       }
     }
-    let string = $("#history").val();
+    let record = $("#history").val();
+    let seed = $("#seed").val();
     try {
-      this.tsuro = new Tsuro();
-      this.record = Record.parse(string);
+      this.tsuro = new Tsuro(seed);
+      this.record = Record.parse(record);
       this.record.play(this.tsuro);
     } catch {
       alert("棋譜が異常です。新しいゲームを開始します。")
@@ -755,6 +797,7 @@ class Executor {
     this.renderRemainingHandSize();
     this.renderButtons();
     this.renderRecord();
+    this.renderSeed();
   }
 
   renderTiles() {
@@ -894,6 +937,10 @@ class Executor {
 
   renderRecord() {
     $("#history").val(this.record.toString(false));
+  }
+
+  renderSeed() {
+    $("#seed").val(this.tsuro.random.seed);
   }
 
   tweet() {
