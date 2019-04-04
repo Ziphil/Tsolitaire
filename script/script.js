@@ -190,11 +190,39 @@ const TWITTER_HASHTAG = "Tsuro";
 
 class HistoryEntry {
 
-  constructor(board, stones, tile = null, tilePosition = null) {
+  constructor(board, stones, tile = null, tilePosition = null, round = null) {
     this.board = board;
     this.stones = stones;
     this.tile = tile;
     this.tilePosition = tilePosition;
+    this.round = round;
+  }
+
+  toHTML() {
+    let li = $("<li>")
+
+    let tileDiv = $("<div>");
+    tileDiv.attr("class", "tile");
+    if (this.tile) {
+      let tileTextureDiv = $("<div>");
+      tileTextureDiv.attr("class", "background");
+      tileTextureDiv.css("background-image", "url(\"image/" + (this.tile.number + 1) + ".png\")");
+      tileTextureDiv.css("transform", "rotate(" + (this.tile.rotation * 90) + "deg)");
+      tileDiv.append(tileTextureDiv);
+    }
+    li.append(tileDiv);
+
+    let dataDiv = $("<div>")
+    if(this.tilePosition && this.tile) {
+      let row = ROW_SYMBOLS[Math.floor(this.tilePosition / 6)];
+      let column = COLUMN_SYMBOLS[this.tilePosition % 6];
+      let number = this.tile.number;
+      let rotation = ROTATION_SYMBOLS[this.tile.rotation];
+      dataDiv.text(row + column + number + rotation);
+    }
+    li.append(dataDiv);
+
+    return li;
   }
 }
 
@@ -716,6 +744,9 @@ class Executor {
     $("#show-queue").on("change", (event) => {
       this.render();
     });
+    $("#show-history").on("change", (event) => {
+      this.render();
+    });
     $("#show-gameover").on("change", (event) => {
       this.render();
     });
@@ -772,6 +803,7 @@ class Executor {
     this.renderDeckSize();
     this.renderDeck();
     this.renderQueue();
+    this.renderHistory();
     this.renderButtons();
     this.renderRecord();
     this.renderSeed();
@@ -912,6 +944,19 @@ class Executor {
     queueDiv.children().eq(this.tsuro.round).addClass("next");
   }
 
+  renderHistory() {
+    let entries = this.tsuro.history.entries;
+    let historyUl = $("#history");
+    historyUl.empty();
+
+    if ($("#show-history").is(":checked")) {
+      for (let entry of entries) {
+        historyUl.append(entry.toHTML());
+      }
+    }
+    historyUl.children().eq(this.tsuro.round).addClass("next");
+  }
+
   renderDeckSize() {
     let deckSize = this.tsuro.deckSize;
     let deckSizeDiv = $("#deck-size");
@@ -930,7 +975,6 @@ class Executor {
       $("#redo").attr("class", "disabled")
     }
   }
-
 
   renderRecord() {
     $("#record-output").val(this.record.toString(false));

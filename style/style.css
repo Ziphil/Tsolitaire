@@ -223,7 +223,8 @@ div.content div.right div.next-container div#deck {
   flex-shrink: 0;
 }
 
-div.content div.right div.next-container div#deck div.tile {
+div.content div.right div.next-container div#deck div.tile,
+div.content div.right div.history ul#history li div.tile {
   width: 25px;
   height: 25px;
   background-color: hsl(28, 80%, 98%);
@@ -233,7 +234,8 @@ div.content div.right div.next-container div#deck div.tile.alternative {
   background-color: hsl(28, 80%, 97%);
 }
 
-div.content div.right div.next-container div#deck div.tile div.background {
+div.content div.right div.next-container div#deck div.tile div.background,
+div.content div.right div.history ul#history li div.tile div.background{
   width: 25px;
   height: 25px;
   background-size: contain;
@@ -338,6 +340,25 @@ div.content div.right div.button input[type="button"].large {
 div.content div.right div.button input[type="button"].disabled {
   background-color: hsl(240, 0%, 60%);
   box-shadow: 0px 4px 8px 0px hsla(240, 0%, 40%, 0.2);
+}
+
+div.content div.right div.history {
+  margin: 0px 0px 25px 0px;
+  padding: 20px 20px;
+  border-radius: 15px;
+  background-color: white;
+  box-shadow: 0px 4px 8px 0px hsla(0, 0%, 20%, 0.2);
+  display: block;
+  align-items: flex-end;
+  flex-grow: 1;
+  flex-shrink: 0;
+}
+
+div.content div.right div.history ul#history{
+}
+
+div.content div.right div.history ul#history li{
+  list-style: none;
 }
 
 div.content div#newgame-dialogue,
