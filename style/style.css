@@ -278,7 +278,7 @@ div.content div.right div.next-container div#queue div.tile div.background {
   background-size: contain;
 }
 
-div.content div.right div.time {
+div.content div.right div#timer {
   margin: 0px 0px 25px 0px;
   padding: 5px 20px;
   border-radius: 15px;
@@ -291,7 +291,7 @@ div.content div.right div.time {
   flex-shrink: 0;
 }
 
-div.content div.right div.time div.time-label {
+div.content div.right div#timer div.time-label {
   margin: 25px 20px 0px 0px;
   padding: 0px;
   font: italic 400 24px "Alegreya";
@@ -299,9 +299,9 @@ div.content div.right div.time div.time-label {
   line-height: 1;
 }
 
-div.content div.right div.time div#minute,
-div.content div.right div.time div.colon,
-div.content div.right div.time div#second {
+div.content div.right div#timer div#minute,
+div.content div.right div#timer div.colon,
+div.content div.right div#timer div#second {
   margin: 0px;
   padding: 0px;
   font: italic 700 64px "Alegreya";
@@ -310,7 +310,7 @@ div.content div.right div.time div#second {
   font-feature-settings: "tnum";
 }
 
-div.content div.right div.time div.colon {
+div.content div.right div#timer div.colon {
   margin: 0px 5px;
 }
 
