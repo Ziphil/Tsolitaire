@@ -600,7 +600,7 @@ class Executor {
     }
     this.nextTile = this.tsuro.nextTile;
     this.hoveredTilePosition = null;
-    this.beginDate = null;
+    this.beginDate = record=="" ? new Date() : null;
     this.render();
   }
 
