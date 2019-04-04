@@ -810,24 +810,6 @@ class Executor {
     }
   }
 
-  renderDeck() {
-    let deck = this.tsuro.deck;
-    for (let i = 0 ; i < 35 ; i ++) {
-      let tileDiv = $("#deck #tile-" + i);
-      tileDiv.empty();
-    }
-    if ($("#show-deck").is(":checked")) {
-      for (let tile of deck) {
-        let tileDiv = $("#deck #tile-" + tile.number);
-        let tileTextureDiv = $("<div>");
-        tileTextureDiv.attr("class", "background");
-        tileTextureDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
-        tileTextureDiv.css("transform", "rotate(" + (tile.rotation * 90) + "deg)");
-        tileDiv.append(tileTextureDiv);
-      }
-    }
-  }
-
   renderStones() {
     let stones = this.tsuro.stones;
     for (let i = 0 ; i < stones.length ; i ++) {
@@ -906,6 +888,24 @@ class Executor {
         tileInformationDiv.attr("class", "information");
         tileInformationDiv.html(string);
         tileDiv.append(tileInformationDiv);
+      }
+    }
+  }
+
+  renderDeck() {
+    let deck = this.tsuro.deck;
+    for (let i = 0 ; i < 35 ; i ++) {
+      let tileDiv = $("#deck #tile-" + i);
+      tileDiv.empty();
+    }
+    if ($("#show-deck").is(":checked")) {
+      for (let tile of deck) {
+        let tileDiv = $("#deck #tile-" + tile.number);
+        let tileTextureDiv = $("<div>");
+        tileTextureDiv.attr("class", "background");
+        tileTextureDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
+        tileTextureDiv.css("transform", "rotate(" + (tile.rotation * 90) + "deg)");
+        tileDiv.append(tileTextureDiv);
       }
     }
   }
