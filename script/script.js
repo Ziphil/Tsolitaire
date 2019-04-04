@@ -734,6 +734,9 @@ class Executor {
     $("#show-deck").on("change", (event) => {
       this.render();
     });
+    $("#show-queue").on("change", (event) => {
+      this.render();
+    });
     $("#show-mask").on("change", (event) => {
       this.render();
     });
