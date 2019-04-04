@@ -23,16 +23,24 @@
         <div id="gameover">Game Over</div>
       </div>
       <div class="right">
+        <div class="button">
+          <input type="button" value="New Game" onclick="$('#newgame-dialogue').css('display', 'flex')">
+          <input type="button" value="Settings" onclick="$('#settings-dialogue').css('display', 'flex')">
+          <input type="button" value="Share" onclick="$('#share-dialogue').css('display', 'flex')"><br>
+          <input id="undo" type="button" value="Undo" onclick="executor.undo()">　<input id="redo" type="button" value="Redo" onclick="executor.redo()">
+        </div>
         <div class="next-container">
-          <div class="next">
-            <div class="next-label">Next</div>
-            <div id="next-tile"></div>
-            <div class="next-guide">Click to Rotate</div>
+          <div class="deck-container">
+            <div class="next">
+              <div class="next-label">Next</div>
+              <div id="next-tile"></div>
+              <div class="next-guide">Click to Rotate</div>
+            </div>
+            <div class="number">
+              <div id="deck-size">35</div>
+            </div>
+            <div id="deck"></div>
           </div>
-          <div class="number">
-            <div id="deck-size">35</div>
-          </div>
-          <div id="deck"></div>
           <div id="queue"></div>
         </div>
         <div class="time">
@@ -41,11 +49,9 @@
           <div class="colon">:</div>
           <div id="second">00</div>
         </div>
-        <div class="button">
-          <input id="undo" type="button" value="Undo" onclick="executor.undo()">　<input id="redo" type="button" value="Redo" onclick="executor.redo()"><br>
-          <input type="button" value="New Game" onclick="$('#newgame-dialogue').css('display', 'flex')">
-          <input type="button" value="Settings" onclick="$('#settings-dialogue').css('display', 'flex')">
-          <input type="button" value="Share" onclick="$('#share-dialogue').css('display', 'flex')">
+        <div class="history">
+          <ul id="history">
+          </ul>
         </div>
       </div>
       <div id="newgame-dialogue">
@@ -60,6 +66,7 @@
         <input type="checkbox" name="show-suggest" id="show-suggest" checked><label for="show-suggest">サジェスト表示<hr>Show suggestion</label><br>
         <input type="checkbox" name="show-deck" id="show-deck" checked><label for="show-deck">残りタイル表示<hr>Show deck tiles</label><br>
         <input type="checkbox" name="show-queue" id="show-queue" checked><label for="show-queue">判明分タイル表示<hr>Show queue tiles</label><br>
+        <input type="checkbox" name="show-history" id="show-history" checked><label for="show-history">履歴表示<hr>Show history</label><br>
         <input type="checkbox" name="show-gameover" id="show-gameover" checked><label for="show-gameover">ゲームオーバー表示<hr>Show gameover overlay</label><br>
         <input type="checkbox" name="show-information" id="show-information"><label for="show-information">タイル情報表示<hr>Show tile information</label>
         <input type="button" value="Close" onclick="$('#settings-dialogue').css('display', 'none')">
