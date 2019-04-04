@@ -196,49 +196,43 @@ class HistoryEntry {
     this.tile = tile;
     this.tilePosition = tilePosition;
   }
-
 }
 
 
 class History {
 
   constructor(board, stones) {
-    this.undoEntries = [];
-    this.redoEntries = [];
-    this.currentEntry = new HistoryEntry(board, stones);
+    this.entries = [new HistoryEntry(board, stones)];
+    this.current = 0;
   }
 
   place(board, stones, tile = null, tilePosition = null) {
-    let entry = new HistoryEntry(board, stones, tile, tilePosition);
-    this.undoEntries.push(this.currentEntry);
-    this.redoEntries = [];
-    this.currentEntry = entry;
+    this.current++;
+    //current以降を削除
+    this.entries.splice(this.current);
+    this.entries.push(new HistoryEntry(board, stones, tile, tilePosition));
   }
 
   undo() {
     if (this.canUndo()) {
-      let entry = this.undoEntries.pop();
-      this.redoEntries.push(this.currentEntry);
-      this.currentEntry = entry;
-      return entry;
+      this.current--;
+      return this.entries[this.current];
     }
   }
 
   redo() {
     if (this.canRedo()) {
-      let entry = this.redoEntries.pop();
-      this.undoEntries.push(this.currentEntry);
-      this.currentEntry = entry;
-      return entry;
+      this.current++
+      return this.entries[this.current];
     }
   }
 
   canUndo() {
-    return this.undoEntries.length > 0;
+    return this.current > 0;
   }
 
   canRedo() {
-    return this.redoEntries.length > 0;
+    return this.current < this.entries.length - 1;
   }
 
 }
