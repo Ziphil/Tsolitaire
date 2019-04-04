@@ -938,11 +938,11 @@ class Executor {
   }
 
   renderRecord() {
-    $("#record").val(this.record.toString(false));
+    $("#record-putput").val(this.record.toString(false));
   }
 
   renderSeed() {
-    $("#seed").val(this.random.seed);
+    $("#seed-output").val(this.random.seed);
   }
 
   tweet() {
