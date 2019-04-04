@@ -907,7 +907,6 @@ class Executor {
       for (let tile of queue) {
         let tileDiv = $("<div>");
         tileDiv.attr("class", "tile");
-        if(tile.number == this.nextTile.number) tileDiv.addClass("next");
         let tileTextureDiv = $("<div>");
         tileTextureDiv.attr("class", "background");
         tileTextureDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
@@ -916,6 +915,7 @@ class Executor {
         queueDiv.append(tileDiv);
       }
     }
+    queueDiv.children().eq(this.tsuro.round).addClass("next");
   }
 
   renderDeckSize() {
