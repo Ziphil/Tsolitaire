@@ -40,7 +40,7 @@
         </div>
         <div class="button">
           <input id="undo" type="button" value="Undo" onclick="executor.undo()">　<input id="redo" type="button" value="Redo" onclick="executor.redo()"><br>
-          <input class="large" type="button" value="Start Game" onclick="executor.start()">　<input class="large" type="button" value="Load Record" onclick="executor.load()"><br>
+          <input class="large" type="button" value="Start Game" onclick="executor.start()">　<input class="large" type="button" value="Load Record" onclick="executor.load(false, $("#seed").val(), $("#history").val())"><br>
           <button type="button" onclick="executor.tweet()">Tweet</button>
         </div>
         <div class="check">

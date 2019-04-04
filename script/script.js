@@ -577,23 +577,16 @@ class Executor {
         return;
       }
     }
-    this.tsuro = new Tsuro();
-    this.nextHand = this.tsuro.nextHand;
-    this.hoveredTilePosition = null;
-    this.record = new Record();
-    this.beginDate = new Date();
-    this.render();
+    load(true);
   }
 
-  load(force) {
+  load(force, seed = "", record = "") {
     if (!force) {
       let result = confirm("入力されている棋譜、シードを読み込みます。");
       if (!result) {
         return;
       }
     }
-    let record = $("#history").val();
-    let seed = $("#seed").val();
     try {
       this.tsuro = new Tsuro(seed);
       this.record = Record.parse(record);
@@ -610,20 +603,19 @@ class Executor {
   }
 
   init() {
-    let string = null;
+    let seed = "";
+    let record = "";
     let pairs = location.search.substring(1).split("&");
     for (let pair of pairs) {
       let match;
       if ((match = pair.match(/q=(.+)/)) != null) {
-        string = decodeURIComponent(match[1]);
+        record = decodeURIComponent(match[1]);
+      }
+      if ((match = pair.match(/s=(.+)/)) != null) {
+        seed = decodeURIComponent(match[1]);
       }
     }
-    if (string != null) {
-      $("#history").val(string);
-      this.load(true);
-    } else {
-      this.start(true);
-    }
+    this.load(true, seed, record);
   }
 
   prepare() {
@@ -945,13 +937,13 @@ class Executor {
 
   tweet() {
     let string = this.record.toString(false);
-    let elapsedTime = this.tsuro.elapsedTime;
+    let elapsedTime = this.elapsedTime;
     let minute = ("0" + Math.floor(elapsedTime / 60)).slice(-2);
     let second = ("0" + (elapsedTime % 60)).slice(-2);
     let url = location.protocol + "//" + location.host + location.pathname;
     let option = "width=" + TWITTER_WIDTH + ",height=" + TWITTER_HEIGHT + ",menubar=no,toolbar=no,scrollbars=no";
     let href = "https://twitter.com/intent/tweet";
-    url += "?q=" + encodeURIComponent(string);
+    url += "?s=" + this.tsuro.random.seed + "&q=" + encodeURIComponent(string);
     href += "?text=" + TWITTER_MESSAGE.replace(/%t/g, minute + ":" + second);
     href += "&url=" + encodeURIComponent(url);
     href += "&hashtags=" + TWITTER_HASHTAG;
