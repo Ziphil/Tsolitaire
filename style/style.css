@@ -210,7 +210,7 @@ div.content div.right div.next-container div.number {
   padding: 0px;
 }
 
-div.content div.right div.next-container div.number div#deck-size {
+div.content div.right div.next-container div.number div#rest {
   width: 75px;
   font: italic 700 64px "Alegreya";
   color: hsl(28, 54%, 33%);
