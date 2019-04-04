@@ -18,7 +18,9 @@
 
     <div class="content">
       <div id="board">
-        <div id="mask">Game Over</div>
+        <div id="tiles"></div>
+        <div id="stones"></div>
+        <div id="gameover">Game Over</div>
       </div>
       <div class="right">
         <div class="next-container">
@@ -41,21 +43,33 @@
         </div>
         <div class="button">
           <input id="undo" type="button" value="Undo" onclick="executor.undo()">　<input id="redo" type="button" value="Redo" onclick="executor.redo()"><br>
-          <input class="large" type="button" value="Start Game" onclick="executor.start()">　<input class="large" type="button" value="Load Record" onclick="executor.load(false, $("#seed").val(), $("#record").val())"><br>
+          <input type="button" value="New Game" onclick="$('#newgame-dialogue').css('display', 'flex')">
+          <input type="button" value="Settings" onclick="$('#settings-dialogue').css('display', 'flex')">
+          <input type="button" value="Share" onclick="$('#share-dialogue').css('display', 'flex')">
+        </div>
+      </div>
+      <div id="newgame-dialogue">
+        <div>
+          seed:<input type="text" id="seed-input"></input><br>
+          record:<textarea id="record-input"></textarea><br>
+          <input class="large" type="button" value="Start Game" onclick="executor.load($('#seed-input').val(), $('#record-input').val())">
+          <input type="button" value="Cansel" onclick="$('#newgame-dialogue').css('display', 'none')">
+        </div>
+      </div>
+      <div id="settings-dialogue">
+        <input type="checkbox" name="show-suggest" id="show-suggest" checked><label for="show-suggest">サジェスト表示<hr>Show suggestion</label><br>
+        <input type="checkbox" name="show-deck" id="show-deck" checked><label for="show-deck">残りタイル表示<hr>Show deck tiles</label><br>
+        <input type="checkbox" name="show-queue" id="show-queue" checked><label for="show-queue">判明分タイル表示<hr>Show queue tiles</label><br>
+        <input type="checkbox" name="show-gameover" id="show-gameover" checked><label for="show-gameover">ゲームオーバー表示<hr>Show gameover overlay</label><br>
+        <input type="checkbox" name="show-information" id="show-information"><label for="show-information">タイル情報表示<hr>Show tile information</label>
+        <input type="button" value="Close" onclick="$('#settings-dialogue').css('display', 'none')">
+      </div>
+      <div id="share-dialogue">
+        <div>
+          <input type="text" id="seed" onclick="this.select()" readonly></input>
+          <textarea id="record" onclick="this.select()" readonly></textarea>
           <button type="button" onclick="executor.tweet()">Tweet</button>
-        </div>
-        <div class="check">
-          <div>
-          <input type="checkbox" name="show-suggest" id="show-suggest" checked><label for="show-suggest">サジェスト表示<hr>Show suggestion</label><br>
-          <input type="checkbox" name="show-deck" id="show-deck" checked><label for="show-deck">残りタイル表示<hr>Show deck tiles</label><br>
-          <input type="checkbox" name="show-queue" id="show-queue" checked><label for="show-queue">判明分タイル表示<hr>Show queue tiles</label><br>
-          <input type="checkbox" name="show-mask" id="show-mask" checked><label for="show-mask">ゲームオーバー表示<hr>Show gameover overlay</label><br>
-          <input type="checkbox" name="show-information" id="show-information"><label for="show-information">タイル情報表示<hr>Show tile information</label>
-        </div>
-        </div>
-        <div class="record">
-          <input type="text" id="seed"></input>
-          <textarea id="record"></textarea>
+          <input type="button" value="Close" onclick="$('#share-dialogue').css('display', 'none')">
         </div>
       </div>
     </div>
@@ -79,6 +93,5 @@
         </ul>
       </div>
     </div>
-
   </body>
 </html>

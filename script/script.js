@@ -570,23 +570,7 @@ class Tsuro {
 
 class Executor {
 
-  start(force) {
-    if (!force) {
-      let result = confirm("新しいゲームを開始します。");
-      if (!result) {
-        return;
-      }
-    }
-    this.load(true);
-  }
-
-  load(force, seed = "", record = "") {
-    if (!force) {
-      let result = confirm("入力されている棋譜、シードを読み込みます。");
-      if (!result) {
-        return;
-      }
-    }
+  load(seed = "", record = "") {
     try {
       this.random = new Random(seed);
       this.tsuro = new Tsuro(this.random);
@@ -602,6 +586,7 @@ class Executor {
     this.hoveredTilePosition = null;
     this.beginDate = record=="" ? new Date() : null;
     this.render();
+    $('#newgame-dialogue').css("display", "none");
   }
 
   init() {
@@ -617,7 +602,7 @@ class Executor {
         seed = decodeURIComponent(match[1]);
       }
     }
-    this.load(true, seed, record);
+    this.load(seed, record);
   }
 
   prepare() {
@@ -632,7 +617,7 @@ class Executor {
   }
 
   prepareTiles() {
-    let maskDiv = $("#mask");
+    let tilesDiv = $("#tiles");
     for (let i = 0 ; i < 36 ; i ++) {
       let j = i;
       let tileDiv = $("<div>");
@@ -659,7 +644,7 @@ class Executor {
       tileDiv.on("mouseleave", (event) => {
         this.hover(null);
       });
-      maskDiv.before(tileDiv);
+      tilesDiv.append(tileDiv);
     }
   }
 
@@ -679,13 +664,13 @@ class Executor {
   }
 
   prepareStones() {
-    let maskDiv = $("#mask");
+    let stonesDiv = $("#stones");
     for (let i = 0 ; i < 8 ; i ++) {
       let stoneDiv = $("<div>");
       stoneDiv.attr("class", "stone");
       stoneDiv.attr("id", "stone-" + i);
       stoneDiv.css("background-image", "url(\"image/" + (i + 37) + ".png\")");
-      maskDiv.before(stoneDiv);
+      stonesDiv.append(stoneDiv);
     }
   }
 
@@ -737,7 +722,7 @@ class Executor {
     $("#show-queue").on("change", (event) => {
       this.render();
     });
-    $("#show-mask").on("change", (event) => {
+    $("#show-gameover").on("change", (event) => {
       this.render();
     });
     $("#show-information").on("change", (event) => {
@@ -848,10 +833,10 @@ class Executor {
         tileDiv.append(highlightDiv);
       }
     }
-    if ($("#show-mask").is(":checked") && !this.tsuro.isPlaceable(this.nextTile) && this.tsuro.deckSize > 0) {
-      $("#mask").css("display", "flex");
+    if ($("#show-gameover").is(":checked") && !this.tsuro.isPlaceable(this.nextTile) && this.tsuro.deckSize > 0) {
+      $("#gameover").css("display", "flex");
     } else {
-      $("#mask").css("display", "none");
+      $("#gameover").css("display", "none");
     }
   }
 

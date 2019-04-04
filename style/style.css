@@ -70,7 +70,19 @@ div.content div#board {
   position: relative;
 }
 
-div.content div#board div.tile,
+div.content div#board div#tiles{
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  flex-grow: 0;
+  flex-shrink: 0;
+  position: relative;
+}
+
+div.content div#board div#tiles div.tile,
 div.content div.right div.next-container div.next div#next-tile {
   width: 100px;
   height: 100px;
@@ -78,12 +90,12 @@ div.content div.right div.next-container div.next div#next-tile {
   position: relative;
 }
 
-div.content div#board div.tile.alternative {
+div.content div#board div#tiles div.tile.alternative {
   background-color: hsl(28, 80%, 97%);
 }
 
-div.content div#board div.tile div.background,
-div.content div#board div.tile div.highlight,
+div.content div#board div#tiles div.tile div.background,
+div.content div#board div#tiles div.tile div.highlight,
 div.content div.right div.next-container div.next div#next-tile div.background {
   width: 100px;
   height: 100px;
@@ -93,12 +105,12 @@ div.content div.right div.next-container div.next div#next-tile div.background {
   z-index: 2;
 }
 
-div.content div#board div.tile div.background.hover {
+div.content div#board div#tiles div.tile div.background.hover {
   opacity: 0.2;
   z-index: 1;
 }
 
-div.content div#board div.tile div.information,
+div.content div#board div#tiles div.tile div.information,
 div.content div.right div.next-container div.next div#next-tile div.information {
   margin: 3px 0px 0px 5px;
   padding: 0px;
@@ -110,18 +122,18 @@ div.content div.right div.next-container div.next div#next-tile div.information 
   z-index: 3;
 }
 
-div.content div#board div.tile div.highlight {
+div.content div#board div#tiles div.tile div.highlight {
   background-color: hsla(180, 100%, 50%, 0.2);
 }
 
-div.content div#board div.stone {
+div.content div#board div#stones div.stone {
   width: 18px;
   height: 18px;
   position: absolute;
   z-index: 10;
 }
 
-div.content div#board div#mask {
+div.content div#board div#gameover {
   width: 700px;
   height: 700px;
   font: italic 700 64px "Alegreya";
@@ -129,7 +141,7 @@ div.content div#board div#mask {
   line-height: 1;
   border-radius: 15px;
   background-color: hsl(0, 0%, 0%, 0.5);
-  display: flex;
+  display: none;
   justify-content: center;
   align-items: center;
   position: absolute;
@@ -328,92 +340,46 @@ div.content div.right div.button input[type="button"].disabled {
   box-shadow: 0px 4px 8px 0px hsla(240, 0%, 40%, 0.2);
 }
 
-div.content div.right div.button button {
-  margin: 0px;
-  padding: 0px;
-  font: italic 400 18px "Alegreya";
-  color: rgb(0, 172, 237);
+div.content div#newgame-dialogue,
+div.content div#settings-dialogue,
+div.content div#share-dialogue {
+  color: white;
   line-height: 1;
-  border: none;
-  background: none;
-  cursor: pointer;
-  outline: none;
-}
-
-div.content div.right div.button button:before {
-  margin: 0px 5px 0px 0px;
-  font: 24px "Footer Icon";
-  content: "\F000";
-}
-
-div.content div.right div.check {
-  margin: 0px 0px 25px 0px;
-  padding: 0px;
-  display: flex;
+  border-radius: 15px;
+  background-color: hsl(0, 0%, 0%, 0.5);
+  display: none;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  flex-grow: 0;
-  flex-shrink: 0;
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  z-index: 20;
 }
 
-div.content div.right div.check hr {
-  width: 0px;
-  height: 1em;
-  margin: 0px 5px;
-  border: 0px;
-  border-right: 1px hsl(0, 0%, 90%) solid;
+div.content div#newgame-dialogue input[type="button"],
+div.content div#settings-dialogue input[type="button"],
+div.content div#share-dialogue input[type="button"]{
+  width: 100px;
+  height: 32px;
+  margin: 0px 0px 10px 0px;
+  padding: 0px;
+  font: italic 400 18px "Alegreya";
+  color: white;
+  line-height: 32px;
+  background-color: hsl(28, 54%, 33%);
+  border: none;
+  border-radius: 100px;
+  box-shadow: 0px 4px 8px 0px hsla(28, 74%, 22%, 0.2);
+  cursor: pointer;
+  outline: none;
   display: inline-block;
 }
 
-div.content div.right div.check input[type="checkbox"] {
-  display: none;
-}
-
-div.content div.right div.check input[type="checkbox"] +label {
-  margin: 0px;
-  padding: 0px 0px 0px 18px;
-  font: 14px "Times New Roman", "Times", "IPA P明朝", "IPA明朝", "ＭＳ Ｐ明朝", serif;
-  color: black;
-  line-height: 1.5;
-  position: relative;
-}
-
-div.content div.right div.check input[type="checkbox"] +label::before {
-  width: 15px;
-  height: 15px;
-  background-color: white;
-  border-radius: 50%;
-  box-shadow: 0px 1px 2px 0px hsla(0, 0%, 20%, 0.2) inset;
-  top: 0px;
-  left: 0px;
-  position: absolute;
-  display: block;
-  content: "";
-}
-
-div.content div.right div.check input[type="checkbox"]:checked +label::after {
-  width: 4px;
-  height: 8px;
-  border-bottom: 2px hsl(28, 54%, 33%) solid;
-  border-right: 2px hsl(28, 54%, 33%) solid;
-  transform: rotate(40deg);
-  top: 2px;
-  left: 4px;
-  position: absolute;
-  display: block;
-  content: "";
-}
-
-div.content div.right div.record {
-  width: 100%;
-  margin: 0px 0px 0px 0px;
-  padding: 0px;
-  flex-grow: 0;
-  flex-shrink: 1;
-  flex-basis: 700px;
-}
-
-div.content div.right div.record textarea {
+div.content div#newgame-dialogue textarea,
+div.content div#share-dialogue textarea {
   width: 100%;
   height: 100%;
   margin: 0px 0px;
@@ -427,7 +393,88 @@ div.content div.right div.record textarea {
   outline: none;
   resize: none;
   box-sizing: border-box;
+  display: inline-block;
+}
+
+div.content div#newgame-dialogue input[type="text"],
+div.content div#share-dialogue input[type="text"] {
+  margin: 0px 0px;
+  padding: 20px 20px;
+  font: 16px "Inconsolata", monospace;
+  line-height: 1.2;
+  background-color: white;
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0px 4px 8px 0px hsla(0, 0%, 20%, 0.2);
+  outline: none;
+  resize: none;
+  box-sizing: border-box;
+  display: inline-block;
+}
+
+div.content div#settings-dialogue hr {
+  width: 0px;
+  height: 1em;
+  margin: 0px 5px;
+  border: 0px;
+  border-right: 1px hsl(0, 0%, 90%) solid;
+  display: inline-block;
+}
+
+div.content div#settings-dialogue input[type="checkbox"] {
+  display: none;
+}
+
+div.content div#settings-dialogue input[type="checkbox"] +label {
+  margin: 0px;
+  padding: 0px 0px 0px 18px;
+  font: 14px "Times New Roman", "Times", "IPA P明朝", "IPA明朝", "ＭＳ Ｐ明朝", serif;
+  line-height: 1.5;
+  position: relative;
+}
+
+div.content div#settings-dialogue input[type="checkbox"] +label::before {
+  width: 15px;
+  height: 15px;
+  background-color: white;
+  border-radius: 50%;
+  box-shadow: 0px 1px 2px 0px hsla(0, 0%, 20%, 0.2) inset;
+  top: 0px;
+  left: 0px;
+  position: absolute;
   display: block;
+  content: "";
+}
+
+div.content div#settings-dialogue input[type="checkbox"]:checked +label::after {
+  width: 4px;
+  height: 8px;
+  border-bottom: 2px hsl(28, 54%, 33%) solid;
+  border-right: 2px hsl(28, 54%, 33%) solid;
+  transform: rotate(40deg);
+  top: 2px;
+  left: 4px;
+  position: absolute;
+  display: block;
+  content: "";
+}
+
+div.content div#share-dialogue button {
+  margin: 0px;
+  padding: 0px;
+  font: italic 400 18px "Alegreya";
+  color: rgb(0, 172, 237);
+  line-height: 1;
+  border: none;
+  background: none;
+  cursor: pointer;
+  outline: none;
+}
+
+div.content div#share-dialogue button:before {
+  margin: 0px 5px 0px 0px;
+  font: 24px "Footer Icon";
+  content: "\F000";
 }
 
 div.rule {
