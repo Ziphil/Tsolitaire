@@ -787,8 +787,9 @@ class Executor {
     this.renderInformation();
     this.renderNextTile();
     this.renderNextTileInformation();
-    this.renderDeck();
     this.renderDeckSize();
+    this.renderDeck();
+    this.renderQueue();
     this.renderButtons();
     this.renderRecord();
     this.renderSeed();
@@ -906,6 +907,25 @@ class Executor {
         tileTextureDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
         tileTextureDiv.css("transform", "rotate(" + (tile.rotation * 90) + "deg)");
         tileDiv.append(tileTextureDiv);
+      }
+    }
+  }
+
+  renderQueue() {
+    let queue = this.tsuro.openedTiles;
+    let queueDiv = $("#queue");
+    queueDiv.empty();
+    if ($("#show-queue").is(":checked")) {
+      for (let tile of queue) {
+        let tileDiv = $("<div>");
+        tileDiv.attr("class", "tile");
+        if(tile.number == this.nextTile.number) tileDiv.addClass("next");
+        let tileTextureDiv = $("<div>");
+        tileTextureDiv.attr("class", "background");
+        tileTextureDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
+        tileTextureDiv.css("transform", "rotate(" + (tile.rotation * 90) + "deg)");
+        tileDiv.append(tileTextureDiv);
+        queueDiv.append(tileDiv);
       }
     }
   }

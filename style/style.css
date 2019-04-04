@@ -227,6 +227,35 @@ div.content div.right div.next-container div#deck div.tile div.background {
   background-size: contain;
 }
 
+div.content div.right div.next-container div#queue {
+  width: 150px;
+  height: 150px;
+  margin: 0px 0px 0px 20px;
+  padding: 0px 0px 0px 20px;
+  border-left: 1px hsl(0, 0%, 90%) solid;
+  display: flex;
+  flex-wrap: wrap;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+div.content div.right div.next-container div#queue div.tile {
+  width: 25px;
+  height: 25px;
+  padding: 5px;
+  background-color: hsl(28, 80%, 98%);
+}
+
+div.content div.right div.next-container div#queue div.tile.next {
+  border: 2px solid hsl(60, 80%, 50%);
+}
+
+div.content div.right div.next-container div#queue div.tile div.background {
+  width: 25px;
+  height: 25px;
+  background-size: contain;
+}
+
 div.content div.right div.time {
   margin: 0px 0px 25px 0px;
   padding: 5px 20px;
