@@ -190,7 +190,7 @@ const TWITTER_HASHTAG = "Tsuro";
 
 class HistoryEntry {
 
-  constructor(board, stones, tile = null, tilePosition = null, round = null) {
+  constructor(board, stones, round = null, tile = null, tilePosition = null) {
     this.board = board;
     this.stones = stones;
     this.tile = tile;
@@ -225,6 +225,10 @@ class HistoryEntry {
     dataDiv.css("display", "inline-block");
     li.append(dataDiv);
 
+    li.on("click", (event)=>{
+      executor.jumpTo(this.round);
+    });
+
     return li;
   }
 }
@@ -233,15 +237,16 @@ class HistoryEntry {
 class History {
 
   constructor(board, stones) {
-    this.entries = [new HistoryEntry(board, stones)];
     this.current = 0;
+    this.entries = [];
+    this.entries.push(new HistoryEntry(board, stones, this.entries.length));
   }
 
   place(board, stones, tile = null, tilePosition = null) {
     this.current++;
     //current以降を削除
     this.entries.splice(this.current);
-    this.entries.push(new HistoryEntry(board, stones, tile, tilePosition));
+    this.entries.push(new HistoryEntry(board, stones, this.entries.length, tile, tilePosition));
   }
 
   undo() {
@@ -258,6 +263,13 @@ class History {
     }
   }
 
+  jumpTo(round){
+    if(this.canJumpTo(round)) {
+      this.current = round;
+      return this.entries[this.current];
+    }
+  }
+
   canUndo() {
     return this.current > 0;
   }
@@ -266,6 +278,9 @@ class History {
     return this.current < this.entries.length - 1;
   }
 
+  canJumpTo(round){
+    return round != this.current && 0 <= round && round < this.entries.length;
+  }
 }
 
 
@@ -489,6 +504,18 @@ class Tsuro {
       this.board = entry.board;
       this.stones = entry.stones;
       this.round ++;
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  jumpTo(round) {
+    let entry = this.history.jumpTo(round);
+    if (entry) {
+      this.board = entry.board;
+      this.stones = entry.stones;
+      this.round = round;
       return true;
     } else {
       return false;
@@ -786,6 +813,15 @@ class Executor {
     let result = this.tsuro.redo();
     if (result) {
     this.record.redo(this.elapsedTime);
+      this.nextTile = this.tsuro.nextTile;
+    }
+    this.render();
+  }
+
+  jumpTo(round) {
+    let result = this.tsuro.jumpTo(round);
+    if (result) {
+    //this.record.redo(this.elapsedTime);
       this.nextTile = this.tsuro.nextTile;
     }
     this.render();
