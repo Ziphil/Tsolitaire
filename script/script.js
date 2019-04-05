@@ -226,7 +226,8 @@ class HistoryEntry {
     li.append(dataDiv);
 
     li.on("click", (event)=>{
-      executor.jumpTo(this.round);
+      //まだ有効にはしない
+      //executor.jumpTo(this.round);
     });
 
     return li;
