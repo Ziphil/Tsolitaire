@@ -202,10 +202,10 @@ class HistoryEntry {
     let li = $("<li>")
 
     let tileDiv = $("<div>");
-    tileDiv.attr("class", "tile");
+    tileDiv.attr("class", "mini-tile");
     if (this.tile) {
       let tileTextureDiv = $("<div>");
-      tileTextureDiv.attr("class", "background");
+      tileTextureDiv.attr("class", "texture");
       tileTextureDiv.css("background-image", "url(\"image/" + (this.tile.number + 1) + ".png\")");
       tileTextureDiv.css("transform", "rotate(" + (this.tile.rotation * 90) + "deg)");
       tileDiv.append(tileTextureDiv);
@@ -699,9 +699,9 @@ class Executor {
       let tileDiv = $("<div>");
       let rowNumber = Math.floor(i / 6)
       if ((rowNumber % 2 == 0 && i % 2 == 0) || (rowNumber % 2 == 1 && i % 2 == 1)) {
-        tileDiv.attr("class", "tile alternative");
+        tileDiv.attr("class", "mini-tile alternative");
       } else {
-        tileDiv.attr("class", "tile");
+        tileDiv.attr("class", "mini-tile");
       }
       tileDiv.attr("id", "tile-" + i);
       deckDiv.append(tileDiv);
@@ -831,8 +831,7 @@ class Executor {
   render() {
     this.renderTiles();
     this.renderStones();
-    this.renderHoveredTile();
-    this.renderPlaceableTilePositions();
+    this.renderSuggest();
     this.renderInformation();
     this.renderNextTile();
     this.renderNextTileInformation();
@@ -852,10 +851,17 @@ class Executor {
       tileDiv.empty();
       if (tile) {
         let tileTextureDiv = $("<div>");
-        tileTextureDiv.attr("class", "background");
+        tileTextureDiv.attr("class", "texture");
         tileTextureDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
         tileTextureDiv.css("transform", "rotate(" + (tile.rotation * 90) + "deg)");
         tileDiv.append(tileTextureDiv);
+      }
+      else if (this.nextTile && i == this.hoveredTilePosition) {
+        let hoverTextureDiv = $("<div>");
+        hoverTextureDiv.attr("class", "texture hover");
+        hoverTextureDiv.css("background-image", "url(\"image/" + (this.nextTile.number + 1) + ".png\")");
+        hoverTextureDiv.css("transform", "rotate(" + (this.nextTile.rotation * 90) + "deg)");
+        tileDiv.append(hoverTextureDiv);
       }
     }
   }
@@ -867,31 +873,19 @@ class Executor {
       let top = Math.floor(stone.tilePosition / 6) * 100 + TOP_SHIFT[stone.edgePosition];
       let left = (stone.tilePosition % 6) * 100 + LEFT_SHIFT[stone.edgePosition];
       let stoneDiv = $("#stone-" + stone.number);
-      stoneDiv.css("top", (top + 50) + "px");
-      stoneDiv.css("left", (left + 50) + "px");
+      stoneDiv.css("top", top + "px");
+      stoneDiv.css("left", left + "px");
     }
   }
 
-  renderHoveredTile() {
-    if (this.nextTile) {
-      let tilePosition = this.hoveredTilePosition;
-      let tileDiv = $("#board #tile-" + tilePosition);
-      let tileTextureDiv = $("<div>");
-      tileTextureDiv.attr("class", "background hover");
-      tileTextureDiv.css("background-image", "url(\"image/" + (this.nextTile.number + 1) + ".png\")");
-      tileTextureDiv.css("transform", "rotate(" + (this.nextTile.rotation * 90) + "deg)");
-      tileDiv.append(tileTextureDiv);
-    }
-  }
-
-  renderPlaceableTilePositions() {
+  renderSuggest() {
     if ($("#show-suggest").is(":checked")) {
       let tilePositions = this.tsuro.placeableTilePositions(this.nextTile);
       for (let tilePosition of tilePositions) {
         let tileDiv = $("#board #tile-" + tilePosition);
-        let highlightDiv = $("<div>");
-        highlightDiv.attr("class", "highlight");
-        tileDiv.append(highlightDiv);
+        let suggestDiv = $("<div>");
+        suggestDiv.attr("class", "suggest");
+        tileDiv.append(suggestDiv);
       }
     }
     if ($("#show-gameover").is(":checked") && !this.tsuro.isPlaceable(this.nextTile) && this.tsuro.deck.length > 0) {
@@ -920,7 +914,7 @@ class Executor {
     tileDiv.empty();
     if (this.nextTile) {
       let tileTextureDiv = $("<div>");
-      tileTextureDiv.attr("class", "background");
+      tileTextureDiv.attr("class", "texture");
       tileTextureDiv.css("background-image", "url(\"image/" + (this.nextTile.number + 1) + ".png\")");
       tileTextureDiv.css("transform", "rotate(" + (this.nextTile.rotation * 90) + "deg)");
       tileDiv.append(tileTextureDiv);
@@ -952,7 +946,7 @@ class Executor {
     for (let tile of deck) {
       let tileDiv = $("#deck #tile-" + tile.number);
       let tileTextureDiv = $("<div>");
-      tileTextureDiv.attr("class", "background");
+      tileTextureDiv.attr("class", "texture");
       tileTextureDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
       tileTextureDiv.css("transform", "rotate(" + (tile.rotation * 90) + "deg)");
       tileDiv.append(tileTextureDiv);
@@ -968,9 +962,9 @@ class Executor {
 
     for (let tile of queue) {
       let tileDiv = $("<div>");
-      tileDiv.attr("class", "tile");
+      tileDiv.attr("class", "mini-tile");
       let tileTextureDiv = $("<div>");
-      tileTextureDiv.attr("class", "background");
+      tileTextureDiv.attr("class", "texture");
       tileTextureDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
       tileTextureDiv.css("transform", "rotate(" + (tile.rotation * 90) + "deg)");
       tileDiv.append(tileTextureDiv);

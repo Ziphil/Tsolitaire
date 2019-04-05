@@ -12,78 +12,89 @@
   </head>
   <body>
 
-    <div class="title">
-      Tsuro Solitaire
-    </div>
+    <h1>Tsuro Solitaire</h1>
 
-    <div class="content">
-      <div id="board">
-        <div id="tiles"></div>
-        <div id="stones"></div>
-        <div id="gameover">Game Over</div>
+    <div id="content">
+      <div class="card">
+        <div id="board">
+          <div id="tiles"></div>
+          <div id="stones"></div>
+          <div id="gameover">Game Over</div>
+        </div>
       </div>
-      <div class="right">
-        <div class="button">
+      <div id="right">
+        <div id="buttons">
           <input type="button" value="New Game" onclick="$('#newgame-dialogue').css('display', 'flex')">
           <input type="button" value="Settings" onclick="$('#settings-dialogue').css('display', 'flex')">
           <input type="button" value="Share" onclick="$('#share-dialogue').css('display', 'flex')"><br>
           <input id="undo" type="button" value="Undo" onclick="executor.undo()">　<input id="redo" type="button" value="Redo" onclick="executor.redo()">
         </div>
-        <div class="next-container">
-          <div class="deck-container">
-            <div class="next">
-              <div class="next-label">Next</div>
-              <div id="next-tile"></div>
-              <div class="next-guide">Click to Rotate</div>
+        <div id="next-container" class="card">
+          <div id="deck-container">
+            <div>
+              <h3>Next</h3>
+              <div id="next-tile" class="tile"></div>
+              <div id="next-guide">Click to Rotate</div>
             </div>
-            <div class="number">
+            <div id="number">
               <div id="rest">35</div>
             </div>
-            <div id="deck"></div>
+            <div>
+              <h3>Deck</h3>
+              <div id="deck"></div>
+            </div>
           </div>
-          <div id="queue"></div>
+          <div>
+            <h3>Queue</h3>
+            <div id="queue"></div>
+          </div>
         </div>
-        <div id="timer">
-          <div class="time-label">Time</div>
-          <div id="minute">00</div>
-          <div class="colon">:</div>
-          <div id="second">00</div>
+        <div id="timer" class="card">
+          <span id="minute">00</span>:<span id="second">00</span>
         </div>
-        <div id="history-wrapper">
+        <div id="history-wrapper" class="card">
+          <h3>History</h3>
           <ul id="history">
           </ul>
         </div>
       </div>
-      <div id="newgame-dialogue">
-        <div>
-          Seed:<input type="text" id="load-seed"></input><br>
-          Record:<textarea id="load-record"></textarea><br>
+      <div id="newgame-dialogue" class="mask modal">
+        <div class="card">
+          Seed<br>
+          <input type="text" id="load-seed"></input><br>
+          Record<br>
+          <textarea id="load-record"></textarea><br>
           <input class="large" type="button" value="Start Game" onclick="executor.load($('#load-seed').val(), $('#load-record').val())">
           <input type="button" value="Cansel" onclick="$('#newgame-dialogue').css('display', 'none')">
         </div>
       </div>
-      <div id="settings-dialogue">
-        <input type="checkbox" name="show-timer" id="show-timer" checked><label for="show-timer">タイマー表示<hr>Show timer</label><br>
-        <input type="checkbox" name="show-suggest" id="show-suggest" checked><label for="show-suggest">サジェスト表示<hr>Show suggestion</label><br>
-        <input type="checkbox" name="show-deck" id="show-deck" checked><label for="show-deck">残りタイル表示<hr>Show deck tiles</label><br>
-        <input type="checkbox" name="show-queue" id="show-queue" checked><label for="show-queue">判明分タイル表示<hr>Show queue tiles</label><br>
-        <input type="checkbox" name="show-history" id="show-history" checked><label for="show-history">履歴表示<hr>Show history</label><br>
-        <input type="checkbox" name="show-gameover" id="show-gameover" checked><label for="show-gameover">ゲームオーバー表示<hr>Show gameover overlay</label><br>
-        <input type="checkbox" name="show-information" id="show-information"><label for="show-information">タイル情報表示<hr>Show tile information</label>
-        <input type="button" value="Close" onclick="$('#settings-dialogue').css('display', 'none')">
+      <div id="settings-dialogue" class="mask modal">
+        <div class="card">
+          <input type="checkbox" name="show-timer" id="show-timer" checked><label for="show-timer">タイマー表示<hr>Show timer</label><br>
+          <input type="checkbox" name="show-suggest" id="show-suggest" checked><label for="show-suggest">サジェスト表示<hr>Show suggestion</label><br>
+          <input type="checkbox" name="show-deck" id="show-deck" checked><label for="show-deck">残りタイル表示<hr>Show deck tiles</label><br>
+          <input type="checkbox" name="show-queue" id="show-queue" checked><label for="show-queue">判明分タイル表示<hr>Show queue tiles</label><br>
+          <input type="checkbox" name="show-history" id="show-history" checked><label for="show-history">履歴表示<hr>Show history</label><br>
+          <input type="checkbox" name="show-gameover" id="show-gameover" checked><label for="show-gameover">ゲームオーバー表示<hr>Show gameover overlay</label><br>
+          <input type="checkbox" name="show-information" id="show-information"><label for="show-information">タイル情報表示<hr>Show tile information</label>
+          <input type="button" value="Close" onclick="$('#settings-dialogue').css('display', 'none')">
+        </div>
       </div>
-      <div id="share-dialogue">
-        <div>
-          Seed:<input type="text" id="share-seed" onclick="this.select()" readonly></input><br>
-          Record:<textarea id="share-record" onclick="this.select()" readonly></textarea><br>
-          Link:<input type="text" id="share-link" onclick="this.select()" readonly></input><br>
-          <button type="button" onclick="executor.tweet()">Tweet</button>
+      <div id="share-dialogue" class="mask modal">
+        <div class="card">
+          Seed<br>
+          <input type="text" id="share-seed" onclick="this.select()" readonly></input><br>
+          Record<br>
+          <textarea id="share-record" onclick="this.select()" readonly></textarea><br>
+          Link<br>
+          <input type="text" id="share-link" onclick="this.select()" readonly></input><br>
+          <button type="button" onclick="executor.tweet()" class="tweet">Tweet</button>
           <input type="button" value="Close" onclick="$('#share-dialogue').css('display', 'none')">
         </div>
       </div>
     </div>
 
-    <div class="rule">
+    <div id="rule">
       <div>
         <ul>
           <li>タイルを駒がある場所に置くと、 タイルに書かれた道に沿って駒が動きます。</li>
