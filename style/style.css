@@ -278,8 +278,8 @@ div.mini-tile.alternative {
 }
 
 div.mini-tile >div.texture {
-  width: 25px;
-  height: 25px;
+  width: 100%;
+  height: 100%;
   background-size: contain;
 }
 
@@ -313,6 +313,7 @@ div#content >div#mainboard-card {
   flex-direction: column;
   flex-grow: 0;
   flex-shrink: 0;
+  position: relative;
 }
 
 div#mainboard-card >div#board {
@@ -396,6 +397,7 @@ div#next-card >div#next-deck-container {
   margin: 0px;
   padding: 0px;
   display: flex;
+  align-items: flex-end;
   flex-flow: row nowrap;
   flex-grow: 0;
   flex-shrink: 0;
@@ -409,7 +411,10 @@ div#next-wrapper >div#next-tile {
   padding: 0px;
 }
 
-div#rest-round-wrapper {
+div#next-deck-container >div#rest-round-wrapper {
+}
+
+div#rest-round-wrapper >div#rest-round {
 }
 
 div#next-card div#rest-round {
@@ -484,6 +489,7 @@ div#history-card ul#history {
   height: 100%;
   width: 100%;
   overflow: hidden scroll;
+  position: relative;
 }
 
 ul#history li {
