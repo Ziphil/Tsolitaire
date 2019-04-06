@@ -387,13 +387,21 @@ div#next-card > div#rest-round {
   font-feature-settings: "tnum";
 }
 
-div#next-card > div#deck {
+div#next-deck-container > div#deck-wrapper {
+  
+}
+
+div#deck-wrapper > div#deck {
   width: 150px;
   height: 150px;
   display: flex;
   flex-wrap: wrap;
   flex-grow: 0;
   flex-shrink: 0;
+}
+
+div#next-card > div#queue-wrapper {
+
 }
 
 div#queue-wrapper > div#queue {
