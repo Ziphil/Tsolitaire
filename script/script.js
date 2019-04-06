@@ -151,9 +151,8 @@ class Random {
     let value = this.w % n + 0;
     if (value < 0) {
       value += n;
-    } else {
-      return value;
     }
+    return value;
   }
 
   static hash(object) {
