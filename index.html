@@ -25,9 +25,9 @@
       </div>
       <div id="right">
         <div id="buttons">
-          <button id="newgame-button">New Game</button>
-          <button id="settings-button">Settings</button>
-          <button id="share-button">Share</button></br>
+          <button id="newgame-button" class="top-row">New Game</button>
+          <button id="settings-button" class="top-row">Settings</button>
+          <button id="share-button" class="top-row">Share</button></br>
           <button id="undo-button">Undo</button>
           <button id="redo-button">Redo</button>
         </div>
@@ -62,43 +62,61 @@
       </div>
       <div id="newgame-dialogue" class="mask modal">
         <div class="card">
-          <div class="label">Seed</div>
-          <input type="text" id="load-seed"></input><br>
-          <div class="label">Load Record</div>
-          <textarea id="load-record"></textarea><br>
-          <button id="gamestart-button">Start Game</button>
-          <button onclick="executor.closeAnyDialogue()">Cancel</button>
+          <div class="input-group">
+            <div class="label">Seed</div>
+            <input type="text" id="load-seed"></input>
+          </div>
+          <div class="input-group">
+            <div class="label">Load Record</div>
+            <textarea id="load-record"></textarea>
+          </div>
+          <div class="button-group">
+            <button id="gamestart-button">Start Game</button>
+            <button onclick="executor.closeAnyDialogue()">Cancel</button>
+          </div>
         </div>
       </div>
       <div id="settings-dialogue" class="mask modal">
         <div class="card">
-          <input type="checkbox" name="show-timer" id="show-timer" checked>
-          <label for="show-timer">タイマー表示<hr class="pipe">Show timer</label><br>
-          <input type="checkbox" name="show-suggest" id="show-suggest" checked>
-          <label for="show-suggest">サジェスト表示<hr class="pipe">Show suggestion</label><br>
-          <input type="checkbox" name="show-deck" id="show-deck" checked>
-          <label for="show-deck">残りタイル表示<hr class="pipe">Show deck tiles</label><br>
-          <input type="checkbox" name="show-queue" id="show-queue" checked>
-          <label for="show-queue">判明分タイル表示<hr class="pipe">Show queue tiles</label><br>
-          <input type="checkbox" name="show-history" id="show-history" checked>
-          <label for="show-history">履歴表示<hr class="pipe">Show history</label><br>
-          <input type="checkbox" name="show-gameover" id="show-gameover" checked>
-          <label for="show-gameover">ゲームオーバー表示<hr class="pipe">Show gameover overlay</label><br>
-          <input type="checkbox" name="show-information" id="show-information">
-          <label for="show-information">タイル情報表示<hr class="pipe">Show tile information</label><br>
-          <button onclick="executor.closeAnyDialogue()">Close</button>
+          <div class="input-group">
+            <input type="checkbox" name="show-timer" id="show-timer" checked>
+            <label for="show-timer">タイマー表示<hr class="pipe">Show timer</label><br>
+            <input type="checkbox" name="show-suggest" id="show-suggest" checked>
+            <label for="show-suggest">サジェスト表示<hr class="pipe">Show suggestion</label><br>
+            <input type="checkbox" name="show-deck" id="show-deck" checked>
+            <label for="show-deck">残りタイル表示<hr class="pipe">Show deck tiles</label><br>
+            <input type="checkbox" name="show-queue" id="show-queue" checked>
+            <label for="show-queue">判明分タイル表示<hr class="pipe">Show queue tiles</label><br>
+            <input type="checkbox" name="show-history" id="show-history" checked>
+            <label for="show-history">履歴表示<hr class="pipe">Show history</label><br>
+            <input type="checkbox" name="show-gameover" id="show-gameover" checked>
+            <label for="show-gameover">ゲームオーバー表示<hr class="pipe">Show gameover overlay</label><br>
+            <input type="checkbox" name="show-information" id="show-information">
+            <label for="show-information">タイル情報表示<hr class="pipe">Show tile information</label>
+          </div>
+          <div class="button-group">
+            <button onclick="executor.closeAnyDialogue()">Close</button>
+          </div>
         </div>
       </div>
       <div id="share-dialogue" class="mask modal">
         <div class="card">
-          <div class="label">Seed</div>
-          <input type="text" id="share-seed" onclick="this.select()" readonly></input><br>
-          <div class="label">Record</div>
-          <textarea id="share-record" onclick="this.select()" readonly></textarea><br>
-          <div class="label">Link</div>
-          <input type="text" id="share-link" onclick="this.select()" readonly></input><br>
-          <button onclick="executor.tweet()" class="tweet">Tweet</button>
-          <button onclick="executor.closeAnyDialogue()">Close</button>
+          <div class="input-group">
+            <div class="label">Seed</div>
+            <input type="text" id="share-seed" onclick="this.select()" readonly></input>
+          </div>
+          <div class="input-group">
+            <div class="label">Record</div>
+            <textarea id="share-record" onclick="this.select()" readonly></textarea>
+          </div>
+          <div class="input-group">
+            <div class="label">Link</div>
+            <input type="text" id="share-link" onclick="this.select()" readonly></input>
+          </div>
+          <div class="button-group">
+            <button onclick="executor.tweet()" class="tweet">Tweet</button>
+            <button onclick="executor.closeAnyDialogue()">Close</button>
+          </div>
         </div>
       </div>
     </div>
