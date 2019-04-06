@@ -1087,14 +1087,14 @@ class Executor {
 
   renderButtons() {
     if (this.tsuro.canUndo()) {
-      $("#undo").attr("class", "");
+      $("#undo-button").attr("class", "");
     } else {
-      $("#undo").attr("class", "disabled")
+      $("#undo-button").attr("class", "disabled")
     }
     if (this.tsuro.canRedo()) {
-      $("#redo").attr("class", "");
+      $("#redo-button").attr("class", "");
     } else {
-      $("#redo").attr("class", "disabled")
+      $("#redo-button").attr("class", "disabled")
     }
   }
 
