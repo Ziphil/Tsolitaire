@@ -1039,7 +1039,10 @@ class Executor {
     for (let entry of entries) {
       historyUl.append(entry.toHTML());
     }
-    historyUl.children().eq(round).addClass("current");
+    let currentLi = historyUl.children().eq(round)
+    currentLi.addClass("current");
+    //current要素をhistoryの上から10pxの位置に表示るようスクロール
+    historyUl.scrollTop(historyUl.scrollTop() + currentLi.position().top - 10);
   }
 
   renderRest() {

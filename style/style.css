@@ -451,6 +451,7 @@ div#history-card ul#history{
   height: 100%;
   width: 100%;
   overflow: hidden scroll;
+  position: relative;
 }
 
 ul#history li{
