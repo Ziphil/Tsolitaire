@@ -373,11 +373,13 @@ class RecordEntry {
     return string;
   }
 
-  action(tsuro){
+  action(tsuro) {
     if (this.type == 0 && !this.withdrawn) {
       let tile = TILES[this.number];
       tsuro.dealer.nextTile = tile;
-      let result = tsuro.place(tile.rotate(this.rotation), this.tilePosition);
+      tsuro.nextTile = tile;
+      tsuro.rotateNextTile(this.rotation);
+      let result = tsuro.place(this.tilePosition);
       if (!result) {
         throw new Error("Invalid Move");
       }
@@ -508,16 +510,16 @@ class Tsuro {
     this.stones = INITIAL_STONES;
     this.board = new Board();
     this.dealer = new Dealer(seed);
+    this.history = new History(this.board, this.stones);
+    this.record = new Record();
+    this.finishDate = null;
+    this.beginDate = recordString=="" ? new Date() : null;
 
     if(seed==undefined || seed=="") seed = Math.floor(Math.random()*4294967296);
     this.seed = seed;
-    this.record = Record.parse(recordString);
-    this.record.play(this);
+    Record.parse(recordString).play(this);
 
     this.nextTile = this.dealer.nextTile;
-    this.history = new History(this.board, this.stones);
-    this.finishDate = null;
-    this.beginDate = recordString=="" ? new Date() : null;
   }
 
   place(tilePosition) {
@@ -588,8 +590,8 @@ class Tsuro {
     return this.history.canRedo();
   }
 
-  rotateNextTile() {
-    if(this.nextTile) this.nextTile = this.nextTile.rotate();
+  rotateNextTile(rotation) {
+    if(this.nextTile) this.nextTile = this.nextTile.rotate(rotation);
   }
 
   // nextTileを回転せずに特定の場所に置けるかどうかを調べます。
@@ -667,12 +669,12 @@ class Tsuro {
 class Executor {
 
   load(seed = "", recordString = "") {
-    try {
+    //try {
       this.tsuro = new Tsuro(seed, recordString);
-    } catch {
-      alert("棋譜が異常です。新しいゲームを開始します。");
-      this.tsuro = new Tsuro(seed, "");
-    }
+    //} catch {
+    //  alert("棋譜が異常です。新しいゲームを開始します。");
+    //  this.tsuro = new Tsuro(seed, "");
+    //}
     this.hoveredTilePosition = null;
     this.render();
     $('#newgame-dialogue').css("display", "none");
