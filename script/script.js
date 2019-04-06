@@ -708,8 +708,9 @@ class Executor {
   load(seed = "", recordString = "") {
     try {
       this.tsuro = new Tsuro(seed, recordString);
-    } catch {
+    } catch(e) {
       alert("棋譜が異常です。新しいゲームを開始します。\nWrong record data.");
+      console.log(e);
       this.tsuro = new Tsuro(seed, "");
     }
     this.hoveredTilePosition = null;
