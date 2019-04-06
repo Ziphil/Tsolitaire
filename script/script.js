@@ -907,6 +907,11 @@ class Executor {
     } else {
       $("#gameover").css("display", "none");
     }
+    if ($("#show-gameover").is(":checked") && this.tsuro.isGameclear()) {
+      $("#gameclear").css("display", "flex");
+    } else {
+      $("#gameclear").css("display", "none");
+    }
   }
 
   renderInformation() {
