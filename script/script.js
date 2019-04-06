@@ -124,6 +124,51 @@ class Board {
 
 }
 
+class Dealer {
+
+  constructor(seed) {
+    this.deck = TILES.concat();
+    this.queue = [];
+    this.round = 0;
+    this.random = new Random(seed);
+  }
+
+  get nextTile() {
+    //ifではなくwhileにしたのは、一度もnextTileにアクセスせずにターンを終了するとopenedTileが飛び飛びになってしまうのを避けるため
+    while (this.queue.length <= this.round) {
+      if (this.deck.length <= 0) return null;
+
+      let randomIndex = this.random.new(this.deck.length);
+      //ランダムに一枚引いて、openedの末尾に追加
+      this.queue.push(this.deck.splice(randomIndex, 1)[0]);
+    }
+    return this.queue[this.round];
+  }
+
+  //次の手を強制的に決定（load用）
+  set nextTile(tile) {
+    //既に手が決定していた場合
+    if(this.round < this.queue.length){
+       //決定した手と期待する手が同じなら問題ない。何もせず終了
+       if(this.queue[this.round].number == tile.number) return;
+       //そうでなければエラー
+       else throw new Error("Invalid operation");
+    }
+    //手前の手が未決定ならエラー（無理に設定するとopenedTileが飛び飛びになりそう）
+    if(this.queue.length < this.round) throw new Error("Invalid operation");
+    //queueとdeckでタイルが重複したり抜けたりしそうならエラー
+    if(this.queue.some(x=>x.number == tile.number)) throw new Error("Invalid operation");
+    if(this.deck.filter(x=>x.number == tile.number).length != 1) throw new Error("Invalid operation");
+
+    this.queue.push(tile);
+    this.deck = this.deck.filter((x)=>{
+      return x.number != tile.number;
+    });
+
+    //乱数のつじつまを合わせる
+    this.random.new(1);
+  }
+}
 
 const TILES = [
   new Tile(0, 1, [1, 0, 3, 2, 5, 4, 7, 6]),
@@ -331,7 +376,7 @@ class RecordEntry {
   action(tsuro){
     if (this.type == 0 && !this.withdrawn) {
       let tile = TILES[this.number];
-      tsuro.nextTile = tile;
+      tsuro.dealer.nextTile = tile;
       let result = tsuro.place(tile.rotate(this.rotation), this.tilePosition);
       if (!result) {
         throw new Error("Invalid Move");
@@ -409,11 +454,14 @@ class Record {
         }
       } else {
         //ここの意図がよくわからない（下位互換性？）
+        //deckが扱えなくなってしまったのでコメントアウト
+        /*
         let number = parseInt(match[10]);
         let tile = TILES[number];
         deck = deck.filter((tile) => {
           return tile.number != number;
         });
+        */
       }
     }
     return record;
@@ -422,9 +470,6 @@ class Record {
 
 class Random {
   constructor(seed) {
-    if(seed==undefined || seed=="") seed = Math.floor(Math.random()*4294967296);
-    this.seed = seed;
-
     this.x = 123456789;
     this.y = 362436069;
     this.z = 521288629;
@@ -459,28 +504,34 @@ class Random {
 }
 
 class Tsuro {
+  constructor(seed, recordString) {
+    if(seed==undefined || seed=="") seed = Math.floor(Math.random()*4294967296);
 
-  constructor(random) {
-    this.deck = TILES.concat();
-    this.queue = [];
     this.stones = INITIAL_STONES;
     this.board = new Board();
+    this.dealer = new Dealer(seed);
+    this.nextTile = this.dealer.nextTile;
     this.history = new History(this.board, this.stones);
+    this.seed = seed;
+    this.record = Record.parse(recordString);
+    this.record.play(this);
     this.finishDate = null;
-    this.round = 0;
-    this.random = random;
+    this.beginDate = recordString=="" ? new Date() : null;
   }
 
-  place(tile, tilePosition) {
-    let result = this.check(tile, tilePosition);
+  place(tilePosition) {
+    let result = this.check(tilePosition);
     if (result != null) {
       this.board = result.board;
       this.stones = result.stones;
-      this.round ++;
-      this.history.place(this.board, this.stones, tile, tilePosition);
-      if (this.finishDate == null && this.deck.length <= 0) {
+      this.dealer.round ++;
+      this.nextTile = this.dealer.nextTile;
+      this.history.place(this.board, this.stones, this.nextTile, tilePosition);
+      if (this.finishDate == null && this.dealer.deck.length <= 0) {
         this.finishDate = new Date();
       }
+
+      this.record.place(this.nextTile.number, this.nextTile.rotation, tilePosition, this.dealer.round, this.elapsedTime);
       return true;
     } else {
       return false;
@@ -492,7 +543,9 @@ class Tsuro {
     if (entry) {
       this.board = entry.board;
       this.stones = entry.stones;
-      this.round --;
+      this.dealer.round --;
+      this.nextTile = this.dealer.nextTile;
+      this.record.undo(this.elapsedTime);
       return true;
     } else {
       return false;
@@ -504,7 +557,9 @@ class Tsuro {
     if (entry) {
       this.board = entry.board;
       this.stones = entry.stones;
-      this.round ++;
+      this.dealer.round ++;
+      this.nextTile = this.dealer.nextTile;
+      this.record.redo(this.elapsedTime);
       return true;
     } else {
       return false;
@@ -516,7 +571,8 @@ class Tsuro {
     if (entry) {
       this.board = entry.board;
       this.stones = entry.stones;
-      this.round = round;
+      this.dealer.round = round;
+      //this.record.jumpTo(round, this.elapsedTime);
       return true;
     } else {
       return false;
@@ -531,14 +587,18 @@ class Tsuro {
     return this.history.canRedo();
   }
 
-  // 次に置くべきタイルを特定の場所に特定の回転で置けるかどうかを調べます。
+  rotateNextTile() {
+    if(nextTile) this.nextTile = this.nextTile.rotate();
+  }
+
+  // nextTileを回転せずに特定の場所に置けるかどうかを調べます。
   // 置けるのであれば、置いた後の盤面と石の状態を返します。
   // その場所に石が面していなかったり石が盤外に出てしまうなどの理由で置けない場合は、null を返します。
   // また、全てのタイルを置き切っていて次のタイルがない場合も、null を返します。
-  check(tile, tilePosition) {
+  check(tilePosition) {
     let board = this.board;
-    if (tile && board.isEmpty(tilePosition) && board.isFacingStone(tilePosition, this.stones)) {
-      let newBoard = this.board.place(tile, tilePosition);
+    if (this.nextTile && board.isEmpty(tilePosition) && board.isFacingStone(tilePosition, this.stones)) {
+      let newBoard = this.board.place(this.nextTile, tilePosition);
       let newStones = new Array(this.stones.length);
       for (let i = 0 ; i < this.stones.length ; i ++) {
         let stone = this.stones[i];
@@ -555,10 +615,11 @@ class Tsuro {
     }
   }
 
-  placeableTilePositions(tile) {
+  //回さずに置ける場所の配列を返します。
+  getSuggestPositions() {
     let tilePositions = [];
     for (let tilePosition = 0 ; tilePosition < 36 ; tilePosition ++) {
-      let result = this.check(tile, tilePosition);
+      let result = this.check(tilePosition);
       if (result != null) {
         tilePositions.push(tilePosition);
       }
@@ -566,88 +627,70 @@ class Tsuro {
     return tilePositions;
   }
 
-  isPlaceable(tile) {
-    for (let rotation = 0 ; rotation < 4 ; rotation ++) {
-      if (this.placeableTilePositions(tile.rotate(rotation)).length > 0) {
-        return true;
+  isGameover() {
+    if(!this.nextTile) return false;
+
+    let flag = false;
+    for (let tilePosition = 0 ; tilePosition < 36 ; tilePosition ++) {
+        //四回回さないと戻らないので、returnしちゃだめ
+        for (let rotation = 0 ; rotation < 4 ; rotation ++) {
+        this.nextTile = this.nextTile.rotate();
+        let result = this.check(tilePosition);
+        //成功したらflagをtrueに
+        flag = flag || result != null;
       }
     }
     return false;
   }
 
-  get nextTile() {
-    //ifではなくwhileにしたのは、一度もnextTileにアクセスせずにターンを終了するとopenedTileが飛び飛びになってしまうのを避けるため
-    while (this.queue.length <= this.round) {
-      let randomIndex = this.random.new(this.deck.length);
-      //ランダムに一枚引いて、openedの末尾に追加
-      this.queue.push(this.deck.splice(randomIndex, 1)[0]);
-      if (this.deck.length <= 0) return null;
-    }
-    return this.queue[this.round];
+  isGameclear() {
+    return !!this.nextTile;
   }
 
-  //次の手を強制的に決定（load用）
-  set nextTile(tile) {
-    //既に手が決定していた場合
-    if(this.round < this.queue.length){
-       //決定した手と期待する手が同じなら問題ない。何もせず終了
-       if(this.queue[this.round].number == tile.number) return;
-       //そうでなければエラー
-       else throw new Error("Invalid operation");
+  get elapsedTime() {
+    let beginDate = this.beginDate;
+    if (beginDate) {
+      let endDate = this.finishDate || new Date();
+      let elapsedTime = Math.floor((endDate.getTime() - beginDate.getTime()) / 1000);
+      if (elapsedTime > 3600) {
+        elapsedTime = 3600;
+      }
+      return elapsedTime;
+    } else {
+      return null;
     }
-    //手前の手が未決定ならエラー（無理に設定するとopenedTileが飛び飛びになりそう）
-    if(this.queue.length < this.round) throw new Error("Invalid operation");
-    //queueとdeckでタイルが重複したり抜けたりしそうならエラー
-    if(this.queue.some(x=>x.number == tile.number)) throw new Error("Invalid operation");
-    if(this.deck.filter(x=>x.number == tile.number).length != 1) throw new Error("Invalid operation");
-
-    this.queue.push(tile);
-    this.deck = this.deck.filter((x)=>{
-      return x.number != tile.number;
-    });
-
-    //乱数のつじつまを合わせる
-    this.random.new(1);
   }
-
 }
 
 
 class Executor {
 
-  load(seed = "", record = "") {
+  load(seed = "", recordString = "") {
     try {
-      this.random = new Random(seed);
-      this.tsuro = new Tsuro(this.random);
-      this.record = Record.parse(record);
-      this.record.play(this.tsuro);
+      this.tsuro = new Tsuro(seed, recordString);
     } catch {
       alert("棋譜が異常です。新しいゲームを開始します。");
-      this.random = new Random(seed);
-      this.tsuro = new Tsuro(this.random);
-      this.record = new Record();
+      this.tsuro = new Tsuro(seed, "");
     }
-    this.nextTile = this.tsuro.nextTile;
     this.hoveredTilePosition = null;
-    this.beginDate = record=="" ? new Date() : null;
     this.render();
     $('#newgame-dialogue').css("display", "none");
   }
 
   init() {
     let seed = "";
-    let record = "";
+    let recordString = "";
     let pairs = location.search.substring(1).split("&");
     for (let pair of pairs) {
       let match;
       if ((match = pair.match(/q=(.+)/)) != null) {
-        record = decodeURIComponent(match[1]);
+        recordString = decodeURIComponent(match[1]);
       }
       if ((match = pair.match(/s=(.+)/)) != null) {
         seed = decodeURIComponent(match[1]);
       }
     }
-    this.load(seed, record);
+    this.load(seed, recordString);
   }
 
   prepare() {
@@ -731,7 +774,7 @@ class Executor {
 
   prepareTimer() {
     setInterval(() => {
-      let elapsedTime = this.elapsedTime;
+      let elapsedTime = this.tsuro.elapsedTime;
       let minute = (elapsedTime != null) ? ("0" + Math.floor(elapsedTime / 60)).slice(-2) : "  ";
       let second = (elapsedTime != null) ? ("0" + (elapsedTime % 60)).slice(-2) : "  ";
       if ($("#minute").text() != minute) {
@@ -741,20 +784,6 @@ class Executor {
         $("#second").text(second);
       }
     }, 50);
-  }
-
-  get elapsedTime() {
-    let beginDate = this.beginDate;
-    if (beginDate) {
-      let endDate = this.finishDate || new Date();
-      let elapsedTime = Math.floor((endDate.getTime() - beginDate.getTime()) / 1000);
-      if (elapsedTime > 3600) {
-        elapsedTime = 3600;
-      }
-      return elapsedTime;
-    } else {
-      return null;
-    }
   }
 
   prepareCheckBoxes() {
@@ -783,16 +812,12 @@ class Executor {
   }
 
   place(tilePosition) {
-    let result = this.tsuro.place(this.nextTile, tilePosition);
-    if (result) {
-      this.record.place(this.nextTile.number, this.nextTile.rotation, tilePosition, this.tsuro.round, this.elapsedTime);
-      this.nextTile = this.tsuro.nextTile;
-      }
+    this.tsuro.place(tilePosition);
     this.render();
   }
 
   rotate() {
-    this.nextTile = this.nextTile.rotate();
+    this.tsuro.rotateNextTile();
     this.render();
   }
 
@@ -802,29 +827,17 @@ class Executor {
   }
 
   undo() {
-    let result = this.tsuro.undo();
-    if (result) {
-      this.record.undo(this.elapsedTime);
-      this.nextTile = this.tsuro.nextTile;
-    }
+    this.tsuro.undo();
     this.render();
   }
 
   redo() {
-    let result = this.tsuro.redo();
-    if (result) {
-    this.record.redo(this.elapsedTime);
-      this.nextTile = this.tsuro.nextTile;
-    }
+    this.tsuro.redo();
     this.render();
   }
 
   jumpTo(round) {
     let result = this.tsuro.jumpTo(round);
-    if (result) {
-    //this.record.redo(this.elapsedTime);
-      this.nextTile = this.tsuro.nextTile;
-    }
     this.render();
   }
 
@@ -856,11 +869,11 @@ class Executor {
         tileTextureDiv.css("transform", "rotate(" + (tile.rotation * 90) + "deg)");
         tileDiv.append(tileTextureDiv);
       }
-      else if (this.nextTile && i == this.hoveredTilePosition) {
+      else if (!this.tsuro.isGameclear() && i == this.hoveredTilePosition) {
         let hoverTextureDiv = $("<div>");
         hoverTextureDiv.attr("class", "texture hover");
-        hoverTextureDiv.css("background-image", "url(\"image/" + (this.nextTile.number + 1) + ".png\")");
-        hoverTextureDiv.css("transform", "rotate(" + (this.nextTile.rotation * 90) + "deg)");
+        hoverTextureDiv.css("background-image", "url(\"image/" + (this.tsuro.nextTile.number + 1) + ".png\")");
+        hoverTextureDiv.css("transform", "rotate(" + (this.tsuro.nextTile.rotation * 90) + "deg)");
         tileDiv.append(hoverTextureDiv);
       }
     }
@@ -879,8 +892,9 @@ class Executor {
   }
 
   renderSuggest() {
+    let nextTile = this.tsuro.nextTile;
     if ($("#show-suggest").is(":checked")) {
-      let tilePositions = this.tsuro.placeableTilePositions(this.nextTile);
+      let tilePositions = this.tsuro.getSuggestPositions();
       for (let tilePosition of tilePositions) {
         let tileDiv = $("#board #tile-" + tilePosition);
         let suggestDiv = $("<div>");
@@ -888,7 +902,7 @@ class Executor {
         tileDiv.append(suggestDiv);
       }
     }
-    if ($("#show-gameover").is(":checked") && !this.tsuro.isPlaceable(this.nextTile) && this.tsuro.deck.length > 0) {
+    if ($("#show-gameover").is(":checked") && !this.tsuro.isGameover() && this.tsuro.dealer.deck.length > 0) {
       $("#gameover").css("display", "flex");
     } else {
       $("#gameover").css("display", "none");
@@ -897,7 +911,7 @@ class Executor {
 
   renderInformation() {
     if ($("#show-information").is(":checked")) {
-      for (let entry of this.record.entries) {
+      for (let entry of this.tsuro.record.entries) {
         if (!entry.withdrawn) {
           let tileDiv = $("#board #tile-" + entry.tilePosition);
           let tileInformationDiv = $("<div>");
@@ -910,24 +924,26 @@ class Executor {
   }
 
   renderNextTile() {
+    let nextTile = this.tsuro.nextTile;
     let tileDiv = $("#next-tile");
     tileDiv.empty();
-    if (this.nextTile) {
+    if (nextTile) {
       let tileTextureDiv = $("<div>");
       tileTextureDiv.attr("class", "texture");
-      tileTextureDiv.css("background-image", "url(\"image/" + (this.nextTile.number + 1) + ".png\")");
-      tileTextureDiv.css("transform", "rotate(" + (this.nextTile.rotation * 90) + "deg)");
+      tileTextureDiv.css("background-image", "url(\"image/" + (nextTile.number + 1) + ".png\")");
+      tileTextureDiv.css("transform", "rotate(" + (nextTile.rotation * 90) + "deg)");
       tileDiv.append(tileTextureDiv);
     }
   }
 
   renderNextTileInformation() {
+    let nextTile = this.tsuro.nextTile;
     if ($("#show-information").is(":checked")) {
       let tileDiv = $("#next-tile");
-      if (this.nextTile) {
+      if (nextTile) {
         let tileInformationDiv = $("<div>");
-        let number = this.nextTile.number;
-        let rotation = ROTATION_SYMBOLS[this.nextTile.rotation];
+        let number = nextTile.number;
+        let rotation = ROTATION_SYMBOLS[nextTile.rotation];
         let string = number + rotation;
         tileInformationDiv.attr("class", "information");
         tileInformationDiv.html(string);
@@ -937,7 +953,7 @@ class Executor {
   }
 
   renderDeck() {
-    let deck = this.tsuro.deck;
+    let deck = this.tsuro.dealer.deck;
     for (let i = 0 ; i < 35 ; i ++) {
       let tileDiv = $("#deck #tile-" + i);
       tileDiv.empty();
@@ -956,7 +972,8 @@ class Executor {
   }
 
   renderQueue() {
-    let queue = this.tsuro.queue;
+    let queue = this.tsuro.dealer.queue;
+    let round = this.tsuro.dealer.round;
     let queueDiv = $("#queue");
     queueDiv.empty();
 
@@ -970,7 +987,7 @@ class Executor {
       tileDiv.append(tileTextureDiv);
       queueDiv.append(tileDiv);
     }
-    queueDiv.children().eq(this.tsuro.round).addClass("next");
+    queueDiv.children().eq(round).addClass("next");
 
     if ($("#show-queue").is(":checked")) queueDiv.css("display", "flex");
     else queueDiv.css("display", "none");
@@ -978,20 +995,21 @@ class Executor {
 
   renderHistory() {
     let entries = this.tsuro.history.entries;
+    let round = this.tsuro.dealer.round;
     let historyUl = $("#history");
     historyUl.empty();
 
     for (let entry of entries) {
       historyUl.append(entry.toHTML());
     }
-    historyUl.children().eq(this.tsuro.round).addClass("current");
+    historyUl.children().eq(round).addClass("current");
 
     if ($("#show-history").is(":checked")) $("#history-wrapper").css("display", "flex");
     else $("#history-wrapper").css("display", "none");
   }
 
   renderRest() {
-    let rest = 35 - this.tsuro.round;
+    let rest = 35 - this.tsuro.dealer.round;
     let restDiv = $("#rest");
     restDiv.text(rest);
   }
@@ -1010,13 +1028,13 @@ class Executor {
   }
 
   renderShareData() {
-    $("#share-record").val(this.record.toString(false));
-    $("#share-seed").val(this.random.seed);
+    $("#share-record").val(this.tsuro.record.toString(false));
+    $("#share-seed").val(this.tsuro.seed);
     $("#share-link").val(this.generateURL());
   }
 
   tweet() {
-    let elapsedTime = this.elapsedTime;
+    let elapsedTime = this.tsuro.elapsedTime;
     let minute = ("0" + Math.floor(elapsedTime / 60)).slice(-2);
     let second = ("0" + (elapsedTime % 60)).slice(-2);
     let url = this.generateURL();
@@ -1030,7 +1048,7 @@ class Executor {
 
   generateURL(){
     return location.protocol + "//" + location.host + location.pathname
-     + "?s=" + this.random.seed + "&q=" + encodeURIComponent(this.record.toString(false));
+     + "?s=" + this.tsuro.seed + "&q=" + encodeURIComponent(this.tsuro.record.toString(false));
   }
 
 }
