@@ -124,6 +124,41 @@ class Board {
 
 }
 
+class Random {
+  constructor(seed) {
+    this.x = 123456789;
+    this.y = 362436069;
+    this.z = 521288629;
+
+    if(Number.isInteger(seed)) this.w = seed;
+    else if(!isNaN(parseInt(seed))) this.w = parseInt(seed);
+    else this.w = Random.hash(seed);
+  }
+
+  //0～n-1までの乱数を返す。
+  next(n) {
+    let t;
+    t = this.x ^ (this.x << 11);
+    this.x = this.y; this.y = this.z; this.z = this.w;
+    this.w = (this.w ^ (this.w >>> 19)) ^ (t ^ (t >>> 8));
+
+    //mod計算（0を足すのは-0が気持ち悪いから）
+    let value = this.w % n + 0;
+    if (value < 0) value += n;
+    return value;
+  }
+  //適当なHash
+  static hash(object) {
+    var string = object+"";
+    var hash=0;
+    for(var i=0; i<string.length; i+=2){
+      if(string.length == i+1) hash ^= string.charCodeAt(i)<<16;
+      else hash ^= (string.charCodeAt(i)<<16)+string.charCodeAt(i+1);
+    }
+    return hash;
+  }
+}
+
 class Dealer {
 
   constructor(seed) {
@@ -470,41 +505,6 @@ class Record {
   }
 }
 
-class Random {
-  constructor(seed) {
-    this.x = 123456789;
-    this.y = 362436069;
-    this.z = 521288629;
-
-    if(Number.isInteger(seed)) this.w = seed;
-    else if(!isNaN(parseInt(seed))) this.w = parseInt(seed);
-    else this.w = Random.hash(seed);
-  }
-
-  //0～n-1までの乱数を返す。
-  next(n) {
-    let t;
-    t = this.x ^ (this.x << 11);
-    this.x = this.y; this.y = this.z; this.z = this.w;
-    this.w = (this.w ^ (this.w >>> 19)) ^ (t ^ (t >>> 8));
-
-    //mod計算（0を足すのは-0が気持ち悪いから）
-    let value = this.w % n + 0;
-    if (value < 0) value += n;
-    return value;
-  }
-  //適当なHash
-  static hash(object) {
-    var string = object+"";
-    var hash=0;
-    for(var i=0; i<string.length; i+=2){
-      if(string.length == i+1) hash ^= string.charCodeAt(i)<<16;
-      else hash ^= (string.charCodeAt(i)<<16)+string.charCodeAt(i+1);
-    }
-    return hash;
-  }
-}
-
 class Tsuro {
   constructor(seed, recordString) {
     this.stones = INITIAL_STONES;
@@ -618,18 +618,6 @@ class Tsuro {
     }
   }
 
-  //回さずに置ける場所の配列を返します。
-  getSuggestPositions() {
-    let tilePositions = [];
-    for (let tilePosition = 0 ; tilePosition < 36 ; tilePosition ++) {
-      let result = this.check(tilePosition);
-      if (result != null) {
-        tilePositions.push(tilePosition);
-      }
-    }
-    return tilePositions;
-  }
-
   isGameover() {
     if(!this.nextTile) return false;
 
@@ -648,6 +636,18 @@ class Tsuro {
 
   isGameclear() {
     return !this.nextTile;
+  }
+
+  //回さずに置ける場所の配列を返します。
+  getSuggestPositions() {
+    let tilePositions = [];
+    for (let tilePosition = 0 ; tilePosition < 36 ; tilePosition ++) {
+      let result = this.check(tilePosition);
+      if (result != null) {
+        tilePositions.push(tilePosition);
+      }
+    }
+    return tilePositions;
   }
 
   get elapsedTime() {
