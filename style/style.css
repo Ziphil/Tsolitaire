@@ -366,6 +366,7 @@ div#next-card > div#next-deck-container {
   padding: 0 0 20px 0;
   border-bottom: 1px hsl(0, 0%, 90%) solid;
   display: flex;
+  align-items: flex-end;
   flex-flow: row nowrap;
   flex-grow: 0;
   flex-shrink: 0;
