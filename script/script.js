@@ -194,19 +194,14 @@ class Dealer {
 
   // 次の手を強制的に決定します (load 用)。
   set nextTile(tile) {
-    // 既に手が決定していた場合
-    if (this.round < this.queue.length) {
-       // 決定した手と期待する手が同じなら問題ないので何もせず終了
-       if (this.queue[this.round].number == tile.number) {
-         return;
-       } else {
-         throw new Error("Invalid operation");
-       }
-    }
     // 手前の手が未決定ならエラー (無理に設定すると openedTile が飛び飛びになりそう)
     if (this.queue.length < this.round) {
       throw new Error("Invalid operation");
     }
+
+    //設定しようとしている以降の手を削除し、山に戻す
+    this.deck.push(...this.queue.splice(this.round));
+
     // queue と deck でタイルが重複したり抜けたりしそうならエラー
     if (this.queue.some(x => x.number == tile.number)) {
       throw new Error("Invalid operation");
@@ -214,10 +209,12 @@ class Dealer {
     if (this.deck.filter(x => x.number == tile.number).length != 1) {
       throw new Error("Invalid operation");
     }
+
     this.queue.push(tile);
     this.deck = this.deck.filter((x) => {
       return x.number != tile.number;
     });
+
     // 乱数のつじつまを合わせる
     this.random.next(1);
   }
@@ -426,10 +423,9 @@ class RecordEntry {
 
   action(tsuro) {
     if (this.type == 0 && !this.withdrawn) {
-      let tile = TILES[this.number];
+      let tile = TILES[this.number].rotate(this.rotation)
       tsuro.dealer.nextTile = tile;
       tsuro.nextTile = tile;
-      tsuro.rotateNextTile(this.rotation);
       let result = tsuro.place(this.tilePosition);
       if (!result) {
         throw new Error("Invalid Move");
@@ -571,18 +567,22 @@ class Tsuro {
     this.nextTile = this.dealer.nextTile;
   }
 
-  place(tilePosition) {
+  place(tilePosition, tile) {
     let result = this.check(tilePosition);
     if (result != null) {
+      // 記録はnextTile更新前にやる
+      this.history.place(this.board, this.stones, this.nextTile, tilePosition);
+      this.record.place(this.nextTile.number, this.nextTile.rotation, tilePosition, this.dealer.round, this.timer.count);
+
       this.board = result.board;
       this.stones = result.stones;
       this.dealer.round ++;
       this.nextTile = this.dealer.nextTile;
-      this.history.place(this.board, this.stones, this.nextTile, tilePosition);
+
+      // クリア判定はnextTile更新後にやる（nextTileを使っているので）
       if (this.isGameclear()) {
         this.timer.stop();
       }
-      this.record.place(this.nextTile.number, this.nextTile.rotation, tilePosition, this.dealer.round, this.timer.count);
       return true;
     } else {
       return false;
@@ -592,11 +592,12 @@ class Tsuro {
   undo() {
     let entry = this.history.undo();
     if (entry) {
+      this.record.undo(this.timer.count);
+
       this.board = entry.board;
       this.stones = entry.stones;
       this.dealer.round --;
       this.nextTile = this.dealer.nextTile;
-      this.record.undo(this.timer.count);
       return true;
     } else {
       return false;
@@ -606,11 +607,12 @@ class Tsuro {
   redo() {
     let entry = this.history.redo();
     if (entry) {
+      this.record.redo(this.timer.count);
+
       this.board = entry.board;
       this.stones = entry.stones;
       this.dealer.round ++;
       this.nextTile = this.dealer.nextTile;
-      this.record.redo(this.timer.count);
       return true;
     } else {
       return false;
@@ -620,10 +622,11 @@ class Tsuro {
   jumpTo(round) {
     let entry = this.history.jumpTo(round);
     if (entry) {
+      // this.record.jumpTo(round, this.timer.count);
+
       this.board = entry.board;
       this.stones = entry.stones;
       this.dealer.round = round;
-      // this.record.jumpTo(round, this.timer.count);
       return true;
     } else {
       return false;
@@ -638,9 +641,9 @@ class Tsuro {
     return this.history.canRedo();
   }
 
-  rotateNextTile(rotation) {
+  rotateNextTile() {
     if (this.nextTile) {
-      this.nextTile = this.nextTile.rotate(rotation);
+      this.nextTile = this.nextTile.rotate();
     }
   }
 
