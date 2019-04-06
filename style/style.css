@@ -307,8 +307,8 @@ div#content {
 }
 
 div#content >div#mainboard-card {
-  height: 660px;
-  width: 660px;
+  height: 700px;
+  width: 700px;
   display: flex;
   flex-direction: column;
   flex-grow: 0;
@@ -349,9 +349,6 @@ div#board >div#stones {
 
 div#mainboard-card >div#gameover,
 div#mainboard-card >div#gameclear {
-  width: 700px;
-  height: 700px;
-  margin: -20px -20px;
   font: italic 700 64px "Alegreya";
   color: white;
   line-height: 1;
@@ -360,7 +357,6 @@ div#mainboard-card >div#gameclear {
   display: none;
   justify-content: center;
   align-items: center;
-  position: absolute;
 }
 
 div#mainboard-card >div#gameclear {
