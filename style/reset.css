@@ -10,7 +10,7 @@ b, i,
 dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, figcaption, figure, 
+article, aside, canvas, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section, summary,
 time, mark, audio, video {
   margin: 0px;
@@ -20,6 +20,7 @@ time, mark, audio, video {
   font-size: 100%;
   vertical-align: baseline;
   background: transparent;
+  box-sizing: border-box;
 }
 
 body {
@@ -27,7 +28,7 @@ body {
 }
 
 article, aside, details, figcaption, figure,
-footer, header, hgroup, menu, nav, section { 
+footer, header, hgroup, menu, nav, section {
   display: block;
 }
 
@@ -61,7 +62,7 @@ ins {
 
 mark {
   background-color: #FF9;
-  color: #000; 
+  color: #000;
   font-style: normal;
   font-weight: normal;
 }
