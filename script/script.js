@@ -140,7 +140,7 @@ class Random {
     }
   }
 
-  // 0 ～ n－1 までの乱数を返します。
+  // 0 ～ n－1 の乱数を返します。
   next(n) {
     let t = this.x ^ (this.x << 11);
     this.x = this.y;
@@ -169,6 +169,7 @@ class Random {
   }
 
 }
+
 
 class Dealer {
 
@@ -218,6 +219,7 @@ class Dealer {
     // 乱数のつじつまを合わせる
     this.random.next(1);
   }
+
 }
 
 
@@ -432,8 +434,7 @@ class RecordEntry {
       }
     } else if (this.type == 1) {
       tsuro.undo();
-    }
-    else if (this.type == 2) {
+    } else if (this.type == 2) {
       tsuro.redo();
     }
   }
@@ -504,16 +505,6 @@ class Record {
             throw new Error("Invalid Record");
           }
         }
-      } else {
-        // ここの意図がよくわからない (下位互換性?)
-        // deck が扱えなくなってしまったのでコメントアウト
-        /*
-        let number = parseInt(match[10]);
-        let tile = TILES[number];
-        deck = deck.filter((tile) => {
-          return tile.number != number;
-        });
-        */
       }
     }
     return record;
@@ -521,11 +512,12 @@ class Record {
 
 }
 
+
 class Timer {
 
   constructor(flag) {
     this.finishDate = null;
-    this.beginDate = flag ? new Date() : null;
+    this.beginDate = (flag) ? new Date() : null;
   }
 
   stop() {
@@ -581,7 +573,7 @@ class Tsuro {
       this.dealer.round ++;
       this.nextTile = this.dealer.nextTile;
 
-      // クリア判定は nextTile 更新後にやる（nextTile を使っているので）
+      // クリア判定は nextTile 更新後にやる (nextTile を使っているので)
       if (this.isGameclear()) {
         this.timer.stop();
       }
@@ -705,6 +697,7 @@ class Tsuro {
     }
     return tilePositions;
   }
+
 }
 
 
@@ -713,9 +706,9 @@ class Executor {
   load(seed = "", recordString = "") {
     try {
       this.tsuro = new Tsuro(seed, recordString);
-    } catch(e) {
+    } catch (exception) {
       alert("棋譜が異常です。新しいゲームを開始します。\nWrong record data.");
-      console.log(e);
+      console.log(exception);
       this.tsuro = new Tsuro(seed, "");
     }
     this.hoveredTilePosition = null;
@@ -833,7 +826,7 @@ class Executor {
   }
 
   prepareEvents() {
-    $('[readonly]').on("click", (event)=>{
+    $("[readonly]").on("click", (event)=>{
       event.target.select();
     })
 
@@ -964,8 +957,7 @@ class Executor {
         tileTextureDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
         tileTextureDiv.css("transform", "rotate(" + (tile.rotation * 90) + "deg)");
         tileDiv.append(tileTextureDiv);
-      }
-      else if (!this.tsuro.isGameclear() && i == this.hoveredTilePosition) {
+      } else if (!this.tsuro.isGameclear() && i == this.hoveredTilePosition) {
         let hoverTextureDiv = $("<div>");
         hoverTextureDiv.attr("class", "texture hover");
         hoverTextureDiv.css("background-image", "url(\"image/" + (this.tsuro.nextTile.number + 1) + ".png\")");
@@ -1097,7 +1089,7 @@ class Executor {
     }
     let currentLi = historyUl.children().eq(round)
     currentLi.addClass("current");
-    //current要素をhistoryの上から10pxの位置に表示るようスクロール
+    // current 要素を history の上から 10px の位置に表示るようスクロール
     historyUl.scrollTop(historyUl.scrollTop() + currentLi.position().top - 10);
   }
 
