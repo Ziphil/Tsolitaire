@@ -677,6 +677,10 @@ class Tsuro {
 
 class Executor {
 
+  start() {
+    this.load($('#load-seed').val(), $('#load-record').val())
+  }
+
   load(seed = "", recordString = "") {
     try {
       this.tsuro = new Tsuro(seed, recordString);
@@ -711,7 +715,7 @@ class Executor {
     this.prepareNextTile();
     this.prepareDeck();
     this.prepareTimer();
-    this.prepareCheckBoxes();
+    this.prepareEvents();
     this.init();
     this.render();
   }
@@ -798,22 +802,25 @@ class Executor {
     }, 50);
   }
 
-  prepareCheckBoxes() {
+  prepareEvents() {
     $("#show-timer").on("change", (event) => {
-      if(event.target.checked) $("#timer").css("display", "flex");
-      else $("#timer").css("display", "none");
+      if(event.target.checked) $("#timer-card").css("display", "flex");
+      else $("#timer-card").css("display", "none");
     });
     $("#show-suggest").on("change", (event) => {
       this.render();
     });
     $("#show-deck").on("change", (event) => {
-      this.render();
+      if (event.target.checked) $("#deck-wrapper").css("display", "flex");
+      else $("#deck-wrapper").css("display", "none");
     });
     $("#show-queue").on("change", (event) => {
-      this.render();
+      if (event.target.checked) $("#queue-wrapper").css("display", "flex");
+      else $("#queue-wrapper").css("display", "none");
     });
     $("#show-history").on("change", (event) => {
-      this.render();
+      if (event.target.checked) $("#history-card").css("display", "flex");
+      else $("#history-card").css("display", "none");
     });
     $("#show-gameover").on("change", (event) => {
       this.render();
@@ -821,6 +828,23 @@ class Executor {
     $("#show-information").on("change", (event) => {
       this.render();
     });
+
+    $("#newgame-button").on("click", (event) => {
+       $("#newgame-dialogue").css("display", "flex");
+    })
+    $("#settings-button").on("click", (event) => {
+       $("#settings-dialogue").css("display", "flex");
+    })
+    $("#share-button").on("click", (event) => {
+       $("#share-dialogue").css("display", "flex");
+    })
+
+    $("#undo-button").on("click", (event) => {
+      this.undo();
+    });
+    $("#redo-button").on("click", (event) => {
+      this.redo();
+    })
   }
 
   place(tilePosition) {
@@ -984,8 +1008,6 @@ class Executor {
       tileTextureDiv.css("transform", "rotate(" + (tile.rotation * 90) + "deg)");
       tileDiv.append(tileTextureDiv);
     }
-    if ($("#show-deck").is(":checked")) $("#deck").css("display", "flex");
-    else $("#deck").css("display", "none");
   }
 
   renderQueue() {
@@ -1005,9 +1027,6 @@ class Executor {
       queueDiv.append(tileDiv);
     }
     queueDiv.children().eq(round).addClass("next");
-
-    if ($("#show-queue").is(":checked")) queueDiv.css("display", "flex");
-    else queueDiv.css("display", "none");
   }
 
   renderHistory() {
@@ -1020,9 +1039,6 @@ class Executor {
       historyUl.append(entry.toHTML());
     }
     historyUl.children().eq(round).addClass("current");
-
-    if ($("#show-history").is(":checked")) $("#history-wrapper").css("display", "flex");
-    else $("#history-wrapper").css("display", "none");
   }
 
   renderRest() {
@@ -1048,6 +1064,12 @@ class Executor {
     $("#share-record").val(this.tsuro.record.toString(false));
     $("#share-seed").val(this.tsuro.seed);
     $("#share-link").val(this.generateURL());
+  }
+
+  closeAnyDialogue() {
+    $("#newgame-dialogue").css("display", "none");
+    $("#settings-dialogue").css("display", "none");
+    $("#share-dialogue").css("display", "none");
   }
 
   tweet() {

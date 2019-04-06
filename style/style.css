@@ -182,6 +182,13 @@ div.card {
   box-shadow: 0px 4px 8px 0px hsla(0, 0%, 20%, 0.2);
 }
 
+div.guide {
+  font: italic 400 14px "Alegreya";
+  color: hsl(28, 54%, 33%);
+  line-height: 1;
+  text-align: center;
+}
+
 div.mask{
   background-color: hsl(0, 0%, 0%, 0.5);
   justify-content: center;
@@ -192,6 +199,7 @@ div.mask{
   right: 0px;
   bottom: 0px;
 }
+
 div.modal{
   line-height: 1;
   display: none;
@@ -293,7 +301,14 @@ div#board div#tiles{
   flex-wrap: wrap;
   flex-grow: 0;
   flex-shrink: 0;
-  position: relative;
+}
+
+div#board div#stones{
+  width: 0;
+  height: 0;
+  position: absolute;
+  top:0;
+  left:0;
 }
 
 div#gameover, div#gameclear {
@@ -315,7 +330,15 @@ div#right {
   flex-direction: column;
 }
 
-div#right div#next-container {
+div#right div#buttons {
+  margin: 0px 0px 25px 0px;
+  padding: 0px;
+  text-align: center;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+div#right div#next-card {
   margin: 0px 0px 25px 0px;
   display: flex;
   flex-flow: column nowrap;
@@ -323,7 +346,7 @@ div#right div#next-container {
   flex-shrink: 0;
 }
 
-div#next-container div#deck-container {
+div#next-card div#next-deck-container {
   margin: 0;
   padding: 20px 20px;
   display: flex;
@@ -332,19 +355,16 @@ div#next-container div#deck-container {
   flex-shrink: 0;
 }
 
-div#next-tile {
+div#next-deck-container div#next-wrapper {
+
+}
+
+div#next-wrapper div#next-tile {
   margin: 3px 0px 3px 0px;
   padding: 0px;
 }
 
-div#next-guide {
-  font: italic 400 14px "Alegreya";
-  color: hsl(28, 54%, 33%);
-  line-height: 1;
-  text-align: center;
-}
-
-div#next-container div#rest-round {
+div#next-card div#rest-round {
   margin: 0px 0px;
   padding: 0px;
   width: 75px;
@@ -356,7 +376,7 @@ div#next-container div#rest-round {
   font-feature-settings: "tnum";
 }
 
-div#next-container div#deck {
+div#next-card div#deck {
   width: 150px;
   height: 150px;
   display: flex;
@@ -365,7 +385,7 @@ div#next-container div#deck {
   flex-shrink: 0;
 }
 
-div#queue {
+div#queue-wrapper div#queue {
   width: 360px;
   display: flex;
   flex-wrap: wrap;
@@ -373,10 +393,11 @@ div#queue {
   flex-shrink: 0;
 }
 
-div#timer {
+div#timer-card {
   margin: 0px 0px 25px 0px;
   padding: 5px 20px;
-  display: block;
+  display: flex;
+  justify-content: center;
   flex-grow: 0;
   flex-shrink: 0;
   font: italic 700 64px "Alegreya";
@@ -386,15 +407,7 @@ div#timer {
   text-align: center;
 }
 
-div#buttons {
-  margin: 0px 0px 25px 0px;
-  padding: 0px;
-  text-align: center;
-  flex-grow: 0;
-  flex-shrink: 0;
-}
-
-div#history-wrapper {
+div#right div#history-card {
   flex-basis: 100px;
   margin: 0px 0px 25px 0px;
   display: flex;
@@ -403,7 +416,7 @@ div#history-wrapper {
   flex-shrink: 0;
 }
 
-div#history-wrapper ul#history{
+div#history-card ul#history{
   height: 100%;
   width: 100%;
   overflow: hidden scroll;

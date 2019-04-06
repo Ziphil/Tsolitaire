@@ -15,7 +15,7 @@
     <h1>Tsuro Solitaire</h1>
 
     <div id="content">
-      <div class="card">
+      <div id="mainboard-card" class="card">
         <div id="board">
           <div id="tiles"></div>
           <div id="stones"></div>
@@ -25,35 +25,36 @@
       </div>
       <div id="right">
         <div id="buttons">
-          <input type="button" value="New Game" onclick="$('#newgame-dialogue').css('display', 'flex')">
-          <input type="button" value="Settings" onclick="$('#settings-dialogue').css('display', 'flex')">
-          <input type="button" value="Share" onclick="$('#share-dialogue').css('display', 'flex')"><br>
-          <input id="undo" type="button" value="Undo" onclick="executor.undo()">　<input id="redo" type="button" value="Redo" onclick="executor.redo()">
+          <input id="newgame-button" type="button" value="New Game">
+          <input id="settings-button" type="button" value="Settings">
+          <input id="share-button" type="button" value="Share"><br>
+          <input id="undo-button" type="button" value="Undo">
+          <input id="redo-button" type="button" value="Redo">
         </div>
-        <div id="next-container" class="card">
-          <div id="deck-container">
-            <div>
+        <div id="next-card" class="card">
+          <div id="next-deck-container">
+            <div id="next-wrapper">
               <h3>Next</h3>
               <div id="next-tile" class="tile"></div>
-              <div id="next-guide">Click to Rotate</div>
+              <div class="guide">Click to Rotate</div>
             </div>
-            <div id="rest-round">
-              35
+            <div id="rest-round-wrapper">
+              <div id="rest-round">35</div>
             </div>
-            <div>
+            <div id="deck-wrapper">
               <h3>Deck</h3>
               <div id="deck"></div>
             </div>
           </div>
-          <div>
+          <div id="queue-wrapper">
             <h3>Queue</h3>
             <div id="queue"></div>
           </div>
         </div>
-        <div id="timer" class="card">
+        <div id="timer-card" class="card">
           <span id="minute">00</span>:<span id="second">00</span>
         </div>
-        <div id="history-wrapper" class="card">
+        <div id="history-card" class="card">
           <h3>History</h3>
           <ul id="history">
           </ul>
@@ -61,12 +62,12 @@
       </div>
       <div id="newgame-dialogue" class="mask modal">
         <div class="card">
-          Seed<br>
+          <div class="label">Seed</div>
           <input type="text" id="load-seed"></input><br>
-          Record<br>
+          <div class="label">Record</div>
           <textarea id="load-record"></textarea><br>
-          <input class="large" type="button" value="Start Game" onclick="executor.load($('#load-seed').val(), $('#load-record').val())">
-          <input type="button" value="Cansel" onclick="$('#newgame-dialogue').css('display', 'none')">
+          <input type="button" value="Start Game" onclick="executor.start()">
+          <input type="button" value="Cansel" onclick="executor.closeAnyDialogue()">
         </div>
       </div>
       <div id="settings-dialogue" class="mask modal">
@@ -85,19 +86,19 @@
           <label for="show-gameover">ゲームオーバー表示<hr class="pipe">Show gameover overlay</label><br>
           <input type="checkbox" name="show-information" id="show-information">
           <label for="show-information">タイル情報表示<hr class="pipe">Show tile information</label><br>
-          <input type="button" value="Close" onclick="$('#settings-dialogue').css('display', 'none')">
+          <input type="button" value="Close" onclick="executor.closeAnyDialogue()">
         </div>
       </div>
       <div id="share-dialogue" class="mask modal">
         <div class="card">
-          Seed<br>
+          <div class="label">Seed</div>
           <input type="text" id="share-seed" onclick="this.select()" readonly></input><br>
-          Record<br>
+          <div class="label">Record</div>
           <textarea id="share-record" onclick="this.select()" readonly></textarea><br>
-          Link<br>
+          <div class="label">Link</div>
           <input type="text" id="share-link" onclick="this.select()" readonly></input><br>
           <button type="button" onclick="executor.tweet()" class="tweet">Tweet</button>
-          <input type="button" value="Close" onclick="$('#share-dialogue').css('display', 'none')">
+          <input type="button" value="Close" onclick="executor.closeAnyDialogue()">
         </div>
       </div>
     </div>
