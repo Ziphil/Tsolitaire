@@ -588,7 +588,7 @@ class Tsuro {
   }
 
   rotateNextTile() {
-    if(nextTile) this.nextTile = this.nextTile.rotate();
+    if(this.nextTile) this.nextTile = this.nextTile.rotate();
   }
 
   // nextTileを回転せずに特定の場所に置けるかどうかを調べます。
@@ -630,17 +630,17 @@ class Tsuro {
   isGameover() {
     if(!this.nextTile) return false;
 
-    let flag = false;
+    let flag = true;
     for (let tilePosition = 0 ; tilePosition < 36 ; tilePosition ++) {
         //四回回さないと戻らないので、returnしちゃだめ
         for (let rotation = 0 ; rotation < 4 ; rotation ++) {
         this.nextTile = this.nextTile.rotate();
-        let result = this.check(tilePosition);
-        //成功したらflagをtrueに
-        flag = flag || result != null;
+        let success = this.check(tilePosition) != null;
+        //成功したらflagをfalseに
+        flag = flag && !success;
       }
     }
-    return false;
+    return flag;
   }
 
   isGameclear() {
@@ -902,7 +902,7 @@ class Executor {
         tileDiv.append(suggestDiv);
       }
     }
-    if ($("#show-gameover").is(":checked") && !this.tsuro.isGameover() && this.tsuro.dealer.deck.length > 0) {
+    if ($("#show-gameover").is(":checked") && this.tsuro.isGameover()) {
       $("#gameover").css("display", "flex");
     } else {
       $("#gameover").css("display", "none");

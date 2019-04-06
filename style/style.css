@@ -295,7 +295,7 @@ div#board div#tiles{
   position: relative;
 }
 
-div#board div#gameover {
+div#gameover, div#gameclear {
   font: italic 700 64px "Alegreya";
   color: white;
   line-height: 1;
