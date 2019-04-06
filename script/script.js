@@ -800,7 +800,8 @@ class Executor {
 
   prepareEvents() {
     $("#newgame-button").on("click", (event) => {
-       $("#newgame-dialogue").css("display", "flex");
+      $("#load-seed").val(Math.floor(Math.random()*4294967296));
+      $("#newgame-dialogue").css("display", "flex");
     })
     $("#settings-button").on("click", (event) => {
        $("#settings-dialogue").css("display", "flex");
