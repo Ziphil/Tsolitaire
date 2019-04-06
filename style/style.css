@@ -284,7 +284,9 @@ div.mini-tile >div.texture {
 }
 
 div#queue >div.mini-tile {
-  padding: 3px;
+  width: 29px;
+  height: 29px;
+  padding: 0px;
   border: 2px solid transparent;
   background-color: transparent;
 }
@@ -349,6 +351,9 @@ div#board >div#stones {
 
 div#mainboard-card >div#gameover,
 div#mainboard-card >div#gameclear {
+  width: 700px;
+  height: 700px;
+  margin: 0px;
   font: italic 700 64px "Alegreya";
   color: white;
   line-height: 1;
@@ -393,7 +398,6 @@ div#next-card >div#next-deck-container {
   margin: 0px;
   padding: 0px;
   display: flex;
-  align-items: flex-end;
   flex-flow: row nowrap;
   flex-grow: 0;
   flex-shrink: 0;
@@ -426,8 +430,8 @@ div#next-card div#rest-round {
 }
 
 div#next-deck-container >div#deck-wrapper {
-  margin: 0px 0px 0px 15px;
-  padding: 0px 0px 0px 15px;
+  margin: 0px 0px 0px 14px;
+  padding: 0px 0px 0px 14px;
   border-left: 1px hsl(0, 0%, 90%) solid;
 }
 
@@ -445,7 +449,7 @@ div#next-card >div#queue-wrapper {
 }
 
 div#queue-wrapper >div#queue {
-  width: 350px;
+  width: 348px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
