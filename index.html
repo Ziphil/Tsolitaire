@@ -25,11 +25,11 @@
       </div>
       <div id="right">
         <div id="buttons">
-          <input id="newgame-button" type="button" value="New Game">
-          <input id="settings-button" type="button" value="Settings">
-          <input id="share-button" type="button" value="Share"><br>
-          <input id="undo-button" type="button" value="Undo">
-          <input id="redo-button" type="button" value="Redo">
+          <button id="newgame-button">New Game</button>
+          <button id="settings-button">Settings</button>
+          <button id="share-button">Share</button></br>
+          <button id="undo-button">Undo</button>
+          <button id="redo-button">Redo</button>
         </div>
         <div id="next-card" class="card">
           <div id="next-deck-container">
@@ -66,8 +66,8 @@
           <input type="text" id="load-seed"></input><br>
           <div class="label">Record</div>
           <textarea id="load-record"></textarea><br>
-          <input type="button" value="Start Game" onclick="executor.start()">
-          <input type="button" value="Cansel" onclick="executor.closeAnyDialogue()">
+          <button onclick="executor.start()">Start Game</button>
+          <button onclick="executor.closeAnyDialogue()">Cansel</button>
         </div>
       </div>
       <div id="settings-dialogue" class="mask modal">
@@ -86,7 +86,7 @@
           <label for="show-gameover">ゲームオーバー表示<hr class="pipe">Show gameover overlay</label><br>
           <input type="checkbox" name="show-information" id="show-information">
           <label for="show-information">タイル情報表示<hr class="pipe">Show tile information</label><br>
-          <input type="button" value="Close" onclick="executor.closeAnyDialogue()">
+          <button onclick="executor.closeAnyDialogue()">Close</button>
         </div>
       </div>
       <div id="share-dialogue" class="mask modal">
@@ -97,8 +97,8 @@
           <textarea id="share-record" onclick="this.select()" readonly></textarea><br>
           <div class="label">Link</div>
           <input type="text" id="share-link" onclick="this.select()" readonly></input><br>
-          <button type="button" onclick="executor.tweet()" class="tweet">Tweet</button>
-          <input type="button" value="Close" onclick="executor.closeAnyDialogue()">
+          <button onclick="executor.tweet()" class="tweet">Tweet</button>
+          <button onclick="executor.closeAnyDialogue()">Close</button>
         </div>
       </div>
     </div>
