@@ -106,7 +106,7 @@ button.tweet:before {
 textarea {
   width: 100%;
   height: 100%;
-  margin: 0px 0px;
+  margin: 0px 0px 10px 0px;
   padding: 20px 20px;
   font: 16px "Inconsolata", monospace;
   line-height: 1.2;
@@ -123,7 +123,7 @@ textarea {
 input[type="text"] {
   width: 100%;
   height: 30px;
-  margin: 0px 0px;
+  margin: 0px 0px 10px 0px;
   padding: 0 10px;
   font: 16px "Inconsolata", monospace;
   line-height: 1.2;
@@ -217,8 +217,8 @@ div.tile.alternative {
   background-color: hsl(28, 80%, 97%);
 }
 
-div.tile div.texture,
-div.tile div.suggest {
+div.tile > div.texture,
+div.tile > div.suggest {
   width: 100px;
   height: 100px;
   background-size: contain;
@@ -226,11 +226,11 @@ div.tile div.suggest {
   position: absolute;
 }
 
-div.tile div.texture.hover {
+div.tile > div.texture.hover {
   opacity: 0.2;
 }
 
-div.tile div.information {
+div.tile > div.information {
   margin: 3px 0px 0px 5px;
   padding: 0px;
   font: 16px "Inconsolata", monospace;
@@ -240,7 +240,7 @@ div.tile div.information {
   position: absolute;
 }
 
-div.tile div.suggest {
+div.tile > div.suggest {
   background-color: hsla(180, 100%, 50%, 0.2);
 }
 
@@ -249,7 +249,7 @@ div.mini-tile {
   height: 25px;
   background-color: hsl(28, 80%, 98%);
 }
-div#queue div.mini-tile {
+div#queue > div.mini-tile {
   padding: 5px;
 }
 
@@ -257,13 +257,13 @@ div.mini-tile.alternative {
   background-color: hsl(28, 80%, 97%);
 }
 
-div.mini-tile div.texture{
+div.mini-tile > div.texture{
   width: 25px;
   height: 25px;
   background-size: contain;
 }
 
-div#queue div.mini-tile.next {
+div#queue > div.mini-tile.next {
   border: 2px solid hsl(60, 80%, 50%);
 }
 
@@ -280,7 +280,7 @@ div#content {
   justify-content: center;
 }
 
-div#content div#mainboard-card {
+div#content > div#mainboard-card {
   height:660px;
   width:660px;
 
@@ -290,7 +290,7 @@ div#content div#mainboard-card {
   flex-shrink: 0;
 }
 
-div#mainboard-card div#board {
+div#mainboard-card > div#board {
   width: 600px;
   height: 600px;
   margin: 30px 30px;
@@ -302,7 +302,7 @@ div#mainboard-card div#board {
   position: relative;
 }
 
-div#board div#tiles{
+div#board > div#tiles{
   width: 100%;
   height: 100%;
   margin: 0;
@@ -313,7 +313,7 @@ div#board div#tiles{
   flex-shrink: 0;
 }
 
-div#board div#stones{
+div#board > div#stones{
   width: 0;
   height: 0;
   position: absolute;
@@ -321,7 +321,8 @@ div#board div#stones{
   left:0;
 }
 
-div#gameover, div#gameclear {
+div#mainboard-card > div#gameover,
+div#mainboard-card > div#gameclear {
   font: italic 700 64px "Alegreya";
   color: white;
   line-height: 1;
@@ -340,7 +341,7 @@ div#right {
   flex-direction: column;
 }
 
-div#right div#buttons {
+div#right > div#buttons {
   margin: 0px 0px 25px 0px;
   padding: 0px;
   text-align: center;
@@ -348,7 +349,7 @@ div#right div#buttons {
   flex-shrink: 0;
 }
 
-div#right div#next-card {
+div#right > div#next-card {
   margin: 0px 0px 25px 0px;
   display: flex;
   flex-flow: column nowrap;
@@ -356,7 +357,7 @@ div#right div#next-card {
   flex-shrink: 0;
 }
 
-div#next-card div#next-deck-container {
+div#next-card > div#next-deck-container {
   margin: 0;
   padding: 20px 20px;
   display: flex;
@@ -365,16 +366,16 @@ div#next-card div#next-deck-container {
   flex-shrink: 0;
 }
 
-div#next-deck-container div#next-wrapper {
+div#next-deck-container > div#next-wrapper {
 
 }
 
-div#next-wrapper div#next-tile {
+div#next-wrapper > div#next-tile {
   margin: 3px 0px 3px 0px;
   padding: 0px;
 }
 
-div#next-card div#rest-round {
+div#next-card > div#rest-round {
   margin: 0px 0px;
   padding: 0px;
   width: 75px;
@@ -386,7 +387,7 @@ div#next-card div#rest-round {
   font-feature-settings: "tnum";
 }
 
-div#next-card div#deck {
+div#next-card > div#deck {
   width: 150px;
   height: 150px;
   display: flex;
@@ -395,15 +396,16 @@ div#next-card div#deck {
   flex-shrink: 0;
 }
 
-div#queue-wrapper div#queue {
+div#queue-wrapper > div#queue {
   width: 360px;
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   flex-grow: 0;
   flex-shrink: 0;
 }
 
-div#timer-card {
+div#right > div#timer-card {
   margin: 0px 0px 25px 0px;
   padding: 5px 20px;
   display: flex;
@@ -417,7 +419,7 @@ div#timer-card {
   text-align: center;
 }
 
-div#right div#history-card {
+div#right > div#history-card {
   flex-basis: 100px;
   margin: 0;
   display: flex;
@@ -451,19 +453,19 @@ div#rule {
   align-items: center;
 }
 
-div#rule div ul {
+div#rule > div ul {
   margin: 0px 10px;
   padding: 0px;
   list-style-type: none;
 }
 
-div#rule div li {
+div#rule > div li {
   font: 14px "Times New Roman", "Times", "IPA P明朝", "IPA明朝", "ＭＳ Ｐ明朝", serif;
   color: black;
   line-height: 1.4;
 }
 
-div#rule div hr {
+div#rule > div hr {
   margin: 3px 0px;
   border: 0px;
   border-top: 1px hsl(0, 0%, 90%) solid;
