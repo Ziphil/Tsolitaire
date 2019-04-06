@@ -138,7 +138,7 @@ class Dealer {
     while (this.queue.length <= this.round) {
       if (this.deck.length <= 0) return null;
 
-      let randomIndex = this.random.new(this.deck.length);
+      let randomIndex = this.random.next(this.deck.length);
       //ランダムに一枚引いて、openedの末尾に追加
       this.queue.push(this.deck.splice(randomIndex, 1)[0]);
     }
@@ -166,7 +166,7 @@ class Dealer {
     });
 
     //乱数のつじつまを合わせる
-    this.random.new(1);
+    this.random.next(1);
   }
 }
 
@@ -480,7 +480,7 @@ class Random {
   }
 
   //0～n-1までの乱数を返す。
-  new(n) {
+  next(n) {
     let t;
     t = this.x ^ (this.x << 11);
     this.x = this.y; this.y = this.z; this.z = this.w;
@@ -505,16 +505,17 @@ class Random {
 
 class Tsuro {
   constructor(seed, recordString) {
-    if(seed==undefined || seed=="") seed = Math.floor(Math.random()*4294967296);
-
     this.stones = INITIAL_STONES;
     this.board = new Board();
     this.dealer = new Dealer(seed);
-    this.nextTile = this.dealer.nextTile;
-    this.history = new History(this.board, this.stones);
+
+    if(seed==undefined || seed=="") seed = Math.floor(Math.random()*4294967296);
     this.seed = seed;
     this.record = Record.parse(recordString);
     this.record.play(this);
+
+    this.nextTile = this.dealer.nextTile;
+    this.history = new History(this.board, this.stones);
     this.finishDate = null;
     this.beginDate = recordString=="" ? new Date() : null;
   }
