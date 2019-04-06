@@ -677,10 +677,6 @@ class Tsuro {
 
 class Executor {
 
-  start() {
-    this.load($('#load-seed').val(), $('#load-record').val())
-  }
-
   load(seed = "", recordString = "") {
     try {
       this.tsuro = new Tsuro(seed, recordString);
@@ -803,6 +799,27 @@ class Executor {
   }
 
   prepareEvents() {
+    $("#newgame-button").on("click", (event) => {
+       $("#newgame-dialogue").css("display", "flex");
+    })
+    $("#settings-button").on("click", (event) => {
+       $("#settings-dialogue").css("display", "flex");
+    })
+    $("#share-button").on("click", (event) => {
+       $("#share-dialogue").css("display", "flex");
+    })
+
+    $("#undo-button").on("click", (event) => {
+      this.undo();
+    });
+    $("#redo-button").on("click", (event) => {
+      this.redo();
+    })
+
+    $("#gamestart-button").on("click", (event) => {
+      this.load($('#load-seed').val(), $('#load-record').val());
+    });
+
     $("#show-timer").on("change", (event) => {
       if(event.target.checked) $("#timer-card").css("display", "flex");
       else $("#timer-card").css("display", "none");
@@ -828,23 +845,6 @@ class Executor {
     $("#show-information").on("change", (event) => {
       this.render();
     });
-
-    $("#newgame-button").on("click", (event) => {
-       $("#newgame-dialogue").css("display", "flex");
-    })
-    $("#settings-button").on("click", (event) => {
-       $("#settings-dialogue").css("display", "flex");
-    })
-    $("#share-button").on("click", (event) => {
-       $("#share-dialogue").css("display", "flex");
-    })
-
-    $("#undo-button").on("click", (event) => {
-      this.undo();
-    });
-    $("#redo-button").on("click", (event) => {
-      this.redo();
-    })
   }
 
   place(tilePosition) {
