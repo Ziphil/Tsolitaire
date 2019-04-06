@@ -367,8 +367,8 @@ class History {
 
 class RecordEntry {
 
-  constructor(elapsedTime, type, number, rotation, tilePosition, round, withdrawn=false) {
-    this.elapsedTime = elapsedTime;
+  constructor(count, type, number, rotation, tilePosition, round, withdrawn=false) {
+    this.count = count;
     this.type = type;
     this.number = number;
     this.rotation = rotation;
@@ -399,9 +399,9 @@ class RecordEntry {
     }
 
     if (!short) {
-      if (this.elapsedTime != null) {
-        let minute = ("0" + Math.floor(this.elapsedTime / 60)).slice(-2);
-        let second = ("0" + (this.elapsedTime % 60)).slice(-2);
+      if (this.count != null) {
+        let minute = ("0" + Math.floor(this.count / 60)).slice(-2);
+        let second = ("0" + (this.count % 60)).slice(-2);
         string = string + " [" + minute + ":" + second + "]";
       }
     }
@@ -431,18 +431,18 @@ class Record {
     this.entries = [];
   }
 
-  place(number, rotation, tilePosition, round, elapsedTime, withdrawn=false) {
-    let entry = new RecordEntry(elapsedTime, 0, number, rotation, tilePosition, round, withdrawn);
+  place(number, rotation, tilePosition, round, count, withdrawn=false) {
+    let entry = new RecordEntry(count, 0, number, rotation, tilePosition, round, withdrawn);
     this.entries.push(entry);
   }
 
-  undo(elapsedTime) {
-    let entry = new RecordEntry(elapsedTime, 1);
+  undo(count) {
+    let entry = new RecordEntry(count, 1);
     this.entries.push(entry);
   }
 
-  redo(elapsedTime) {
-    let entry = new RecordEntry(elapsedTime, 2);
+  redo(count) {
+    let entry = new RecordEntry(count, 2);
     this.entries.push(entry);
   }
 
@@ -468,13 +468,13 @@ class Record {
     let match;
     while ((match = regexp.exec(string)) != null) {
       if (match[0] != undefined) {
-        let elapsedTime = (match[8] != undefined) ? parseInt(match[8]) * 60 + parseInt(match[9]) : null;
+        let count = (match[8] != undefined) ? parseInt(match[8]) * 60 + parseInt(match[9]) : null;
 
         if (match[1] == "Undo") {
-          record.undo(elapsedTime);
+          record.undo(count);
         }
         else if (match[1] == "Redo") {
-          record.redo(elapsedTime);
+          record.redo(count);
         }
         else {
           let round = parseInt(match[2]);
@@ -485,7 +485,7 @@ class Record {
           let rotation = ROTATION_SYMBOLS.indexOf(match[6]);
           let withdrawn = !!match[7];
           if (0 <= tilePosition && tilePosition < 36 && number < TILES.length && rotation >= 0)
-            record.place(number, rotation, tilePosition, round, elapsedTime, withdrawn);
+            record.place(number, rotation, tilePosition, round, count, withdrawn);
           else
             throw new Error("Invalid Record");
         }
@@ -505,6 +505,31 @@ class Record {
   }
 }
 
+class Timer {
+  constructor(flag) {
+    this.finishDate = null;
+    this.beginDate = flag ? new Date() : null;
+  }
+
+  stop() {
+    if(this.finishDate == null) this.finishDate = new Date();
+  }
+
+  get count() {
+    let beginDate = this.beginDate;
+    if (beginDate) {
+      let endDate = this.finishDate || new Date();
+      let count = Math.floor((endDate.getTime() - beginDate.getTime()) / 1000);
+      if (count > 3600) {
+        count = 3600;
+      }
+      return count;
+    } else {
+      return null;
+    }
+  }
+}
+
 class Tsuro {
   constructor(seed, recordString) {
     this.stones = INITIAL_STONES;
@@ -512,8 +537,7 @@ class Tsuro {
     this.dealer = new Dealer(seed);
     this.history = new History(this.board, this.stones);
     this.record = new Record();
-    this.finishDate = null;
-    this.beginDate = recordString=="" ? new Date() : null;
+    this.timer = new Timer(recordString=="");
 
     if(seed==undefined || seed=="") seed = Math.floor(Math.random()*4294967296);
     this.seed = seed;
@@ -530,11 +554,9 @@ class Tsuro {
       this.dealer.round ++;
       this.nextTile = this.dealer.nextTile;
       this.history.place(this.board, this.stones, this.nextTile, tilePosition);
-      if (this.finishDate == null && this.dealer.deck.length <= 0) {
-        this.finishDate = new Date();
-      }
+      if (this.isGameclear()) this.timer.stop();
 
-      this.record.place(this.nextTile.number, this.nextTile.rotation, tilePosition, this.dealer.round, this.elapsedTime);
+      this.record.place(this.nextTile.number, this.nextTile.rotation, tilePosition, this.dealer.round, this.timer.count);
       return true;
     } else {
       return false;
@@ -548,7 +570,7 @@ class Tsuro {
       this.stones = entry.stones;
       this.dealer.round --;
       this.nextTile = this.dealer.nextTile;
-      this.record.undo(this.elapsedTime);
+      this.record.undo(this.timer.count);
       return true;
     } else {
       return false;
@@ -562,7 +584,7 @@ class Tsuro {
       this.stones = entry.stones;
       this.dealer.round ++;
       this.nextTile = this.dealer.nextTile;
-      this.record.redo(this.elapsedTime);
+      this.record.redo(this.timer.count);
       return true;
     } else {
       return false;
@@ -575,7 +597,7 @@ class Tsuro {
       this.board = entry.board;
       this.stones = entry.stones;
       this.dealer.round = round;
-      //this.record.jumpTo(round, this.elapsedTime);
+      //this.record.jumpTo(round, this.timer.count);
       return true;
     } else {
       return false;
@@ -648,20 +670,6 @@ class Tsuro {
       }
     }
     return tilePositions;
-  }
-
-  get elapsedTime() {
-    let beginDate = this.beginDate;
-    if (beginDate) {
-      let endDate = this.finishDate || new Date();
-      let elapsedTime = Math.floor((endDate.getTime() - beginDate.getTime()) / 1000);
-      if (elapsedTime > 3600) {
-        elapsedTime = 3600;
-      }
-      return elapsedTime;
-    } else {
-      return null;
-    }
   }
 }
 
@@ -777,9 +785,9 @@ class Executor {
 
   prepareTimer() {
     setInterval(() => {
-      let elapsedTime = this.tsuro.elapsedTime;
-      let minute = (elapsedTime != null) ? ("0" + Math.floor(elapsedTime / 60)).slice(-2) : "  ";
-      let second = (elapsedTime != null) ? ("0" + (elapsedTime % 60)).slice(-2) : "  ";
+      let count = this.tsuro.timer.count;
+      let minute = (count != null) ? ("0" + Math.floor(timer.count / 60)).slice(-2) : "  ";
+      let second = (count != null) ? ("0" + (count % 60)).slice(-2) : "  ";
       if ($("#minute").text() != minute) {
         $("#minute").text(minute);
       }
@@ -1042,9 +1050,9 @@ class Executor {
   }
 
   tweet() {
-    let elapsedTime = this.tsuro.elapsedTime;
-    let minute = ("0" + Math.floor(elapsedTime / 60)).slice(-2);
-    let second = ("0" + (elapsedTime % 60)).slice(-2);
+    let count = this.tsuro.timer.count;
+    let minute = ("0" + Math.floor(count / 60)).slice(-2);
+    let second = ("0" + (count % 60)).slice(-2);
     let url = this.generateURL();
     let option = "width=" + TWITTER_WIDTH + ",height=" + TWITTER_HEIGHT + ",menubar=no,toolbar=no,scrollbars=no";
     let href = "https://twitter.com/intent/tweet";
