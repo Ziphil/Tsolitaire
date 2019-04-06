@@ -532,6 +532,9 @@ class Timer {
 
 class Tsuro {
   constructor(seed, recordString) {
+    if(seed==undefined || seed=="") seed = Math.floor(Math.random()*4294967296);
+    this.seed = seed;
+
     this.stones = INITIAL_STONES;
     this.board = new Board();
     this.dealer = new Dealer(seed);
@@ -539,8 +542,6 @@ class Tsuro {
     this.record = new Record();
     this.timer = new Timer(recordString=="");
 
-    if(seed==undefined || seed=="") seed = Math.floor(Math.random()*4294967296);
-    this.seed = seed;
     Record.parse(recordString).play(this);
 
     this.nextTile = this.dealer.nextTile;
