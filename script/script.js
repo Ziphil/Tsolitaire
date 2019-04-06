@@ -124,39 +124,51 @@ class Board {
 
 }
 
+
 class Random {
+
   constructor(seed) {
     this.x = 123456789;
     this.y = 362436069;
     this.z = 521288629;
-
-    if(Number.isInteger(seed)) this.w = seed;
-    else if(!isNaN(parseInt(seed))) this.w = parseInt(seed);
-    else this.w = Random.hash(seed);
+    if (Number.isInteger(seed)) {
+      this.w = seed;
+    } else if (!isNaN(parseInt(seed))) {
+      this.w = parseInt(seed);
+    } else {
+      this.w = Random.hash(seed);
+    }
   }
 
-  //0～n-1までの乱数を返す。
+  // 0 ～ n－1 までの乱数を返します。
   next(n) {
-    let t;
-    t = this.x ^ (this.x << 11);
-    this.x = this.y; this.y = this.z; this.z = this.w;
+    let t = this.x ^ (this.x << 11);
+    this.x = this.y;
+    this.y = this.z;
+    this.z = this.w;
     this.w = (this.w ^ (this.w >>> 19)) ^ (t ^ (t >>> 8));
-
-    //mod計算（0を足すのは-0が気持ち悪いから）
+    // mod 計算 (0 を足すのは -0 が気持ち悪いから)
     let value = this.w % n + 0;
-    if (value < 0) value += n;
-    return value;
+    if (value < 0) {
+      value += n;
+    } else {
+      return value;
+    }
   }
-  //適当なHash
+
   static hash(object) {
-    var string = object+"";
-    var hash=0;
-    for(var i=0; i<string.length; i+=2){
-      if(string.length == i+1) hash ^= string.charCodeAt(i)<<16;
-      else hash ^= (string.charCodeAt(i)<<16)+string.charCodeAt(i+1);
+    let string = object + "";
+    let hash = 0;
+    for (let i = 0 ; i < string.length ; i += 2) {
+      if (string.length == i + 1) {
+        hash ^= string.charCodeAt(i) << 16;
+      } else {
+        hash ^= (string.charCodeAt(i) << 16) + string.charCodeAt(i + 1);
+      }
     }
     return hash;
   }
+
 }
 
 class Dealer {
@@ -169,41 +181,49 @@ class Dealer {
   }
 
   get nextTile() {
-    //ifではなくwhileにしたのは、一度もnextTileにアクセスせずにターンを終了するとopenedTileが飛び飛びになってしまうのを避けるため
+    // if ではなく while にしたのは、一度も nextTile にアクセスせずにターンを終了すると openedTile が飛び飛びになってしまうのを避けるため
     while (this.queue.length <= this.round) {
-      if (this.deck.length <= 0) return null;
-
+      if (this.deck.length <= 0) {
+        return null;
+      }
       let randomIndex = this.random.next(this.deck.length);
-      //ランダムに一枚引いて、openedの末尾に追加
+      // ランダムに 1 枚引いて、opened の末尾に追加
       this.queue.push(this.deck.splice(randomIndex, 1)[0]);
     }
     return this.queue[this.round];
   }
 
-  //次の手を強制的に決定（load用）
+  // 次の手を強制的に決定します (load 用)。
   set nextTile(tile) {
-    //既に手が決定していた場合
-    if(this.round < this.queue.length){
-       //決定した手と期待する手が同じなら問題ない。何もせず終了
-       if(this.queue[this.round].number == tile.number) return;
-       //そうでなければエラー
-       else throw new Error("Invalid operation");
+    // 既に手が決定していた場合
+    if (this.round < this.queue.length) {
+       // 決定した手と期待する手が同じなら問題ないので何もせず終了
+       if (this.queue[this.round].number == tile.number) {
+         return;
+       } else {
+         throw new Error("Invalid operation");
+       }
     }
-    //手前の手が未決定ならエラー（無理に設定するとopenedTileが飛び飛びになりそう）
-    if(this.queue.length < this.round) throw new Error("Invalid operation");
-    //queueとdeckでタイルが重複したり抜けたりしそうならエラー
-    if(this.queue.some(x=>x.number == tile.number)) throw new Error("Invalid operation");
-    if(this.deck.filter(x=>x.number == tile.number).length != 1) throw new Error("Invalid operation");
-
+    // 手前の手が未決定ならエラー (無理に設定すると openedTile が飛び飛びになりそう)
+    if (this.queue.length < this.round) {
+      throw new Error("Invalid operation");
+    }
+    // queue と deck でタイルが重複したり抜けたりしそうならエラー
+    if (this.queue.some(x => x.number == tile.number)) {
+      throw new Error("Invalid operation");
+    }
+    if (this.deck.filter(x => x.number == tile.number).length != 1) {
+      throw new Error("Invalid operation");
+    }
     this.queue.push(tile);
-    this.deck = this.deck.filter((x)=>{
+    this.deck = this.deck.filter((x) => {
       return x.number != tile.number;
     });
-
-    //乱数のつじつまを合わせる
+    // 乱数のつじつまを合わせる
     this.random.next(1);
   }
 }
+
 
 const TILES = [
   new Tile(0, 1, [1, 0, 3, 2, 5, 4, 7, 6]),
@@ -259,7 +279,6 @@ const ROTATION_SYMBOLS = ["T", "R", "B", "L"];
 
 const TOP_SHIFT = [-9, -9, 24, 58, 91, 91, 58, 24];
 const LEFT_SHIFT = [24, 58, 91, 91, 58, 24, -9, -9];
-//const RECORD_REGEXP = /(?:(?:([0-9]+)\s*:\s*)?([0-9])\s*([A-Z])\s*([0-9]+)\s*([A-Z])\s*(\*|x)?(?:\s*\[([0-9]+)\s*:\s*([0-9]+)\])?)|(?:(?:([0-9]+)\s*:\s*)?([0-9]+)\s*\/)/;
 const RECORD_REGEXP = /(?:(Undo|Redo|(?:([0-9]+)\s*:\s*)?([0-9])\s*([A-Z])\s*([0-9]+)\s*([A-Z])\s*(\*|x)?)(?:\s*\[([0-9]+)\s*:\s*([0-9]+)\])?)|(?:(?:([0-9]+)\s*:\s*)?([0-9]+)\s*\/)/;
 
 const TWITTER_WIDTH = 560;
@@ -280,7 +299,6 @@ class HistoryEntry {
 
   toHTML() {
     let li = $("<li>")
-
     let tileDiv = $("<div>");
     tileDiv.attr("class", "mini-tile");
     if (this.tile) {
@@ -292,27 +310,26 @@ class HistoryEntry {
     }
     tileDiv.css("display", "inline-block");
     li.append(tileDiv);
-
     let dataDiv = $("<div>")
-    if(this.tilePosition && this.tile) {
+    if (this.tilePosition && this.tile) {
       let row = ROW_SYMBOLS[Math.floor(this.tilePosition / 6)];
       let column = COLUMN_SYMBOLS[this.tilePosition % 6];
       let number = this.tile.number;
       let rotation = ROTATION_SYMBOLS[this.tile.rotation];
       dataDiv.text(row + column + number + rotation);
+    } else {
+      dataDiv.text("initial");
     }
-    else dataDiv.text("initial");
     dataDiv.attr("class", "data");
     dataDiv.css("display", "inline-block");
     li.append(dataDiv);
-
-    li.on("click", (event)=>{
-      //まだ有効にはしない
-      //executor.jumpTo(this.round);
+    li.on("click", (event) => {
+      // まだ有効にはしない
+      // executor.jumpTo(this.round);
     });
-
     return li;
   }
+
 }
 
 
@@ -325,28 +342,28 @@ class History {
   }
 
   place(board, stones, tile = null, tilePosition = null) {
-    this.current++;
-    //current以降を削除
+    this.current ++;
+    // current 以降を削除
     this.entries.splice(this.current);
     this.entries.push(new HistoryEntry(board, stones, this.entries.length, tile, tilePosition));
   }
 
   undo() {
     if (this.canUndo()) {
-      this.current--;
+      this.current --;
       return this.entries[this.current];
     }
   }
 
   redo() {
     if (this.canRedo()) {
-      this.current++
+      this.current ++;
       return this.entries[this.current];
     }
   }
 
-  jumpTo(round){
-    if(this.canJumpTo(round)) {
+  jumpTo(round) {
+    if (this.canJumpTo(round)) {
       this.current = round;
       return this.entries[this.current];
     }
@@ -360,15 +377,16 @@ class History {
     return this.current < this.entries.length - 1;
   }
 
-  canJumpTo(round){
+  canJumpTo(round) {
     return round != this.current && 0 <= round && round < this.entries.length;
   }
+
 }
 
 
 class RecordEntry {
 
-  constructor(count, type, number, rotation, tilePosition, round, withdrawn=false) {
+  constructor(count, type, number, rotation, tilePosition, round, withdrawn = false) {
     this.count = count;
     this.type = type;
     this.number = number;
@@ -380,25 +398,23 @@ class RecordEntry {
 
   toString(short) {
     let string = "";
-
-    if(this.type==1) {
+    if (this.type == 1) {
       string += "Undo";
-    }
-    else if(this.type==2) {
+    } else if (this.type == 2) {
       string += "Redo";
-    }
-    else {
-      if (!short)
+    } else {
+      if (!short) {
         string += this.round + ": ";
+      }
       let row = ROW_SYMBOLS[Math.floor(this.tilePosition / 6)];
       let column = COLUMN_SYMBOLS[this.tilePosition % 6];
       let number = this.number;
       let rotation = ROTATION_SYMBOLS[this.rotation];
       string += row + column + number + rotation;
-      if (this.withdrawn)
+      if (this.withdrawn) {
         string += "*";
+      }
     }
-
     if (!short) {
       if (this.count != null) {
         let minute = ("0" + Math.floor(this.count / 60)).slice(-2);
@@ -419,10 +435,14 @@ class RecordEntry {
       if (!result) {
         throw new Error("Invalid Move");
       }
+    } else if (this.type == 1) {
+      tsuro.undo();
     }
-    else if (this.type == 1) tsuro.undo();
-    else if (this.type == 2) tsuro.redo();
+    else if (this.type == 2) {
+      tsuro.redo();
+    }
   }
+
 }
 
 
@@ -432,7 +452,7 @@ class Record {
     this.entries = [];
   }
 
-  place(number, rotation, tilePosition, round, count, withdrawn=false) {
+  place(number, rotation, tilePosition, round, count, withdrawn = false) {
     let entry = new RecordEntry(count, 0, number, rotation, tilePosition, round, withdrawn);
     this.entries.push(entry);
   }
@@ -458,9 +478,10 @@ class Record {
     return string;
   }
 
-  play(tsuro){
-    for (let entry of this.entries)
+  play(tsuro) {
+    for (let entry of this.entries) {
       entry.action(tsuro);
+    }
   }
 
   static parse(string) {
@@ -470,14 +491,11 @@ class Record {
     while ((match = regexp.exec(string)) != null) {
       if (match[0] != undefined) {
         let count = (match[8] != undefined) ? parseInt(match[8]) * 60 + parseInt(match[9]) : null;
-
         if (match[1] == "Undo") {
           record.undo(count);
-        }
-        else if (match[1] == "Redo") {
+        } else if (match[1] == "Redo") {
           record.redo(count);
-        }
-        else {
+        } else {
           let round = parseInt(match[2]);
           let row = ROW_SYMBOLS.indexOf(match[3]);
           let column = COLUMN_SYMBOLS.indexOf(match[4]);
@@ -485,14 +503,15 @@ class Record {
           let number = parseInt(match[5]);
           let rotation = ROTATION_SYMBOLS.indexOf(match[6]);
           let withdrawn = !!match[7];
-          if (0 <= tilePosition && tilePosition < 36 && number < TILES.length && rotation >= 0)
+          if (0 <= tilePosition && tilePosition < 36 && number < TILES.length && rotation >= 0) {
             record.place(number, rotation, tilePosition, round, count, withdrawn);
-          else
+          } else {
             throw new Error("Invalid Record");
+          }
         }
       } else {
-        //ここの意図がよくわからない（下位互換性？）
-        //deckが扱えなくなってしまったのでコメントアウト
+        // ここの意図がよくわからない (下位互換性?)
+        // deck が扱えなくなってしまったのでコメントアウト
         /*
         let number = parseInt(match[10]);
         let tile = TILES[number];
@@ -504,16 +523,20 @@ class Record {
     }
     return record;
   }
+
 }
 
 class Timer {
+
   constructor(flag) {
     this.finishDate = null;
     this.beginDate = flag ? new Date() : null;
   }
 
   stop() {
-    if(this.finishDate == null) this.finishDate = new Date();
+    if (this.finishDate == null) {
+      this.finishDate = new Date();
+    }
   }
 
   get count() {
@@ -531,20 +554,21 @@ class Timer {
   }
 }
 
-class Tsuro {
-  constructor(seed, recordString) {
-    if(seed==undefined || seed=="") seed = Math.floor(Math.random()*4294967296);
-    this.seed = seed;
 
+class Tsuro {
+
+  constructor(seed, recordString) {
+    if (seed == undefined || seed == "") {
+      seed = Math.floor(Math.random() * 4294967296);
+    }
+    this.seed = seed;
     this.stones = INITIAL_STONES;
     this.board = new Board();
     this.dealer = new Dealer(seed);
     this.history = new History(this.board, this.stones);
     this.record = new Record();
-    this.timer = new Timer(recordString=="");
-
+    this.timer = new Timer(recordString == "");
     Record.parse(recordString).play(this);
-
     this.nextTile = this.dealer.nextTile;
   }
 
@@ -556,8 +580,9 @@ class Tsuro {
       this.dealer.round ++;
       this.nextTile = this.dealer.nextTile;
       this.history.place(this.board, this.stones, this.nextTile, tilePosition);
-      if (this.isGameclear()) this.timer.stop();
-
+      if (this.isGameclear()) {
+        this.timer.stop();
+      }
       this.record.place(this.nextTile.number, this.nextTile.rotation, tilePosition, this.dealer.round, this.timer.count);
       return true;
     } else {
@@ -599,7 +624,7 @@ class Tsuro {
       this.board = entry.board;
       this.stones = entry.stones;
       this.dealer.round = round;
-      //this.record.jumpTo(round, this.timer.count);
+      // this.record.jumpTo(round, this.timer.count);
       return true;
     } else {
       return false;
@@ -615,7 +640,9 @@ class Tsuro {
   }
 
   rotateNextTile(rotation) {
-    if(this.nextTile) this.nextTile = this.nextTile.rotate(rotation);
+    if (this.nextTile) {
+      this.nextTile = this.nextTile.rotate(rotation);
+    }
   }
 
   // nextTileを回転せずに特定の場所に置けるかどうかを調べます。
@@ -643,15 +670,16 @@ class Tsuro {
   }
 
   isGameover() {
-    if(!this.nextTile) return false;
-
+    if (!this.nextTile) {
+      return false;
+    }
     let flag = true;
     for (let tilePosition = 0 ; tilePosition < 36 ; tilePosition ++) {
-        //四回回さないと戻らないので、returnしちゃだめ
-        for (let rotation = 0 ; rotation < 4 ; rotation ++) {
+      // 4 回回さないと戻らないので、return しちゃだめ
+      for (let rotation = 0 ; rotation < 4 ; rotation ++) {
         this.nextTile = this.nextTile.rotate();
         let success = this.check(tilePosition) != null;
-        //成功したらflagをfalseに
+        // 成功したら flag を false に
         flag = flag && !success;
       }
     }
@@ -662,7 +690,7 @@ class Tsuro {
     return !this.nextTile;
   }
 
-  //回さずに置ける場所の配列を返します。
+  // 回さずに置ける場所の配列を返します。
   getSuggestPositions() {
     let tilePositions = [];
     for (let tilePosition = 0 ; tilePosition < 36 ; tilePosition ++) {
@@ -682,12 +710,12 @@ class Executor {
     try {
       this.tsuro = new Tsuro(seed, recordString);
     } catch {
-      alert("棋譜が異常です。新しいゲームを開始します。\n wrong record data");
+      alert("棋譜が異常です。新しいゲームを開始します。\nWrong record data.");
       this.tsuro = new Tsuro(seed, "");
     }
     this.hoveredTilePosition = null;
     this.render();
-    $('#newgame-dialogue').css("display", "none");
+    $("#newgame-dialogue").css("display", "none");
   }
 
   init() {
@@ -801,45 +829,54 @@ class Executor {
 
   prepareEvents() {
     $("#newgame-button").on("click", (event) => {
-      $("#load-seed").val(Math.floor(Math.random()*4294967296));
+      $("#load-seed").val(Math.floor(Math.random() * 4294967296));
       $("#newgame-dialogue").css("display", "flex");
-    })
+    });
     $("#settings-button").on("click", (event) => {
        $("#settings-dialogue").css("display", "flex");
-    })
+    });
     $("#share-button").on("click", (event) => {
        $("#share-dialogue").css("display", "flex");
-    })
-
+    });
     $("#undo-button").on("click", (event) => {
       this.undo();
     });
     $("#redo-button").on("click", (event) => {
       this.redo();
-    })
-
-    $("#gamestart-button").on("click", (event) => {
-      this.load($('#load-seed').val(), $('#load-record').val());
     });
-
+    $("#gamestart-button").on("click", (event) => {
+      this.load($("#load-seed").val(), $("#load-record").val());
+    });
     $("#show-timer").on("change", (event) => {
-      if(event.target.checked) $("#timer-card").css("display", "flex");
-      else $("#timer-card").css("display", "none");
+      if (event.target.checked) {
+        $("#timer-card").css("display", "flex");
+      } else {
+        $("#timer-card").css("display", "none");
+      }
     });
     $("#show-suggest").on("change", (event) => {
       this.render();
     });
     $("#show-deck").on("change", (event) => {
-      if (event.target.checked) $("#deck-wrapper").css("display", "flex");
-      else $("#deck-wrapper").css("display", "none");
+      if (event.target.checked) {
+        $("#deck-wrapper").css("display", "flex");
+      } else {
+        $("#deck-wrapper").css("display", "none");
+      }
     });
     $("#show-queue").on("change", (event) => {
-      if (event.target.checked) $("#queue-wrapper").css("display", "flex");
-      else $("#queue-wrapper").css("display", "none");
+      if (event.target.checked) {
+        $("#queue-wrapper").css("display", "flex");
+      } else {
+        $("#queue-wrapper").css("display", "none");
+      }
     });
     $("#show-history").on("change", (event) => {
-      if (event.target.checked) $("#history-card").css("display", "flex");
-      else $("#history-card").css("display", "none");
+      if (event.target.checked) {
+        $("#history-card").css("display", "flex");
+      } else {
+        $("#history-card").css("display", "none");
+      }
     });
     $("#show-gameover").on("change", (event) => {
       this.render();
@@ -1001,7 +1038,6 @@ class Executor {
       let tileDiv = $("#deck #tile-" + i);
       tileDiv.empty();
     }
-
     for (let tile of deck) {
       let tileDiv = $("#deck #tile-" + tile.number);
       let tileTextureDiv = $("<div>");
@@ -1017,7 +1053,6 @@ class Executor {
     let round = this.tsuro.dealer.round;
     let queueDiv = $("#queue");
     queueDiv.empty();
-
     for (let tile of queue) {
       let tileDiv = $("<div>");
       tileDiv.attr("class", "mini-tile");
@@ -1036,7 +1071,6 @@ class Executor {
     let round = this.tsuro.dealer.round;
     let historyUl = $("#history");
     historyUl.empty();
-
     for (let entry of entries) {
       historyUl.append(entry.toHTML());
     }
@@ -1087,9 +1121,8 @@ class Executor {
     window.open(href, "_blank", option);
   }
 
-  generateURL(){
-    return location.protocol + "//" + location.host + location.pathname
-     + "?s=" + this.tsuro.seed + "&q=" + encodeURIComponent(this.tsuro.record.toString(false));
+  generateURL() {
+    return location.protocol + "//" + location.host + location.pathname + "?s=" + this.tsuro.seed + "&q=" + encodeURIComponent(this.tsuro.record.toString(false));
   }
 
 }
