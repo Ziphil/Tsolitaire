@@ -677,12 +677,12 @@ class Tsuro {
 class Executor {
 
   load(seed = "", recordString = "") {
-    //try {
+    try {
       this.tsuro = new Tsuro(seed, recordString);
-    //} catch {
-    //  alert("棋譜が異常です。新しいゲームを開始します。");
-    //  this.tsuro = new Tsuro(seed, "");
-    //}
+    } catch {
+      alert("棋譜が異常です。新しいゲームを開始します。\n wrong record data");
+      this.tsuro = new Tsuro(seed, "");
+    }
     this.hoveredTilePosition = null;
     this.render();
     $('#newgame-dialogue').css("display", "none");
@@ -1025,9 +1025,9 @@ class Executor {
   }
 
   renderRest() {
-    let rest = 35 - this.tsuro.dealer.round;
-    let restDiv = $("#rest");
-    restDiv.text(rest);
+    let restRound = 35 - this.tsuro.dealer.round;
+    let restRoundDiv = $("#rest-round");
+    restRoundDiv.text(restRound);
   }
 
   renderButtons() {

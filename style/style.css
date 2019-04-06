@@ -343,12 +343,9 @@ div#next-guide {
   text-align: center;
 }
 
-div#next-container div#number {
+div#next-container div#rest-round {
   margin: 0px 0px;
   padding: 0px;
-}
-
-div#next-container div#number div#rest {
   width: 75px;
   font: italic 700 64px "Alegreya";
   color: hsl(28, 54%, 33%);
