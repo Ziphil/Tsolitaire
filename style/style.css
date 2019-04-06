@@ -410,15 +410,12 @@ div#next-wrapper >div#next-tile {
 }
 
 div#rest-round-wrapper {
-  margin: 0px 15px 0px 0px;
-  padding: 0px 15px 0px 0px;
-  border-right: 1px hsl(0, 0%, 90%) solid;
 }
 
 div#next-card div#rest-round {
   margin: 0px 0px;
   padding: 0px;
-  width: 70px;
+  width: 69px;
   font: italic 700 64px "Alegreya";
   color: hsl(28, 54%, 33%);
   line-height: 1;
@@ -428,6 +425,9 @@ div#next-card div#rest-round {
 }
 
 div#next-deck-container >div#deck-wrapper {
+  margin: 0px 0px 0px 15px;
+  padding: 0px 0px 0px 15px;
+  border-left: 1px hsl(0, 0%, 90%) solid;
 }
 
 div#deck-wrapper >div#deck {
