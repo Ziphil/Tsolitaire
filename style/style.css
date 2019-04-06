@@ -375,7 +375,10 @@ div#next-wrapper > div#next-tile {
   padding: 0px;
 }
 
-div#next-card > div#rest-round {
+div#next-deck-container > div#rest-round-wrapper {
+}
+
+div#rest-round-wrapper > div#rest-round {
   margin: 0px 0px;
   padding: 0px;
   width: 75px;
