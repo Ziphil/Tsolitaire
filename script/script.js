@@ -644,7 +644,7 @@ class Tsuro {
   }
 
   isGameclear() {
-    return !!this.nextTile;
+    return !this.nextTile;
   }
 
   get elapsedTime() {
