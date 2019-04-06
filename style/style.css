@@ -319,7 +319,7 @@ div#content >div#mainboard-card {
 div#mainboard-card >div#board {
   width: 600px;
   height: 600px;
-  margin: 30px 30px;
+  margin: auto;
   padding: 0px;
   display: flex;
   flex-wrap: wrap;
@@ -499,7 +499,7 @@ ul#history li {
   list-style: none;
   display: flex;
   flex-direction: row;
-  align-items: center; 
+  align-items: center;
 }
 
 ul#history li:first-child {
@@ -516,7 +516,7 @@ ul#history li.current {
 
 ul#history li >div.data {
   margin: 0px 0px 0px 5px;
-} 
+}
 
 div#rule {
   margin: 40px 0px 40px 0px;
