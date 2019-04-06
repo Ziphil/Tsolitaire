@@ -358,8 +358,9 @@ div#right > div#next-card {
 }
 
 div#next-card > div#next-deck-container {
-  margin: 0;
-  padding: 20px 20px;
+  margin: 0 0 20px 0;
+  padding: 0 0 20px 0;
+  border-bottom: 1px hsl(0, 0%, 90%) solid;
   display: flex;
   flex-flow: row nowrap;
   flex-grow: 0;
@@ -391,7 +392,9 @@ div#rest-round-wrapper > div#rest-round {
 }
 
 div#next-deck-container > div#deck-wrapper {
-  
+  margin: 0px 0px 0px 20px;
+  padding: 0px 0px 0px 20px;
+  border-left: 1px hsl(0, 0%, 90%) solid;
 }
 
 div#deck-wrapper > div#deck {
