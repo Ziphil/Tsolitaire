@@ -833,6 +833,19 @@ class Executor {
   }
 
   prepareEvents() {
+    $('[readonly]').on("click", (event)=>{
+      event.target.select();
+    })
+
+    $(".modal").on("click", (event) => {
+      this.closeAnyDialogue();
+    });
+    $(".modal").children().on("click", (event) => {
+      event.stopPropagation();
+    });
+    $(".closer").on("click", (event) => {
+      this.closeAnyDialogue();
+    });
     $("#newgame-button").on("click", (event) => {
       $("#load-seed").val(Math.floor(Math.random() * 4294967296));
       $("#newgame-dialogue").css("display", "flex");
@@ -888,6 +901,9 @@ class Executor {
     });
     $("#show-information").on("change", (event) => {
       this.render();
+    });
+    $("#tweet").on("click", (event) => {
+      executor.tweet();
     });
   }
 

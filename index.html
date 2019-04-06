@@ -72,7 +72,7 @@
           </div>
           <div class="button-group">
             <button id="gamestart-button">Start Game</button>
-            <button onclick="executor.closeAnyDialogue()">Cancel</button>
+            <button class="closer">Cancel</button>
           </div>
         </div>
       </div>
@@ -95,7 +95,7 @@
             <label for="show-information">タイル情報表示<hr class="pipe">Show tile information</label>
           </div>
           <div class="button-group">
-            <button onclick="executor.closeAnyDialogue()">Close</button>
+            <button class="closer">Close</button>
           </div>
         </div>
       </div>
@@ -103,19 +103,19 @@
         <div class="card">
           <div class="input-group">
             <div class="label">Seed</div>
-            <input type="text" id="share-seed" onclick="this.select()" readonly></input>
+            <input type="text" id="share-seed" readonly></input>
           </div>
           <div class="input-group">
             <div class="label">Record</div>
-            <textarea id="share-record" onclick="this.select()" readonly></textarea>
+            <textarea id="share-record" readonly></textarea>
           </div>
           <div class="input-group">
             <div class="label">Link</div>
-            <input type="text" id="share-link" onclick="this.select()" readonly></input>
+            <input type="text" id="share-link" readonly></input>
           </div>
           <div class="button-group">
-            <button onclick="executor.tweet()" class="tweet">Tweet</button>
-            <button onclick="executor.closeAnyDialogue()">Close</button>
+            <button id="tweet" class="tweet">Tweet</button>
+            <button class="closer">Close</button>
           </div>
         </div>
       </div>
