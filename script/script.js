@@ -180,13 +180,13 @@ class Dealer {
   }
 
   get nextTile() {
-    // if ではなく while にしたのは、一度も nextTile にアクセスせずにターンを終了すると openedTile が飛び飛びになってしまうのを避けるため
+    // if ではなく while にしたのは、一度も nextTile にアクセスせずにターンを終了すると queue が飛び飛びになってしまうのを避けるため
     while (this.queue.length <= this.round) {
       if (this.deck.length <= 0) {
         return null;
       }
       let randomIndex = this.random.next(this.deck.length);
-      // ランダムに 1 枚引いて、opened の末尾に追加
+      // ランダムに 1 枚引いて、queue の末尾に追加
       this.queue.push(this.deck.splice(randomIndex, 1)[0]);
     }
     return this.queue[this.round];
@@ -194,12 +194,12 @@ class Dealer {
 
   // 次の手を強制的に決定します (load 用)。
   set nextTile(tile) {
-    // 手前の手が未決定ならエラー (無理に設定すると openedTile が飛び飛びになりそう)
+    // 手前の手が未決定ならエラー (無理に設定すると queue が飛び飛びになりそう)
     if (this.queue.length < this.round) {
       throw new Error("Invalid operation");
     }
 
-    //設定しようとしている以降の手を削除し、山に戻す
+    // 設定しようとしている以降の queue を削除し、deck に戻す
     this.deck.push(...this.queue.splice(this.round));
 
     // queue と deck でタイルが重複したり抜けたりしそうならエラー
@@ -570,16 +570,18 @@ class Tsuro {
   place(tilePosition, tile) {
     let result = this.check(tilePosition);
     if (result != null) {
-      // 記録はnextTile更新前にやる
-      this.history.place(this.board, this.stones, this.nextTile, tilePosition);
-      this.record.place(this.nextTile.number, this.nextTile.rotation, tilePosition, this.dealer.round, this.timer.count);
-
       this.board = result.board;
       this.stones = result.stones;
+
+      // history への記録は新しい board と stones が必要
+      this.record.place(this.nextTile.number, this.nextTile.rotation, tilePosition, this.dealer.round, this.timer.count);
+      // 棋譜への記録は nextTile 更新前にやる
+      this.history.place(this.board, this.stones, this.nextTile, tilePosition);
+
       this.dealer.round ++;
       this.nextTile = this.dealer.nextTile;
 
-      // クリア判定はnextTile更新後にやる（nextTileを使っているので）
+      // クリア判定は nextTile 更新後にやる（nextTile を使っているので）
       if (this.isGameclear()) {
         this.timer.stop();
       }
