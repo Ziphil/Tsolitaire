@@ -858,14 +858,14 @@ class Executor {
     });
     $("#show-deck").on("change", (event) => {
       if (event.target.checked) {
-        $("#deck-wrapper").css("display", "flex");
+        $("#deck-wrapper").css("display", "block");
       } else {
         $("#deck-wrapper").css("display", "none");
       }
     });
     $("#show-queue").on("change", (event) => {
       if (event.target.checked) {
-        $("#queue-wrapper").css("display", "flex");
+        $("#queue-wrapper").css("display", "block");
       } else {
         $("#queue-wrapper").css("display", "none");
       }
