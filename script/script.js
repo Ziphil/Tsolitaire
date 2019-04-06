@@ -302,6 +302,7 @@ class HistoryEntry {
       dataDiv.text(row + column + number + rotation);
     }
     else dataDiv.text("initial");
+    dataDiv.attr("class", "data");
     dataDiv.css("display", "inline-block");
     li.append(dataDiv);
 
