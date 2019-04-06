@@ -291,6 +291,7 @@ div#content > div#mainboard-card {
   flex-direction: column;
   flex-grow: 0;
   flex-shrink: 0;
+  position: relative;
 }
 
 div#mainboard-card > div#board {
