@@ -786,7 +786,7 @@ class Executor {
   prepareTimer() {
     setInterval(() => {
       let count = this.tsuro.timer.count;
-      let minute = (count != null) ? ("0" + Math.floor(timer.count / 60)).slice(-2) : "  ";
+      let minute = (count != null) ? ("0" + Math.floor(count / 60)).slice(-2) : "  ";
       let second = (count != null) ? ("0" + (count % 60)).slice(-2) : "  ";
       if ($("#minute").text() != minute) {
         $("#minute").text(minute);
