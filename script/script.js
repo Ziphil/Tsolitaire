@@ -200,6 +200,10 @@ class Dealer {
       throw new Error("Invalid operation");
     }
 
+    // 決定した手と同じ手なら何もせず return（こうしないと乱数が合わなくなる）
+    if(this.round < this.queue.length && this.queue[this.round].number == tile.number)
+      return;
+
     // 設定しようとしている以降の queue を削除し、deck に戻す
     this.deck.push(...this.queue.splice(this.round));
 
