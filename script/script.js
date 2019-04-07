@@ -737,6 +737,27 @@ class Executor {
       }
     }
     this.load(seed, recordString);
+
+    let settings = localStorage.getItem("tsuroSettings");
+    if(settings) {
+      settings = JSON.parse(settings);
+      $("#show-timer").prop("checked",settings.showTimer);
+      $("#show-suggest").prop("checked",settings.showSuggest);
+      $("#show-deck").prop("checked",settings.showDeck);
+      $("#show-queue").prop("checked",settings.showQueue);
+      $("#show-history").prop("checked",settings.showHistory);
+      $("#show-result").prop("checked",settings.showResult);
+      $("#show-information").prop("checked",settings.showInformation);
+    } else {
+      $("#show-timer").prop("checked", true);
+      $("#show-suggest").prop("checked", true);
+      $("#show-deck").prop("checked", true);
+      $("#show-queue").prop("checked", true);
+      $("#show-history").prop("checked", true);
+      $("#show-result").prop("checked", true);
+      $("#show-information").prop("checked", false);
+    }
+    this.applySettings();
   }
 
   prepare() {
@@ -913,6 +934,22 @@ class Executor {
       $("#history-card").addClass("hidden");
     }
     this.render();
+    localStorage.setItem("tsuroSettings", JSON.stringify({
+      showTimer :
+        $("#show-timer").is(":checked"),
+      showSuggest :
+        $("#show-suggest").is(":checked"),
+      showDeck :
+        $("#show-deck").is(":checked"),
+      showQueue :
+        $("#show-queue").is(":checked"),
+      showHistory :
+        $("#show-history").is(":checked"),
+      showResult :
+        $("#show-result").is(":checked"),
+      showInformation :
+        $("#show-information").is(":checked")
+    }));
   }
 
   place(tilePosition) {
