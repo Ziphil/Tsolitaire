@@ -836,7 +836,6 @@ class Executor {
     $("[readonly]").on("click", (event)=>{
       event.target.select();
     })
-
     $(".modal").on("click", (event) => {
       this.closeAnyDialogue();
     });
@@ -867,45 +866,53 @@ class Executor {
       this.load($("#load-seed").val(), $("#load-record").val());
     });
     $("#show-timer").on("change", (event) => {
-      if (event.target.checked) {
-        $("#timer-card").removeClass("hidden");
-      } else {
-        $("#timer-card").addClass("hidden");
-      }
+      this.applySettings();
     });
     $("#show-suggest").on("change", (event) => {
-      this.render();
+      this.applySettings();
     });
     $("#show-deck").on("change", (event) => {
-      if (event.target.checked) {
-        $("#deck-wrapper").removeClass("hidden");
-      } else {
-        $("#deck-wrapper").addClass("hidden");
-      }
+      this.applySettings();
     });
     $("#show-queue").on("change", (event) => {
-      if (event.target.checked) {
-        $("#queue-wrapper").removeClass("hidden");
-      } else {
-        $("#queue-wrapper").addClass("hidden");
-      }
+      this.applySettings();
     });
     $("#show-history").on("change", (event) => {
-      if (event.target.checked) {
-        $("#history-card").removeClass("hidden");
-      } else {
-        $("#history-card").addClass("hidden");
-      }
+      this.applySettings();
     });
     $("#show-gameover").on("change", (event) => {
-      this.render();
+      this.applySettings();
     });
     $("#show-information").on("change", (event) => {
-      this.render();
+      this.applySettings();
     });
     $("#tweet").on("click", (event) => {
-      executor.tweet();
+      this.tweet();
     });
+  }
+
+  applySettings() {
+    if ($("#show-timer").is(":checked")) {
+      $("#timer-card").removeClass("hidden");
+    } else {
+      $("#timer-card").addClass("hidden");
+    }
+    if ($("#show-deck").is(":checked")) {
+      $("#deck-wrapper").removeClass("hidden");
+    } else {
+      $("#deck-wrapper").addClass("hidden");
+    }
+    if ($("#show-queue").is(":checked")) {
+      $("#queue-wrapper").removeClass("hidden");
+    } else {
+      $("#queue-wrapper").addClass("hidden");
+    }
+    if ($("#show-history").is(":checked")) {
+      $("#history-card").removeClass("hidden");
+    } else {
+      $("#history-card").addClass("hidden");
+    }
+    this.render();
   }
 
   place(tilePosition) {
