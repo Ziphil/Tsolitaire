@@ -402,7 +402,7 @@ class RecordEntry {
       string += "Redo";
     } else {
       if (!short) {
-        string += this.round + ": ";
+        string += (this.round + 1) + ": ";
       }
       let row = ROW_SYMBOLS[Math.floor(this.tilePosition / 6)];
       let column = COLUMN_SYMBOLS[this.tilePosition % 6];
