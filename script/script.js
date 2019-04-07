@@ -313,15 +313,7 @@ class HistoryEntry {
     tileDiv.css("display", "inline-block");
     li.append(tileDiv);
     let dataDiv = $("<div>")
-    if (this.tilePosition && this.tile) {
-      let row = ROW_SYMBOLS[Math.floor(this.tilePosition / 6)];
-      let column = COLUMN_SYMBOLS[this.tilePosition % 6];
-      let number = this.tile.number;
-      let rotation = ROTATION_SYMBOLS[this.tile.rotation];
-      dataDiv.text(row + column + number + rotation);
-    } else {
-      dataDiv.text("initial");
-    }
+    dataDiv.text(this.toString());
     dataDiv.attr("class", "data");
     dataDiv.css("display", "inline-block");
     li.append(dataDiv);
@@ -332,6 +324,17 @@ class HistoryEntry {
     return li;
   }
 
+  toString(short) {
+    if (this.tilePosition && this.tile) {
+      let row = ROW_SYMBOLS[Math.floor(this.tilePosition / 6)];
+      let column = COLUMN_SYMBOLS[this.tilePosition % 6];
+      let number = this.tile.number;
+      let rotation = ROTATION_SYMBOLS[this.tile.rotation];
+      return row + column + number + rotation;
+    } else {
+      return "initial";
+    }
+  }
 }
 
 
@@ -1008,14 +1011,12 @@ class Executor {
 
   renderInformation() {
     if ($("#show-information").is(":checked")) {
-      for (let entry of this.tsuro.record.entries) {
-        if (!entry.withdrawn) {
+      for (let entry of this.tsuro.history.entries.slice(0, this.tsuro.history.current + 1)) {
           let tileDiv = $("#board #tile-" + entry.tilePosition);
           let tileInformationDiv = $("<div>");
           tileInformationDiv.attr("class", "information");
           tileInformationDiv.html((entry.round + 1) + ":<br>" + entry.toString(true));
           tileDiv.append(tileInformationDiv);
-        }
       }
     }
   }
