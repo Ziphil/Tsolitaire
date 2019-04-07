@@ -1012,11 +1012,11 @@ class Executor {
   renderInformation() {
     if ($("#show-information").is(":checked")) {
       for (let entry of this.tsuro.history.entries.slice(0, this.tsuro.history.current + 1)) {
-          let tileDiv = $("#board #tile-" + entry.tilePosition);
-          let tileInformationDiv = $("<div>");
-          tileInformationDiv.attr("class", "information");
-          tileInformationDiv.html((entry.round + 1) + ":<br>" + entry.toString(true));
-          tileDiv.append(tileInformationDiv);
+        let tileDiv = $("#board #tile-" + entry.tilePosition);
+        let tileInformationDiv = $("<div>");
+        tileInformationDiv.attr("class", "information");
+        tileInformationDiv.html((entry.round + 1) + ":<br>" + entry.toString(true));
+        tileDiv.append(tileInformationDiv);
       }
     }
   }
