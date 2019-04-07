@@ -913,22 +913,22 @@ class Executor {
   }
 
   applySettings() {
-    if ($("#show-timer").is(":checked")) {
+    if ($("#show-timer").prop("checked")) {
       $("#timer-card").removeClass("hidden");
     } else {
       $("#timer-card").addClass("hidden");
     }
-    if ($("#show-deck").is(":checked")) {
+    if ($("#show-deck").prop("checked")) {
       $("#deck-wrapper").removeClass("hidden");
     } else {
       $("#deck-wrapper").addClass("hidden");
     }
-    if ($("#show-queue").is(":checked")) {
+    if ($("#show-queue").prop("checked")) {
       $("#queue-wrapper").removeClass("hidden");
     } else {
       $("#queue-wrapper").addClass("hidden");
     }
-    if ($("#show-history").is(":checked")) {
+    if ($("#show-history").prop("checked")) {
       $("#history-card").removeClass("hidden");
     } else {
       $("#history-card").addClass("hidden");
@@ -936,19 +936,19 @@ class Executor {
     this.render();
     localStorage.setItem("tsuroSettings", JSON.stringify({
       showTimer :
-        $("#show-timer").is(":checked"),
+        $("#show-timer").prop("checked"),
       showSuggest :
-        $("#show-suggest").is(":checked"),
+        $("#show-suggest").prop("checked"),
       showDeck :
-        $("#show-deck").is(":checked"),
+        $("#show-deck").prop("checked"),
       showQueue :
-        $("#show-queue").is(":checked"),
+        $("#show-queue").prop("checked"),
       showHistory :
-        $("#show-history").is(":checked"),
+        $("#show-history").prop("checked"),
       showResult :
-        $("#show-result").is(":checked"),
+        $("#show-result").prop("checked"),
       showInformation :
-        $("#show-information").is(":checked")
+        $("#show-information").prop("checked")
     }));
   }
 
@@ -1034,7 +1034,7 @@ class Executor {
 
   renderSuggest() {
     let nextTile = this.tsuro.nextTile;
-    if ($("#show-suggest").is(":checked")) {
+    if ($("#show-suggest").prop("checked")) {
       let tilePositions = this.tsuro.getSuggestPositions();
       for (let tilePosition of tilePositions) {
         let tileDiv = $("#board #tile-" + tilePosition);
@@ -1046,12 +1046,12 @@ class Executor {
   }
 
   renderResult() {
-    if ($("#show-result").is(":checked") && this.tsuro.isGameover()) {
+    if ($("#show-result").prop("checked") && this.tsuro.isGameover()) {
       $("#gameover").removeClass("hidden");
     } else {
       $("#gameover").addClass("hidden");
     }
-    if ($("#show-result").is(":checked") && this.tsuro.isGameclear()) {
+    if ($("#show-result").prop("checked") && this.tsuro.isGameclear()) {
       $("#gameclear").removeClass("hidden");
     } else {
       $("#gameclear").addClass("hidden");
@@ -1059,7 +1059,7 @@ class Executor {
   }
 
   renderInformation() {
-    if ($("#show-information").is(":checked")) {
+    if ($("#show-information").prop("checked")) {
       for (let entry of this.tsuro.history.entries.slice(0, this.tsuro.history.current + 1)) {
         let tileDiv = $("#board #tile-" + entry.tilePosition);
         let tileInformationDiv = $("<div>");
@@ -1085,7 +1085,7 @@ class Executor {
 
   renderNextTileInformation() {
     let nextTile = this.tsuro.nextTile;
-    if ($("#show-information").is(":checked")) {
+    if ($("#show-information").prop("checked")) {
       let tileDiv = $("#next-tile");
       if (nextTile) {
         let tileInformationDiv = $("<div>");
