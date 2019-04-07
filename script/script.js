@@ -720,7 +720,7 @@ class Executor {
     }
     this.hoveredTilePosition = null;
     this.render();
-    $("#newgame-dialogue").css("display", "none");
+    $("#newgame-dialogue").addClass("hidden");
   }
 
   init() {
@@ -848,13 +848,13 @@ class Executor {
     });
     $("#newgame-button").on("click", (event) => {
       $("#load-seed").val(Math.floor(Math.random() * 4294967296));
-      $("#newgame-dialogue").css("display", "flex");
+      $("#newgame-dialogue").removeClass("hidden");
     });
     $("#settings-button").on("click", (event) => {
-       $("#settings-dialogue").css("display", "flex");
+       $("#settings-dialogue").removeClass("hidden");
     });
     $("#share-button").on("click", (event) => {
-       $("#share-dialogue").css("display", "flex");
+       $("#share-dialogue").removeClass("hidden");
     });
     $("#undo-button").on("click", (event) => {
       this.undo();
@@ -867,9 +867,9 @@ class Executor {
     });
     $("#show-timer").on("change", (event) => {
       if (event.target.checked) {
-        $("#timer-card").css("display", "flex");
+        $("#timer-card").removeClass("hidden");
       } else {
-        $("#timer-card").css("display", "none");
+        $("#timer-card").addClass("hidden");
       }
     });
     $("#show-suggest").on("change", (event) => {
@@ -877,23 +877,23 @@ class Executor {
     });
     $("#show-deck").on("change", (event) => {
       if (event.target.checked) {
-        $("#deck-wrapper").css("display", "block");
+        $("#deck-wrapper").removeClass("hidden");
       } else {
-        $("#deck-wrapper").css("display", "none");
+        $("#deck-wrapper").addClass("hidden");
       }
     });
     $("#show-queue").on("change", (event) => {
       if (event.target.checked) {
-        $("#queue-wrapper").css("display", "block");
+        $("#queue-wrapper").removeClass("hidden");
       } else {
-        $("#queue-wrapper").css("display", "none");
+        $("#queue-wrapper").addClass("hidden");
       }
     });
     $("#show-history").on("change", (event) => {
       if (event.target.checked) {
-        $("#history-card").css("display", "flex");
+        $("#history-card").removeClass("hidden");
       } else {
-        $("#history-card").css("display", "none");
+        $("#history-card").addClass("hidden");
       }
     });
     $("#show-gameover").on("change", (event) => {
@@ -998,14 +998,14 @@ class Executor {
       }
     }
     if ($("#show-gameover").is(":checked") && this.tsuro.isGameover()) {
-      $("#gameover").css("display", "flex");
+      $("#gameover").removeClass("hidden");
     } else {
-      $("#gameover").css("display", "none");
+      $("#gameover").addClass("hidden");
     }
     if ($("#show-gameover").is(":checked") && this.tsuro.isGameclear()) {
-      $("#gameclear").css("display", "flex");
+      $("#gameclear").removeClass("hidden");
     } else {
-      $("#gameclear").css("display", "none");
+      $("#gameclear").addClass("hidden");
     }
   }
 
@@ -1124,9 +1124,9 @@ class Executor {
   }
 
   closeAnyDialogue() {
-    $("#newgame-dialogue").css("display", "none");
-    $("#settings-dialogue").css("display", "none");
-    $("#share-dialogue").css("display", "none");
+    $("#newgame-dialogue").addClass("hidden");
+    $("#settings-dialogue").addClass("hidden");
+    $("#share-dialogue").addClass("hidden");
   }
 
   tweet() {
