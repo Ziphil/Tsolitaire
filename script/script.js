@@ -492,7 +492,7 @@ class Record {
         } else if (match[1] == "Redo") {
           record.redo(count);
         } else {
-          let round = parseInt(match[2]);
+          let round = parseInt(match[2]) - 1;
           let row = ROW_SYMBOLS.indexOf(match[3]);
           let column = COLUMN_SYMBOLS.indexOf(match[4]);
           let tilePosition = row * 6 + column;
