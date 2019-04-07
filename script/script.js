@@ -848,6 +848,7 @@ class Executor {
     });
     $("#newgame-button").on("click", (event) => {
       $("#load-seed").val(Math.floor(Math.random() * 4294967296));
+      $("#load-record").val("");
       $("#newgame-dialogue").removeClass("hidden");
     });
     $("#settings-button").on("click", (event) => {
