@@ -1009,7 +1009,7 @@ class Executor {
           let tileDiv = $("#board #tile-" + entry.tilePosition);
           let tileInformationDiv = $("<div>");
           tileInformationDiv.attr("class", "information");
-          tileInformationDiv.html(entry.round + ":<br>" + entry.toString(true));
+          tileInformationDiv.html((entry.round + 1) + ":<br>" + entry.toString(true));
           tileDiv.append(tileInformationDiv);
         }
       }
