@@ -365,8 +365,8 @@ div#mainboard-card >div#gameclear {
 }
 
 div#mainboard-card >div#gameclear {
-  background-color: transparent;
-  text-shadow: 1px 1px 0px hsl(28, 54%, 33%), -1px 1px 0px hsl(28, 54%, 33%), 1px -1px 0px hsl(28, 54%, 33%), -1px -1px 0px hsl(28, 54%, 33%);
+  background-color: hsl(0, 0%, 100%, 0.5);
+  color: hsl(28, 54%, 33%);
 }
 
 div#right {
