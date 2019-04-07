@@ -901,7 +901,7 @@ class Executor {
     $("#show-history").on("change", (event) => {
       this.applySettings();
     });
-    $("#show-gameover").on("change", (event) => {
+    $("#show-result").on("change", (event) => {
       this.applySettings();
     });
     $("#show-information").on("change", (event) => {
@@ -1046,12 +1046,12 @@ class Executor {
   }
 
   renderResult() {
-    if ($("#show-gameover").is(":checked") && this.tsuro.isGameover()) {
+    if ($("#show-result").is(":checked") && this.tsuro.isGameover()) {
       $("#gameover").removeClass("hidden");
     } else {
       $("#gameover").addClass("hidden");
     }
-    if ($("#show-gameover").is(":checked") && this.tsuro.isGameclear()) {
+    if ($("#show-result").is(":checked") && this.tsuro.isGameclear()) {
       $("#gameclear").removeClass("hidden");
     } else {
       $("#gameclear").addClass("hidden");
