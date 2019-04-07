@@ -942,6 +942,7 @@ class Executor {
     this.renderStones();
     this.renderSuggest();
     this.renderInformation();
+    this.renderResult();
     this.renderNextTile();
     this.renderNextTileInformation();
     this.renderRest();
@@ -997,6 +998,9 @@ class Executor {
         tileDiv.append(suggestDiv);
       }
     }
+  }
+
+  renderResult() {
     if ($("#show-gameover").is(":checked") && this.tsuro.isGameover()) {
       $("#gameover").removeClass("hidden");
     } else {
