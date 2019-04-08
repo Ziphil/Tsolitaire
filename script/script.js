@@ -1086,6 +1086,9 @@ class Executor {
   }
 
   renderInformation() {
+    for (let i=0; i<36; i++) {
+      $("#information-" + i).empty();
+    }
     for (let entry of this.tsuro.history.entries.slice(0, this.tsuro.history.current + 1)) {
       if(entry.tilePosition) {
         let informationDiv = $("#information-" + entry.tilePosition);
