@@ -105,10 +105,6 @@ button.tweet:before {
   content: "\F000";
 }
 
-button.top-row {
-  margin: 0px 5px 10px 5px;
-}
-
 textarea, input[type="text"] {
   width: 100%;
   margin: 0px;
@@ -189,15 +185,20 @@ div.input-group {
   padding: 0px;
 }
 
+div.input-group >div.label {
+  font: italic 400 18px "Alegreya";
+  color: hsl(28, 54%, 33%);
+}
+
 div.button-group {
-  margin: 0px;
+  margin: 0px 0px 10px 0px;
   padding: 0px;
   text-align: center;
 }
 
-div.input-group >div.label {
-  font: italic 400 18px "Alegreya";
-  color: hsl(28, 54%, 33%);
+div.button-group:last-child,
+div.input-group:last-child {
+  margin: 0px 0px 0px 0px;
 }
 
 div.guide {
