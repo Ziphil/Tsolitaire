@@ -121,6 +121,10 @@ class Tsuro {
     return flag;
   }
 
+  isDeadGame() {
+    return this.nextTile.number == 0 && this.dealer.isDeadQueue();
+  }
+
   isGameclear() {
     return this.dealer.round == 35;
   }
