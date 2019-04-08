@@ -5,8 +5,15 @@ class Executor {
 
   load(seed = "", recordString = "") {
     this.sequence = new Sequence(seed, recordString);
+    this.hoveredTilePosition = null;
     this.render();
     $("#newgame-dialogue").addClass("hidden");
+  }
+
+  startNextCombo() {
+    this.sequence.startNextCombo();
+    this.hoveredTilePosition = null;
+    this.render();
   }
 
   init() {
@@ -149,7 +156,7 @@ class Executor {
 
   prepareTimer() {
     setInterval(() => {
-      let count = this.sequence.tsuro.timer.count;
+      let count = this.sequence.timer.count;
       let minute = (count != null) ? ("0" + Math.floor(count / 60)).slice(-2) : "  ";
       let second = (count != null) ? ("0" + (count % 60)).slice(-2) : "  ";
       if ($("#minute").text() != minute) {
@@ -267,12 +274,12 @@ class Executor {
   }
 
   place(tilePosition) {
-    this.sequence.tsuro.place(tilePosition);
+    this.sequence.place(tilePosition);
     this.render();
   }
 
   rotate() {
-    this.sequence.tsuro.rotateNextTile();
+    this.sequence.rotateNextTile();
     this.render();
   }
 
@@ -282,17 +289,17 @@ class Executor {
   }
 
   undo() {
-    this.sequence.tsuro.undo();
+    this.sequence.undo();
     this.render();
   }
 
   redo() {
-    this.sequence.tsuro.redo();
+    this.sequence.redo();
     this.render();
   }
 
   jumpTo(round) {
-    let result = this.sequence.tsuro.jumpTo(round);
+    let result = this.sequence.jumpTo(round);
     this.render();
   }
 
@@ -363,7 +370,7 @@ class Executor {
     }
     if ($("#show-result").prop("checked") && this.sequence.tsuro.isGameclear()) {
       $("#gameclear").removeClass("hidden");
-      if(this.sequence.tsuro.timer.count) {
+      if(this.sequence.timer.count) {
         $("#next-combo-button-wrapper").removeClass("hidden");
       } else {
         $("#next-combo-button-wrapper").addClass("hidden");
@@ -478,8 +485,8 @@ class Executor {
   }
 
   renderShareData() {
-    $("#share-record").val(this.sequence.tsuro.record.toString(false));
-    $("#share-seed").val(this.sequence.tsuro.seed);
+    $("#share-record").val(this.sequence.record.toString(false));
+    $("#share-seed").val(this.sequence.seed);
     $("#share-link").val(this.generateURL());
   }
 
@@ -490,7 +497,7 @@ class Executor {
   }
 
   tweet() {
-    let count = this.sequence.tsuro.timer.count;
+    let count = this.sequence.timer.count;
     let minute = ("0" + Math.floor(count / 60)).slice(-2);
     let second = ("0" + (count % 60)).slice(-2);
     let url = this.generateURL();
@@ -503,7 +510,7 @@ class Executor {
   }
 
   generateURL() {
-    return location.protocol + "//" + location.host + location.pathname + "?s=" + this.sequence.tsuro.seed + "&q=" + encodeURIComponent(this.sequence.tsuro.record.toString(false));
+    return location.protocol + "//" + location.host + location.pathname + "?s=" + this.sequence.seed + "&q=" + encodeURIComponent(this.sequence.record.toString(false));
   }
 
 }
