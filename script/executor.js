@@ -12,8 +12,22 @@ class Executor {
       this.tsuro = new Tsuro(seed, "");
     }
     this.hoveredTilePosition = null;
+    this.laps = [];
     this.render();
     $("#newgame-dialogue").addClass("hidden");
+  }
+
+  startNextCombo() {
+    if(!this.tsuro.isGameclear()) {
+      return;
+    }
+    if(!this.tsuro.timer.count) {
+      return;
+    }
+    this.laps.push(this.tsuro.timer.count);
+    this.tsuro = new Tsuro("", "");
+    this.hoveredTilePosition = null;
+    this.render();
   }
 
   init() {
@@ -225,6 +239,9 @@ class Executor {
     $("#tweet").on("click", (event) => {
       this.tweet();
     });
+    $("#next-combo-button").on("click", (event) => {
+      this.startNextCombo();
+    });
   }
 
   applySettings() {
@@ -310,6 +327,7 @@ class Executor {
     this.renderRest();
     this.renderDeck();
     this.renderQueue();
+    this.renderLapTimes();
     this.renderHistory();
     this.renderButtons();
     this.renderShareData();
@@ -366,12 +384,20 @@ class Executor {
     }
     if ($("#show-result").prop("checked") && this.tsuro.isGameclear()) {
       $("#gameclear").removeClass("hidden");
+      if(this.tsuro.timer.count) {
+        $("#next-combo-button-wrapper").removeClass("hidden");
+      } else {
+        $("#next-combo-button-wrapper").addClass("hidden");
+      }
     } else {
       $("#gameclear").addClass("hidden");
     }
   }
 
   renderInformation() {
+    for (let i=0; i<36; i++) {
+      $("#information-" + i).empty();
+    }
     for (let entry of this.tsuro.history.entries.slice(0, this.tsuro.history.current + 1)) {
       if (entry.tilePosition) {
         let informationDiv = $("#information-" + entry.tilePosition);
@@ -425,6 +451,18 @@ class Executor {
       queueDiv.append(tileDiv);
     }
     queueDiv.children().eq(round).addClass("next");
+  }
+
+  renderLapTimes() {
+    let lapsUl = $("#laps");
+    lapsUl.empty();
+    for (let lap of this.laps) {
+      let minute = ("0" + Math.floor(lap / 60)).slice(-2);
+      let second = ("0" + (lap % 60)).slice(-2);
+      let lapLi = $("<li>");
+      lapLi.html(minute + ":" + second);
+      lapsUl.append(lapLi);
+    }
   }
 
   renderHistory() {
