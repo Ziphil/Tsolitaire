@@ -772,34 +772,56 @@ class Executor {
   }
 
   prepareTiles() {
-    let tilesDiv = $("#tiles");
-    for (let i = 0 ; i < 36 ; i ++) {
-      let j = i;
-      let tileDiv = $("<div>");
-      let rowNumber = Math.floor(i / 6)
-      if ((rowNumber + i) % 2 == 0) {
-        tileDiv.attr("class", "tile alternative");
-      } else {
-        tileDiv.attr("class", "tile");
-      }
-      tileDiv.attr("id", "tile-" + i);
-      tileDiv.on("mousedown", (event) => {
-        if (event.button == 0) {
-          this.place(j);
-        } else if (event.button == 2) {
-          this.rotate();
+    let tilesTable = $("#tiles");
+    for (let row = 0 ; row < 6 ; row ++) {
+      let tr = $("<tr>")
+      for (let column = 0 ; column < 6 ; column ++) {
+        let tilePosition = row * 6 + column;
+        let td = $("<td>");
+        td.attr("class", "cell");
+
+        let baseDiv = $("<div>");
+        baseDiv.attr("class", "base");
+        if ((row + column) % 2 == 0) {
+          baseDiv.addClass("alternative");
         }
-      });
-      tileDiv.on("contextmenu", (event) => {
-        event.preventDefault();
-      });
-      tileDiv.on("mouseenter", (event) => {
-        this.hover(j);
-      });
-      tileDiv.on("mouseleave", (event) => {
-        this.hover(null);
-      });
-      tilesDiv.append(tileDiv);
+        td.append(baseDiv);
+
+        let suggestDiv = $("<div>");
+        suggestDiv.attr("class", "suggest");
+        suggestDiv.attr("id", "suggest-" + tilePosition);
+        td.append(suggestDiv);
+
+        let tileDiv = $("<div>");
+        tileDiv.attr("class", "tile");
+        tileDiv.attr("id", "tile-" + tilePosition);
+        tileDiv.on("mousedown", (event) => {
+          if (event.button == 0) {
+            this.place(tilePosition);
+          } else if (event.button == 2) {
+            this.rotate();
+          }
+        });
+        tileDiv.on("contextmenu", (event) => {
+          event.preventDefault();
+        });
+        tileDiv.on("mouseenter", (event) => {
+          this.hover(tilePosition);
+        });
+        tileDiv.on("mouseleave", (event) => {
+          this.hover(null);
+        });
+        td.append(tileDiv);
+
+        let informationDiv = $("<div>");
+        informationDiv.attr("class", "information");
+        informationDiv.attr("id", "information-" + tilePosition);
+        informationDiv.css("pointer-events", "none");
+        td.append(informationDiv);
+
+        tr.append(td);
+      }
+      tilesTable.append(tr);
     }
   }
 
@@ -813,7 +835,7 @@ class Executor {
       } else {
         tileDiv.attr("class", "mini-tile");
       }
-      tileDiv.attr("id", "tile-" + i);
+      tileDiv.attr("id", "decktile-" + i);
       deckDiv.append(tileDiv);
     }
   }
@@ -830,11 +852,11 @@ class Executor {
   }
 
   prepareNextTile() {
-    let tileDiv = $("#next-tile");
-    tileDiv.on("mousedown", (event) => {
+    let nextDiv = $("#next");
+    nextDiv.on("mousedown", (event) => {
       this.rotate();
     });
-    tileDiv.on("contextmenu", (event) => {
+    nextDiv.on("contextmenu", (event) => {
       event.preventDefault();
     });
   }
@@ -918,6 +940,11 @@ class Executor {
     } else {
       $("#timer-card").addClass("hidden");
     }
+    if ($("#show-suggest").prop("checked")) {
+      $(".suggest").removeClass("hidden");
+    } else {
+      $(".suggest").addClass("hidden");
+    }
     if ($("#show-deck").prop("checked")) {
       $("#deck-wrapper").removeClass("hidden");
     } else {
@@ -932,6 +959,11 @@ class Executor {
       $("#history-card").removeClass("hidden");
     } else {
       $("#history-card").addClass("hidden");
+    }
+    if ($("#show-information").prop("checked")) {
+      $(".information").removeClass("hidden");
+    } else {
+      $(".information").addClass("hidden");
     }
     this.render();
     localStorage.setItem("tsuroSettings", JSON.stringify({
@@ -989,7 +1021,6 @@ class Executor {
     this.renderInformation();
     this.renderResult();
     this.renderNextTile();
-    this.renderNextTileInformation();
     this.renderRest();
     this.renderDeck();
     this.renderQueue();
@@ -1000,22 +1031,21 @@ class Executor {
 
   renderTiles() {
     let tiles = this.tsuro.board.tiles;
+    let nextTile = this.tsuro.nextTile;
     for (let i = 0 ; i < tiles.length ; i ++) {
       let tile = tiles[i];
-      let tileDiv = $("#board #tile-" + i);
+      let tileDiv = $("#tile-" + i);
       tileDiv.empty();
+      tileDiv.removeClass("hover");
       if (tile) {
-        let tileTextureDiv = $("<div>");
-        tileTextureDiv.attr("class", "texture");
-        tileTextureDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
-        tileTextureDiv.css("transform", "rotate(" + (tile.rotation * 90) + "deg)");
-        tileDiv.append(tileTextureDiv);
+        tileDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
+        tileDiv.css("transform", "rotate(" + (tile.rotation * 90) + "deg)");
       } else if (!this.tsuro.isGameclear() && i == this.hoveredTilePosition) {
-        let hoverTextureDiv = $("<div>");
-        hoverTextureDiv.attr("class", "texture hover");
-        hoverTextureDiv.css("background-image", "url(\"image/" + (this.tsuro.nextTile.number + 1) + ".png\")");
-        hoverTextureDiv.css("transform", "rotate(" + (this.tsuro.nextTile.rotation * 90) + "deg)");
-        tileDiv.append(hoverTextureDiv);
+        tileDiv.addClass("hover");
+        tileDiv.css("background-image", "url(\"image/" + (nextTile.number + 1) + ".png\")");
+        tileDiv.css("transform", "rotate(" + (nextTile.rotation * 90) + "deg)");
+      } else {
+        tileDiv.css("background-image", "none");
       }
     }
   }
@@ -1033,15 +1063,12 @@ class Executor {
   }
 
   renderSuggest() {
-    let nextTile = this.tsuro.nextTile;
-    if ($("#show-suggest").prop("checked")) {
-      let tilePositions = this.tsuro.getSuggestPositions();
-      for (let tilePosition of tilePositions) {
-        let tileDiv = $("#board #tile-" + tilePosition);
-        let suggestDiv = $("<div>");
-        suggestDiv.attr("class", "suggest");
-        tileDiv.append(suggestDiv);
-      }
+    let suggestPositions = this.tsuro.getSuggestPositions();
+    for (let i=0; i<36; i++) {
+      $("#suggest-" + i).removeClass("suggest");
+    }
+    for (let position of suggestPositions) {
+      $("#suggest-" + position).addClass("suggest");
     }
   }
 
@@ -1059,13 +1086,10 @@ class Executor {
   }
 
   renderInformation() {
-    if ($("#show-information").prop("checked")) {
-      for (let entry of this.tsuro.history.entries.slice(0, this.tsuro.history.current + 1)) {
-        let tileDiv = $("#board #tile-" + entry.tilePosition);
-        let tileInformationDiv = $("<div>");
-        tileInformationDiv.attr("class", "information");
-        tileInformationDiv.html((entry.round + 1) + ":<br>" + entry.toString(true));
-        tileDiv.append(tileInformationDiv);
+    for (let entry of this.tsuro.history.entries.slice(0, this.tsuro.history.current + 1)) {
+      if(entry.tilePosition) {
+        let informationDiv = $("#information-" + entry.tilePosition);
+        informationDiv.html((entry.round + 1) + ":<br>" + entry.toString(true));
       }
     }
   }
@@ -1073,40 +1097,27 @@ class Executor {
   renderNextTile() {
     let nextTile = this.tsuro.nextTile;
     let tileDiv = $("#next-tile");
-    tileDiv.empty();
+    let tileInformationDiv = $("#next-information");
     if (nextTile) {
-      let tileTextureDiv = $("<div>");
-      tileTextureDiv.attr("class", "texture");
-      tileTextureDiv.css("background-image", "url(\"image/" + (nextTile.number + 1) + ".png\")");
-      tileTextureDiv.css("transform", "rotate(" + (nextTile.rotation * 90) + "deg)");
-      tileDiv.append(tileTextureDiv);
+      tileDiv.css("background-image", "url(\"image/" + (nextTile.number + 1) + ".png\")");
+      tileDiv.css("transform", "rotate(" + (nextTile.rotation * 90) + "deg)");
     }
-  }
-
-  renderNextTileInformation() {
-    let nextTile = this.tsuro.nextTile;
-    if ($("#show-information").prop("checked")) {
-      let tileDiv = $("#next-tile");
-      if (nextTile) {
-        let tileInformationDiv = $("<div>");
-        let number = nextTile.number;
-        let rotation = ROTATION_SYMBOLS[nextTile.rotation];
-        let string = number + rotation;
-        tileInformationDiv.attr("class", "information");
-        tileInformationDiv.html(string);
-        tileDiv.append(tileInformationDiv);
-      }
+    if (nextTile) {
+      let number = nextTile.number;
+      let rotation = ROTATION_SYMBOLS[nextTile.rotation];
+      let string = number + rotation;
+      tileInformationDiv.html(string);
     }
   }
 
   renderDeck() {
     let deck = this.tsuro.dealer.deck;
     for (let i = 0 ; i < 35 ; i ++) {
-      let tileDiv = $("#deck #tile-" + i);
+      let tileDiv = $("#deck #decktile-" + i);
       tileDiv.empty();
     }
     for (let tile of deck) {
-      let tileDiv = $("#deck #tile-" + tile.number);
+      let tileDiv = $("#deck #decktile-" + tile.number);
       let tileTextureDiv = $("<div>");
       tileTextureDiv.attr("class", "texture");
       tileTextureDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");

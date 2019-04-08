@@ -17,7 +17,7 @@
     <div id="content">
       <div id="mainboard-card" class="card">
         <div id="board">
-          <div id="tiles"></div>
+          <table id="tiles"></table>
           <div id="stones"></div>
         </div>
         <div id="gameover" class="mask hidden">Game Over</div>
@@ -39,7 +39,10 @@
           <div id="next-deck-container">
             <div id="next-wrapper">
               <h3>Next</h3>
-              <div id="next-tile" class="tile"></div>
+              <div id="next">
+                <div id="next-tile" class="tile"></div>
+                <div id="next-information" class="information"></div>
+              </div>
               <div class="guide">Click to Rotate</div>
             </div>
             <div id="rest-round-wrapper">

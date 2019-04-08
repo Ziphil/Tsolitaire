@@ -230,31 +230,40 @@ div.hidden {
   display: none;
 }
 
-div.tile {
+td.cell {
   width: 100px;
   height: 100px;
-  background-color: hsl(28, 80%, 98%);
   position: relative;
 }
 
-div.tile.alternative {
+div.base {
+  width: 100%;
+  height: 100%;
+  background-color: hsl(28, 80%, 98%);
+  position: absolute;
+}
+div.base.alternative {
   background-color: hsl(28, 80%, 97%);
 }
 
-div.tile >div.texture,
-div.tile >div.suggest {
-  width: 100px;
-  height: 100px;
-  background-size: contain;
-  pointer-events: none;
+div.suggest {
+  width: 100%;
+  height: 100%;
+  background-color: hsla(180, 100%, 50%, 0.2);
   position: absolute;
 }
 
-div.tile >div.texture.hover {
+div.tile {
+  width: 100%;
+  height: 100%;
+  background-size: contain;
+  position: absolute;
+}
+div.tile.hover {
   opacity: 0.2;
 }
 
-div.tile >div.information {
+div.information {
   margin: 3px 0px 0px 5px;
   padding: 0px;
   font: 16px "Inconsolata", monospace;
@@ -262,10 +271,6 @@ div.tile >div.information {
   line-height: 1.2;
   text-shadow: 1px 1px 0px hsl(28, 54%, 33%), -1px 1px 0px hsl(28, 54%, 33%), 1px -1px 0px hsl(28, 54%, 33%), -1px -1px 0px hsl(28, 54%, 33%);
   position: absolute;
-}
-
-div.tile >div.suggest {
-  background-color: hsla(180, 100%, 50%, 0.2);
 }
 
 div.mini-tile {
@@ -330,13 +335,11 @@ div#mainboard-card >div#board {
   position: relative;
 }
 
-div#board >div#tiles {
+div#board >table#tiles {
   width: 100%;
   height: 100%;
   margin: 0px;
   padding: 0px;
-  display: flex;
-  flex-wrap: wrap;
   flex-grow: 0;
   flex-shrink: 0;
 }
@@ -404,9 +407,12 @@ div#next-card >div#next-deck-container {
 div#next-deck-container >div#next-wrapper {
 }
 
-div#next-wrapper >div#next-tile {
+div#next-wrapper >div#next {
+  width: 100px;
+  height: 100px;
   margin: 0px;
   padding: 0px;
+  position: relative;
 }
 
 div#next-deck-container >div#rest-round-wrapper {
