@@ -279,7 +279,7 @@ class Executor {
   }
 
   rotate() {
-    this.sequence.rotateNextTile();
+    this.sequence.rotate();
     this.render();
   }
 

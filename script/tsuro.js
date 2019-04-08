@@ -116,8 +116,6 @@ class Tsuro {
         let success = this.check(tilePosition) != null;
         // 成功したら flag を false に
         flag = flag && !success;
-        if(this.check(tilePosition) != null) return false;
-        checkTile = checkTile.rotate();
       }
     }
     return flag;
