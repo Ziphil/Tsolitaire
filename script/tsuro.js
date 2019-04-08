@@ -6,7 +6,7 @@ class Tsuro {
   constructor(random) {
     this.stones = INITIAL_STONES;
     this.board = new Board();
-    this.dealer = new Dealer(random);
+    this.dealer = new Dealer(random, false);
     this.history = new History(this.board, this.stones);
     this.nextTile = this.dealer.nextTile;
   }

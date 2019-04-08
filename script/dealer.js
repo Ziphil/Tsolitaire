@@ -3,11 +3,12 @@
 
 class Dealer {
 
-  constructor(random) {
+  constructor(random, avoidDeadQueue) {
     this.deck = TILES.concat();
     this.queue = [];
     this.round = 0;
     this.random = random;
+    this.avoidDeadQueue = avoidDeadQueue;
   }
 
   get nextTile() {
@@ -16,8 +17,13 @@ class Dealer {
       if (this.deck.length <= 0) {
         return null;
       }
-      let randomIndex = this.random.next(this.deck.length);
       // ランダムに 1 枚引いて、queue の末尾に追加
+      let randomIndex;
+      if (this.avoidDeadQueue && this.isDeadQueue()) {
+        randomIndex = this.random.next(this.deck.length - 1) + 1;
+      } else {
+        randomIndex = this.random.next(this.deck.length);
+      }
       this.queue.push(this.deck.splice(randomIndex, 1)[0]);
     }
     return this.queue[this.round];
@@ -55,4 +61,7 @@ class Dealer {
     this.random.next(1);
   }
 
+  isDeadQueue() {
+    return this.queue.every(x => [0, 1, 2, 9, 12, 13, 14, 23, 31, 32, 33].indexOf(x.number) >= 0)
+  }
 }
