@@ -5,7 +5,7 @@ class Timer {
 
   constructor(flag) {
     this.finishDate = null;
-    this.beginDate = (flag) ? new Date() : null;
+    this.beginDate = flag ? new Date() : null;
   }
 
   stop() {

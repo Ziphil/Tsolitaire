@@ -3,11 +3,11 @@
 
 class Dealer {
 
-  constructor(seed) {
+  constructor(random) {
     this.deck = TILES.concat();
     this.queue = [];
     this.round = 0;
-    this.random = new Random(seed);
+    this.random = random;
   }
 
   get nextTile() {

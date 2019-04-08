@@ -94,6 +94,7 @@ class Record {
     for (let entry of this.entries) {
       entry.action(tsuro);
     }
+    tsuro.draw();
   }
 
   static parse(string) {

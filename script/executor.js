@@ -4,16 +4,16 @@
 class Executor {
 
   load(seed = "", recordString = "") {
-    try {
-      this.tsuro = new Tsuro(seed, recordString);
-    } catch (exception) {
-      alert("棋譜が異常です。新しいゲームを開始します。\nWrong record data.");
-      console.log(exception);
-      this.tsuro = new Tsuro(seed, "");
-    }
+    this.sequence = new Sequence(seed, recordString);
     this.hoveredTilePosition = null;
     this.render();
     $("#newgame-dialogue").addClass("hidden");
+  }
+
+  startNextCombo() {
+    this.sequence.startNextCombo();
+    this.hoveredTilePosition = null;
+    this.render();
   }
 
   init() {
@@ -156,7 +156,7 @@ class Executor {
 
   prepareTimer() {
     setInterval(() => {
-      let count = this.tsuro.timer.count;
+      let count = this.sequence.timer.count;
       let minute = (count != null) ? ("0" + Math.floor(count / 60)).slice(-2) : "  ";
       let second = (count != null) ? ("0" + (count % 60)).slice(-2) : "  ";
       if ($("#minute").text() != minute) {
@@ -225,6 +225,9 @@ class Executor {
     $("#tweet").on("click", (event) => {
       this.tweet();
     });
+    $("#next-combo-button").on("click", (event) => {
+      this.startNextCombo();
+    });
   }
 
   applySettings() {
@@ -271,12 +274,12 @@ class Executor {
   }
 
   place(tilePosition) {
-    this.tsuro.place(tilePosition);
+    this.sequence.place(tilePosition);
     this.render();
   }
 
   rotate() {
-    this.tsuro.rotateNextTile();
+    this.sequence.rotate();
     this.render();
   }
 
@@ -286,17 +289,17 @@ class Executor {
   }
 
   undo() {
-    this.tsuro.undo();
+    this.sequence.undo();
     this.render();
   }
 
   redo() {
-    this.tsuro.redo();
+    this.sequence.redo();
     this.render();
   }
 
   jumpTo(round) {
-    let result = this.tsuro.jumpTo(round);
+    let result = this.sequence.jumpTo(round);
     this.render();
   }
 
@@ -310,14 +313,15 @@ class Executor {
     this.renderRest();
     this.renderDeck();
     this.renderQueue();
+    this.renderLapTimes();
     this.renderHistory();
     this.renderButtons();
     this.renderShareData();
   }
 
   renderTiles() {
-    let tiles = this.tsuro.board.tiles;
-    let nextTile = this.tsuro.nextTile;
+    let tiles = this.sequence.tsuro.board.tiles;
+    let nextTile = this.sequence.tsuro.nextTile;
     for (let i = 0 ; i < tiles.length ; i ++) {
       let tile = tiles[i];
       let tileDiv = $("#tile-" + i);
@@ -326,7 +330,7 @@ class Executor {
       if (tile) {
         tileDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
         tileDiv.css("transform", "rotate(" + (tile.rotation * 90) + "deg)");
-      } else if (!this.tsuro.isGameclear() && i == this.hoveredTilePosition) {
+      } else if (!this.sequence.tsuro.isGameclear() && i == this.hoveredTilePosition) {
         tileDiv.addClass("hover");
         tileDiv.css("background-image", "url(\"image/" + (nextTile.number + 1) + ".png\")");
         tileDiv.css("transform", "rotate(" + (nextTile.rotation * 90) + "deg)");
@@ -337,7 +341,7 @@ class Executor {
   }
 
   renderStones() {
-    let stones = this.tsuro.stones;
+    let stones = this.sequence.tsuro.stones;
     for (let i = 0 ; i < stones.length ; i ++) {
       let stone = stones[i];
       let top = Math.floor(stone.tilePosition / 6) * 100 + TOP_SHIFT[stone.edgePosition];
@@ -349,7 +353,7 @@ class Executor {
   }
 
   renderSuggest() {
-    let suggestPositions = this.tsuro.getSuggestPositions();
+    let suggestPositions = this.sequence.tsuro.getSuggestPositions();
     for (let i = 0 ; i < 36 ; i ++) {
       $("#suggest-" + i).removeClass("suggest");
     }
@@ -359,20 +363,28 @@ class Executor {
   }
 
   renderResult() {
-    if ($("#show-result").prop("checked") && this.tsuro.isGameover()) {
+    if ($("#show-result").prop("checked") && this.sequence.tsuro.isGameover()) {
       $("#gameover").removeClass("hidden");
     } else {
       $("#gameover").addClass("hidden");
     }
-    if ($("#show-result").prop("checked") && this.tsuro.isGameclear()) {
+    if ($("#show-result").prop("checked") && this.sequence.tsuro.isGameclear()) {
       $("#gameclear").removeClass("hidden");
+      if(this.sequence.timer.count) {
+        $("#next-combo-button-wrapper").removeClass("hidden");
+      } else {
+        $("#next-combo-button-wrapper").addClass("hidden");
+      }
     } else {
       $("#gameclear").addClass("hidden");
     }
   }
 
   renderInformation() {
-    for (let entry of this.tsuro.history.entries.slice(0, this.tsuro.history.current + 1)) {
+    for (let i=0; i<36; i++) {
+      $("#information-" + i).empty();
+    }
+    for (let entry of this.sequence.tsuro.history.entries.slice(0, this.sequence.tsuro.history.current + 1)) {
       if (entry.tilePosition) {
         let informationDiv = $("#information-" + entry.tilePosition);
         informationDiv.html((entry.round + 1) + ":<br>" + entry.toString(true));
@@ -381,7 +393,7 @@ class Executor {
   }
 
   renderNextTile() {
-    let nextTile = this.tsuro.nextTile;
+    let nextTile = this.sequence.tsuro.nextTile;
     let tileDiv = $("#next-tile");
     let tileInformationDiv = $("#next-information");
     if (nextTile) {
@@ -394,7 +406,7 @@ class Executor {
   }
 
   renderDeck() {
-    let deck = this.tsuro.dealer.deck;
+    let deck = this.sequence.tsuro.dealer.deck;
     for (let i = 0 ; i < 35 ; i ++) {
       let tileDiv = $("#deck #decktile-" + i);
       tileDiv.empty();
@@ -410,8 +422,8 @@ class Executor {
   }
 
   renderQueue() {
-    let queue = this.tsuro.dealer.queue;
-    let round = this.tsuro.dealer.round;
+    let queue = this.sequence.tsuro.dealer.queue;
+    let round = this.sequence.tsuro.dealer.round;
     let queueDiv = $("#queue");
     queueDiv.empty();
     for (let tile of queue) {
@@ -427,9 +439,21 @@ class Executor {
     queueDiv.children().eq(round).addClass("next");
   }
 
+  renderLapTimes() {
+    let lapsUl = $("#laps");
+    lapsUl.empty();
+    for (let lap of this.sequence.laps) {
+      let minute = ("0" + Math.floor(lap / 60)).slice(-2);
+      let second = ("0" + (lap % 60)).slice(-2);
+      let lapLi = $("<li>");
+      lapLi.html(minute + ":" + second);
+      lapsUl.append(lapLi);
+    }
+  }
+
   renderHistory() {
-    let entries = this.tsuro.history.entries;
-    let round = this.tsuro.dealer.round;
+    let entries = this.sequence.tsuro.history.entries;
+    let round = this.sequence.tsuro.dealer.round;
     let historyUl = $("#history");
     historyUl.empty();
     for (let entry of entries) {
@@ -442,18 +466,18 @@ class Executor {
   }
 
   renderRest() {
-    let restRound = 35 - this.tsuro.dealer.round;
+    let restRound = 35 - this.sequence.tsuro.dealer.round;
     let restRoundDiv = $("#rest-round");
     restRoundDiv.text(restRound);
   }
 
   renderButtons() {
-    if (this.tsuro.canUndo()) {
+    if (this.sequence.tsuro.canUndo()) {
       $("#undo-button").attr("class", "");
     } else {
       $("#undo-button").attr("class", "disabled")
     }
-    if (this.tsuro.canRedo()) {
+    if (this.sequence.tsuro.canRedo()) {
       $("#redo-button").attr("class", "");
     } else {
       $("#redo-button").attr("class", "disabled")
@@ -461,8 +485,8 @@ class Executor {
   }
 
   renderShareData() {
-    $("#share-record").val(this.tsuro.record.toString(false));
-    $("#share-seed").val(this.tsuro.seed);
+    $("#share-record").val(this.sequence.record.toString(false));
+    $("#share-seed").val(this.sequence.seed);
     $("#share-link").val(this.generateURL());
   }
 
@@ -473,7 +497,7 @@ class Executor {
   }
 
   tweet() {
-    let count = this.tsuro.timer.count;
+    let count = this.sequence.timer.count;
     let minute = ("0" + Math.floor(count / 60)).slice(-2);
     let second = ("0" + (count % 60)).slice(-2);
     let url = this.generateURL();
@@ -486,7 +510,7 @@ class Executor {
   }
 
   generateURL() {
-    return location.protocol + "//" + location.host + location.pathname + "?s=" + this.tsuro.seed + "&q=" + encodeURIComponent(this.tsuro.record.toString(false));
+    return location.protocol + "//" + location.host + location.pathname + "?s=" + this.sequence.seed + "&q=" + encodeURIComponent(this.sequence.record.toString(false));
   }
 
 }

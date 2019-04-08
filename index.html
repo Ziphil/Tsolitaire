@@ -15,6 +15,7 @@
     <script src="script/record.js"></script>
     <script src="script/timer.js"></script>
     <script src="script/tsuro.js"></script>
+    <script src="script/sequence.js"></script>
     <script src="script/executor.js"></script>
     <script src="script/script.js"></script>
     <link rel="stylesheet" type="text/css" href="style/reset.css">
@@ -31,8 +32,15 @@
           <table id="tiles"></table>
           <div id="stones"></div>
         </div>
-        <div id="gameover" class="mask hidden">Game Over</div>
-        <div id="gameclear" class="mask hidden">Game Cleared</div>
+        <div id="gameover" class="mask hidden">
+          <div id="gameover-label">Game Over</div>
+        </div>
+        <div id="gameclear" class="mask hidden">
+          <div id="gameclear-label">Game Cleared</div>
+          <div id="next-combo-button-wrapper" class"button-group">
+            <button id="next-combo-button">Try Combo</button>
+          </div>
+        </div>
       </div>
       <div id="right">
         <div id="buttons">
@@ -70,7 +78,11 @@
           </div>
         </div>
         <div id="timer-card" class="card">
-          <span id="minute">00</span>:<span id="second">00</span>
+          <div id="main-timer">
+            <span id="minute">00</span>:<span id="second">00</span>
+          </div>
+          <ul id="laps">
+          </ul>
         </div>
         <div id="history-card" class="card">
           <h3>History</h3>

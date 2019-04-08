@@ -3,54 +3,38 @@
 
 class Tsuro {
 
-  constructor(seed, recordString) {
-    if (seed == undefined || seed == "") {
-      seed = Math.floor(Math.random() * 4294967296);
-    }
-    this.seed = seed;
+  constructor(random) {
     this.stones = INITIAL_STONES;
     this.board = new Board();
-    this.dealer = new Dealer(seed);
+    this.dealer = new Dealer(random);
     this.history = new History(this.board, this.stones);
-    this.record = new Record();
-    this.timer = new Timer(recordString == "");
-    Record.parse(recordString).play(this);
     this.nextTile = this.dealer.nextTile;
   }
 
-  place(tilePosition, tile) {
+  place(tilePosition) {
     let result = this.check(tilePosition);
     if (result != null) {
       this.board = result.board;
       this.stones = result.stones;
-
       // history への記録は新しい board と stones が必要
-      this.record.place(this.nextTile, tilePosition, this.dealer.round, this.timer.count);
-      // 棋譜への記録は nextTile 更新前にやる
       this.history.place(this.board, this.stones, this.nextTile, tilePosition);
-
       this.dealer.round ++;
-      this.nextTile = this.dealer.nextTile;
-
-      // クリア判定は nextTile 更新後にやる (nextTile を使っているので)
-      if (this.isGameclear()) {
-        this.timer.stop();
-      }
       return true;
     } else {
       return false;
     }
   }
 
+  draw() {
+    this.nextTile = this.dealer.nextTile;
+  }
+
   undo() {
     let entry = this.history.undo();
     if (entry) {
-      this.record.undo(this.timer.count);
-
       this.board = entry.board;
       this.stones = entry.stones;
       this.dealer.round --;
-      this.nextTile = this.dealer.nextTile;
       return true;
     } else {
       return false;
@@ -60,12 +44,9 @@ class Tsuro {
   redo() {
     let entry = this.history.redo();
     if (entry) {
-      this.record.redo(this.timer.count);
-
       this.board = entry.board;
       this.stones = entry.stones;
       this.dealer.round ++;
-      this.nextTile = this.dealer.nextTile;
       return true;
     } else {
       return false;
@@ -75,8 +56,6 @@ class Tsuro {
   jumpTo(round) {
     let entry = this.history.jumpTo(round);
     if (entry) {
-      // this.record.jumpTo(round, this.timer.count);
-
       this.board = entry.board;
       this.stones = entry.stones;
       this.dealer.round = round;
@@ -125,10 +104,11 @@ class Tsuro {
   }
 
   isGameover() {
-    if (!this.nextTile) {
+    if (this.isGameclear()) {
       return false;
     }
     let flag = true;
+    let checkTile = this.nextTile;
     for (let tilePosition = 0 ; tilePosition < 36 ; tilePosition ++) {
       // 4 回回さないと戻らないので、return しちゃだめ
       for (let rotation = 0 ; rotation < 4 ; rotation ++) {
@@ -142,7 +122,7 @@ class Tsuro {
   }
 
   isGameclear() {
-    return !this.nextTile;
+    return this.dealer.round == 35;
   }
 
   // 回さずに置ける場所の配列を返します。
