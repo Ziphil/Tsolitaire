@@ -80,6 +80,9 @@ class Tile {
     }
   }
 
+  toString() {
+    return this.number + ROTATION_SYMBOLS[this.rotation];
+  }
 }
 
 
@@ -328,9 +331,8 @@ class HistoryEntry {
     if (this.tilePosition && this.tile) {
       let row = ROW_SYMBOLS[Math.floor(this.tilePosition / 6)];
       let column = COLUMN_SYMBOLS[this.tilePosition % 6];
-      let number = this.tile.number;
-      let rotation = ROTATION_SYMBOLS[this.tile.rotation];
-      return row + column + number + rotation;
+      let tile = this.tile.toString();
+      return row + column + tile;
     } else {
       return "initial";
     }
@@ -391,11 +393,10 @@ class History {
 
 class RecordEntry {
 
-  constructor(count, type, number, rotation, tilePosition, round, withdrawn = false) {
+  constructor(count, type, tile, tilePosition, round, withdrawn = false) {
     this.count = count;
     this.type = type;
-    this.number = number;
-    this.rotation = rotation;
+    this.tile = tile;
     this.withdrawn = withdrawn;
     this.tilePosition = tilePosition;
     this.round = round;
@@ -413,9 +414,8 @@ class RecordEntry {
       }
       let row = ROW_SYMBOLS[Math.floor(this.tilePosition / 6)];
       let column = COLUMN_SYMBOLS[this.tilePosition % 6];
-      let number = this.number;
-      let rotation = ROTATION_SYMBOLS[this.rotation];
-      string += row + column + number + rotation;
+      let tile = this.tile.toString();
+      string += row + column + tile;
       if (this.withdrawn) {
         string += "*";
       }
@@ -432,9 +432,8 @@ class RecordEntry {
 
   action(tsuro) {
     if (this.type == 0 && !this.withdrawn) {
-      let tile = TILES[this.number].rotate(this.rotation)
-      tsuro.dealer.nextTile = tile;
-      tsuro.nextTile = tile;
+      tsuro.dealer.nextTile = this.tile;
+      tsuro.nextTile = this.tile;
       let result = tsuro.place(this.tilePosition);
       if (!result) {
         throw new Error("Invalid Move");
@@ -455,8 +454,8 @@ class Record {
     this.entries = [];
   }
 
-  place(number, rotation, tilePosition, round, count, withdrawn = false) {
-    let entry = new RecordEntry(count, 0, number, rotation, tilePosition, round, withdrawn);
+  place(tile, tilePosition, round, count, withdrawn = false) {
+    let entry = new RecordEntry(count, 0, tile, tilePosition, round, withdrawn);
     this.entries.push(entry);
   }
 
@@ -507,7 +506,8 @@ class Record {
           let rotation = ROTATION_SYMBOLS.indexOf(match[6]);
           let withdrawn = !!match[7];
           if (0 <= tilePosition && tilePosition < 36 && number < TILES.length && rotation >= 0) {
-            record.place(number, rotation, tilePosition, round, count, withdrawn);
+            let tile = TILES[number].rotate(rotation);
+            record.place(tile, tilePosition, round, count, withdrawn);
           } else {
             throw new Error("Invalid Record");
           }
@@ -573,7 +573,7 @@ class Tsuro {
       this.stones = result.stones;
 
       // history への記録は新しい board と stones が必要
-      this.record.place(this.nextTile.number, this.nextTile.rotation, tilePosition, this.dealer.round, this.timer.count);
+      this.record.place(this.nextTile, tilePosition, this.dealer.round, this.timer.count);
       // 棋譜への記録は nextTile 更新前にやる
       this.history.place(this.board, this.stones, this.nextTile, tilePosition);
 
@@ -1103,10 +1103,7 @@ class Executor {
       tileDiv.css("transform", "rotate(" + (nextTile.rotation * 90) + "deg)");
     }
     if (nextTile) {
-      let number = nextTile.number;
-      let rotation = ROTATION_SYMBOLS[nextTile.rotation];
-      let string = number + rotation;
-      tileInformationDiv.html(string);
+      tileInformationDiv.html(nextTile.toString());
     }
   }
 
