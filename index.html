@@ -17,25 +17,32 @@
     <div id="content">
       <div id="mainboard-card" class="card">
         <div id="board">
-          <div id="tiles"></div>
+          <table id="tiles"></table>
           <div id="stones"></div>
         </div>
-        <div id="gameover" class="mask">Game Over</div>
-        <div id="gameclear" class="mask">Game Cleared</div>
+        <div id="gameover" class="mask hidden">Game Over</div>
+        <div id="gameclear" class="mask hidden">Game Cleared</div>
       </div>
       <div id="right">
         <div id="buttons">
-          <button id="newgame-button" class="top-row">New Game</button>
-          <button id="settings-button" class="top-row">Settings</button>
-          <button id="share-button" class="top-row">Share</button></br>
-          <button id="undo-button">Undo</button>
-          <button id="redo-button">Redo</button>
+          <div class="button-group">
+            <button id="newgame-button">New Game</button>
+            <button id="settings-button">Settings</button>
+            <button id="share-button">Share</button></br>
+          </div>
+          <div class="button-group">
+            <button id="undo-button">Undo</button>
+            <button id="redo-button">Redo</button>
+          </div>
         </div>
         <div id="next-card" class="card">
           <div id="next-deck-container">
             <div id="next-wrapper">
               <h3>Next</h3>
-              <div id="next-tile" class="tile"></div>
+              <div id="next">
+                <div id="next-tile" class="tile"></div>
+                <div id="next-information" class="information"></div>
+              </div>
               <div class="guide">Click to Rotate</div>
             </div>
             <div id="rest-round-wrapper">
@@ -60,8 +67,8 @@
           </ul>
         </div>
       </div>
-      <div id="newgame-dialogue" class="mask modal">
-        <div class="card">
+      <div id="newgame-dialogue" class="mask modal hidden">
+        <div class="card dialogue">
           <div class="input-group">
             <div class="label">Seed</div>
             <input type="text" id="load-seed"></input>
@@ -76,21 +83,21 @@
           </div>
         </div>
       </div>
-      <div id="settings-dialogue" class="mask modal">
-        <div class="card">
+      <div id="settings-dialogue" class="mask modal hidden">
+        <div class="card dialogue">
           <div class="input-group">
-            <input type="checkbox" name="show-timer" id="show-timer" checked>
+            <input type="checkbox" name="show-timer" id="show-timer">
             <label for="show-timer">タイマー表示<hr class="pipe">Show timer</label><br>
-            <input type="checkbox" name="show-suggest" id="show-suggest" checked>
+            <input type="checkbox" name="show-suggest" id="show-suggest">
             <label for="show-suggest">サジェスト表示<hr class="pipe">Show suggestion</label><br>
-            <input type="checkbox" name="show-deck" id="show-deck" checked>
+            <input type="checkbox" name="show-deck" id="show-deck">
             <label for="show-deck">残りタイル表示<hr class="pipe">Show deck tiles</label><br>
-            <input type="checkbox" name="show-queue" id="show-queue" checked>
+            <input type="checkbox" name="show-queue" id="show-queue">
             <label for="show-queue">判明分タイル表示<hr class="pipe">Show queue tiles</label><br>
-            <input type="checkbox" name="show-history" id="show-history" checked>
+            <input type="checkbox" name="show-history" id="show-history">
             <label for="show-history">履歴表示<hr class="pipe">Show history</label><br>
-            <input type="checkbox" name="show-gameover" id="show-gameover" checked>
-            <label for="show-gameover">ゲームオーバー表示<hr class="pipe">Show gameover overlay</label><br>
+            <input type="checkbox" name="show-result" id="show-result">
+            <label for="show-result">ゲームオーバー表示<hr class="pipe">Show gameover overlay</label><br>
             <input type="checkbox" name="show-information" id="show-information">
             <label for="show-information">タイル情報表示<hr class="pipe">Show tile information</label>
           </div>
@@ -99,8 +106,8 @@
           </div>
         </div>
       </div>
-      <div id="share-dialogue" class="mask modal">
-        <div class="card">
+      <div id="share-dialogue" class="mask modal hidden">
+        <div class="card dialogue">
           <div class="input-group">
             <div class="label">Seed</div>
             <input type="text" id="share-seed" readonly></input>

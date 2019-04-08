@@ -80,6 +80,9 @@ class Tile {
     }
   }
 
+  toString() {
+    return this.number + ROTATION_SYMBOLS[this.rotation];
+  }
 }
 
 
@@ -313,15 +316,7 @@ class HistoryEntry {
     tileDiv.css("display", "inline-block");
     li.append(tileDiv);
     let dataDiv = $("<div>")
-    if (this.tilePosition && this.tile) {
-      let row = ROW_SYMBOLS[Math.floor(this.tilePosition / 6)];
-      let column = COLUMN_SYMBOLS[this.tilePosition % 6];
-      let number = this.tile.number;
-      let rotation = ROTATION_SYMBOLS[this.tile.rotation];
-      dataDiv.text(row + column + number + rotation);
-    } else {
-      dataDiv.text("initial");
-    }
+    dataDiv.text(this.toString());
     dataDiv.attr("class", "data");
     dataDiv.css("display", "inline-block");
     li.append(dataDiv);
@@ -332,6 +327,16 @@ class HistoryEntry {
     return li;
   }
 
+  toString(short) {
+    if (this.tilePosition && this.tile) {
+      let row = ROW_SYMBOLS[Math.floor(this.tilePosition / 6)];
+      let column = COLUMN_SYMBOLS[this.tilePosition % 6];
+      let tile = this.tile.toString();
+      return row + column + tile;
+    } else {
+      return "initial";
+    }
+  }
 }
 
 
@@ -388,11 +393,10 @@ class History {
 
 class RecordEntry {
 
-  constructor(count, type, number, rotation, tilePosition, round, withdrawn = false) {
+  constructor(count, type, tile, tilePosition, round, withdrawn = false) {
     this.count = count;
     this.type = type;
-    this.number = number;
-    this.rotation = rotation;
+    this.tile = tile;
     this.withdrawn = withdrawn;
     this.tilePosition = tilePosition;
     this.round = round;
@@ -410,9 +414,8 @@ class RecordEntry {
       }
       let row = ROW_SYMBOLS[Math.floor(this.tilePosition / 6)];
       let column = COLUMN_SYMBOLS[this.tilePosition % 6];
-      let number = this.number;
-      let rotation = ROTATION_SYMBOLS[this.rotation];
-      string += row + column + number + rotation;
+      let tile = this.tile.toString();
+      string += row + column + tile;
       if (this.withdrawn) {
         string += "*";
       }
@@ -429,9 +432,8 @@ class RecordEntry {
 
   action(tsuro) {
     if (this.type == 0 && !this.withdrawn) {
-      let tile = TILES[this.number].rotate(this.rotation)
-      tsuro.dealer.nextTile = tile;
-      tsuro.nextTile = tile;
+      tsuro.dealer.nextTile = this.tile;
+      tsuro.nextTile = this.tile;
       let result = tsuro.place(this.tilePosition);
       if (!result) {
         throw new Error("Invalid Move");
@@ -452,8 +454,8 @@ class Record {
     this.entries = [];
   }
 
-  place(number, rotation, tilePosition, round, count, withdrawn = false) {
-    let entry = new RecordEntry(count, 0, number, rotation, tilePosition, round, withdrawn);
+  place(tile, tilePosition, round, count, withdrawn = false) {
+    let entry = new RecordEntry(count, 0, tile, tilePosition, round, withdrawn);
     this.entries.push(entry);
   }
 
@@ -504,7 +506,8 @@ class Record {
           let rotation = ROTATION_SYMBOLS.indexOf(match[6]);
           let withdrawn = !!match[7];
           if (0 <= tilePosition && tilePosition < 36 && number < TILES.length && rotation >= 0) {
-            record.place(number, rotation, tilePosition, round, count, withdrawn);
+            let tile = TILES[number].rotate(rotation);
+            record.place(tile, tilePosition, round, count, withdrawn);
           } else {
             throw new Error("Invalid Record");
           }
@@ -570,7 +573,7 @@ class Tsuro {
       this.stones = result.stones;
 
       // history への記録は新しい board と stones が必要
-      this.record.place(this.nextTile.number, this.nextTile.rotation, tilePosition, this.dealer.round, this.timer.count);
+      this.record.place(this.nextTile, tilePosition, this.dealer.round, this.timer.count);
       // 棋譜への記録は nextTile 更新前にやる
       this.history.place(this.board, this.stones, this.nextTile, tilePosition);
 
@@ -717,7 +720,7 @@ class Executor {
     }
     this.hoveredTilePosition = null;
     this.render();
-    $("#newgame-dialogue").css("display", "none");
+    $("#newgame-dialogue").addClass("hidden");
   }
 
   init() {
@@ -734,6 +737,27 @@ class Executor {
       }
     }
     this.load(seed, recordString);
+
+    let settings = localStorage.getItem("tsuroSettings");
+    if(settings) {
+      settings = JSON.parse(settings);
+      $("#show-timer").prop("checked",settings.showTimer);
+      $("#show-suggest").prop("checked",settings.showSuggest);
+      $("#show-deck").prop("checked",settings.showDeck);
+      $("#show-queue").prop("checked",settings.showQueue);
+      $("#show-history").prop("checked",settings.showHistory);
+      $("#show-result").prop("checked",settings.showResult);
+      $("#show-information").prop("checked",settings.showInformation);
+    } else {
+      $("#show-timer").prop("checked", true);
+      $("#show-suggest").prop("checked", true);
+      $("#show-deck").prop("checked", true);
+      $("#show-queue").prop("checked", true);
+      $("#show-history").prop("checked", true);
+      $("#show-result").prop("checked", true);
+      $("#show-information").prop("checked", false);
+    }
+    this.applySettings();
   }
 
   prepare() {
@@ -748,34 +772,56 @@ class Executor {
   }
 
   prepareTiles() {
-    let tilesDiv = $("#tiles");
-    for (let i = 0 ; i < 36 ; i ++) {
-      let j = i;
-      let tileDiv = $("<div>");
-      let rowNumber = Math.floor(i / 6)
-      if ((rowNumber % 2 == 0 && i % 2 == 0) || (rowNumber % 2 == 1 && i % 2 == 1)) {
-        tileDiv.attr("class", "tile alternative");
-      } else {
-        tileDiv.attr("class", "tile");
-      }
-      tileDiv.attr("id", "tile-" + i);
-      tileDiv.on("mousedown", (event) => {
-        if (event.button == 0) {
-          this.place(j);
-        } else if (event.button == 2) {
-          this.rotate();
+    let tilesTable = $("#tiles");
+    for (let row = 0 ; row < 6 ; row ++) {
+      let tr = $("<tr>")
+      for (let column = 0 ; column < 6 ; column ++) {
+        let tilePosition = row * 6 + column;
+        let td = $("<td>");
+        td.attr("class", "cell");
+
+        let baseDiv = $("<div>");
+        baseDiv.attr("class", "base");
+        if ((row + column) % 2 == 0) {
+          baseDiv.addClass("alternative");
         }
-      });
-      tileDiv.on("contextmenu", (event) => {
-        event.preventDefault();
-      });
-      tileDiv.on("mouseenter", (event) => {
-        this.hover(j);
-      });
-      tileDiv.on("mouseleave", (event) => {
-        this.hover(null);
-      });
-      tilesDiv.append(tileDiv);
+        td.append(baseDiv);
+
+        let suggestDiv = $("<div>");
+        suggestDiv.attr("class", "suggest");
+        suggestDiv.attr("id", "suggest-" + tilePosition);
+        td.append(suggestDiv);
+
+        let tileDiv = $("<div>");
+        tileDiv.attr("class", "tile");
+        tileDiv.attr("id", "tile-" + tilePosition);
+        tileDiv.on("mousedown", (event) => {
+          if (event.button == 0) {
+            this.place(tilePosition);
+          } else if (event.button == 2) {
+            this.rotate();
+          }
+        });
+        tileDiv.on("contextmenu", (event) => {
+          event.preventDefault();
+        });
+        tileDiv.on("mouseenter", (event) => {
+          this.hover(tilePosition);
+        });
+        tileDiv.on("mouseleave", (event) => {
+          this.hover(null);
+        });
+        td.append(tileDiv);
+
+        let informationDiv = $("<div>");
+        informationDiv.attr("class", "information");
+        informationDiv.attr("id", "information-" + tilePosition);
+        informationDiv.css("pointer-events", "none");
+        td.append(informationDiv);
+
+        tr.append(td);
+      }
+      tilesTable.append(tr);
     }
   }
 
@@ -789,7 +835,7 @@ class Executor {
       } else {
         tileDiv.attr("class", "mini-tile");
       }
-      tileDiv.attr("id", "tile-" + i);
+      tileDiv.attr("id", "decktile-" + i);
       deckDiv.append(tileDiv);
     }
   }
@@ -806,11 +852,11 @@ class Executor {
   }
 
   prepareNextTile() {
-    let tileDiv = $("#next-tile");
-    tileDiv.on("mousedown", (event) => {
+    let nextDiv = $("#next");
+    nextDiv.on("mousedown", (event) => {
       this.rotate();
     });
-    tileDiv.on("contextmenu", (event) => {
+    nextDiv.on("contextmenu", (event) => {
       event.preventDefault();
     });
   }
@@ -833,7 +879,6 @@ class Executor {
     $("[readonly]").on("click", (event)=>{
       event.target.select();
     })
-
     $(".modal").on("click", (event) => {
       this.closeAnyDialogue();
     });
@@ -845,13 +890,14 @@ class Executor {
     });
     $("#newgame-button").on("click", (event) => {
       $("#load-seed").val(Math.floor(Math.random() * 4294967296));
-      $("#newgame-dialogue").css("display", "flex");
+      $("#load-record").val("");
+      $("#newgame-dialogue").removeClass("hidden");
     });
     $("#settings-button").on("click", (event) => {
-       $("#settings-dialogue").css("display", "flex");
+       $("#settings-dialogue").removeClass("hidden");
     });
     $("#share-button").on("click", (event) => {
-       $("#share-dialogue").css("display", "flex");
+       $("#share-dialogue").removeClass("hidden");
     });
     $("#undo-button").on("click", (event) => {
       this.undo();
@@ -863,45 +909,79 @@ class Executor {
       this.load($("#load-seed").val(), $("#load-record").val());
     });
     $("#show-timer").on("change", (event) => {
-      if (event.target.checked) {
-        $("#timer-card").css("display", "flex");
-      } else {
-        $("#timer-card").css("display", "none");
-      }
+      this.applySettings();
     });
     $("#show-suggest").on("change", (event) => {
-      this.render();
+      this.applySettings();
     });
     $("#show-deck").on("change", (event) => {
-      if (event.target.checked) {
-        $("#deck-wrapper").css("display", "block");
-      } else {
-        $("#deck-wrapper").css("display", "none");
-      }
+      this.applySettings();
     });
     $("#show-queue").on("change", (event) => {
-      if (event.target.checked) {
-        $("#queue-wrapper").css("display", "block");
-      } else {
-        $("#queue-wrapper").css("display", "none");
-      }
+      this.applySettings();
     });
     $("#show-history").on("change", (event) => {
-      if (event.target.checked) {
-        $("#history-card").css("display", "flex");
-      } else {
-        $("#history-card").css("display", "none");
-      }
+      this.applySettings();
     });
-    $("#show-gameover").on("change", (event) => {
-      this.render();
+    $("#show-result").on("change", (event) => {
+      this.applySettings();
     });
     $("#show-information").on("change", (event) => {
-      this.render();
+      this.applySettings();
     });
     $("#tweet").on("click", (event) => {
-      executor.tweet();
+      this.tweet();
     });
+  }
+
+  applySettings() {
+    if ($("#show-timer").prop("checked")) {
+      $("#timer-card").removeClass("hidden");
+    } else {
+      $("#timer-card").addClass("hidden");
+    }
+    if ($("#show-suggest").prop("checked")) {
+      $(".suggest").removeClass("hidden");
+    } else {
+      $(".suggest").addClass("hidden");
+    }
+    if ($("#show-deck").prop("checked")) {
+      $("#deck-wrapper").removeClass("hidden");
+    } else {
+      $("#deck-wrapper").addClass("hidden");
+    }
+    if ($("#show-queue").prop("checked")) {
+      $("#queue-wrapper").removeClass("hidden");
+    } else {
+      $("#queue-wrapper").addClass("hidden");
+    }
+    if ($("#show-history").prop("checked")) {
+      $("#history-card").removeClass("hidden");
+    } else {
+      $("#history-card").addClass("hidden");
+    }
+    if ($("#show-information").prop("checked")) {
+      $(".information").removeClass("hidden");
+    } else {
+      $(".information").addClass("hidden");
+    }
+    this.render();
+    localStorage.setItem("tsuroSettings", JSON.stringify({
+      showTimer :
+        $("#show-timer").prop("checked"),
+      showSuggest :
+        $("#show-suggest").prop("checked"),
+      showDeck :
+        $("#show-deck").prop("checked"),
+      showQueue :
+        $("#show-queue").prop("checked"),
+      showHistory :
+        $("#show-history").prop("checked"),
+      showResult :
+        $("#show-result").prop("checked"),
+      showInformation :
+        $("#show-information").prop("checked")
+    }));
   }
 
   place(tilePosition) {
@@ -939,8 +1019,8 @@ class Executor {
     this.renderStones();
     this.renderSuggest();
     this.renderInformation();
+    this.renderResult();
     this.renderNextTile();
-    this.renderNextTileInformation();
     this.renderRest();
     this.renderDeck();
     this.renderQueue();
@@ -951,22 +1031,21 @@ class Executor {
 
   renderTiles() {
     let tiles = this.tsuro.board.tiles;
+    let nextTile = this.tsuro.nextTile;
     for (let i = 0 ; i < tiles.length ; i ++) {
       let tile = tiles[i];
-      let tileDiv = $("#board #tile-" + i);
+      let tileDiv = $("#tile-" + i);
       tileDiv.empty();
+      tileDiv.removeClass("hover");
       if (tile) {
-        let tileTextureDiv = $("<div>");
-        tileTextureDiv.attr("class", "texture");
-        tileTextureDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
-        tileTextureDiv.css("transform", "rotate(" + (tile.rotation * 90) + "deg)");
-        tileDiv.append(tileTextureDiv);
+        tileDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
+        tileDiv.css("transform", "rotate(" + (tile.rotation * 90) + "deg)");
       } else if (!this.tsuro.isGameclear() && i == this.hoveredTilePosition) {
-        let hoverTextureDiv = $("<div>");
-        hoverTextureDiv.attr("class", "texture hover");
-        hoverTextureDiv.css("background-image", "url(\"image/" + (this.tsuro.nextTile.number + 1) + ".png\")");
-        hoverTextureDiv.css("transform", "rotate(" + (this.tsuro.nextTile.rotation * 90) + "deg)");
-        tileDiv.append(hoverTextureDiv);
+        tileDiv.addClass("hover");
+        tileDiv.css("background-image", "url(\"image/" + (nextTile.number + 1) + ".png\")");
+        tileDiv.css("transform", "rotate(" + (nextTile.rotation * 90) + "deg)");
+      } else {
+        tileDiv.css("background-image", "none");
       }
     }
   }
@@ -984,38 +1063,33 @@ class Executor {
   }
 
   renderSuggest() {
-    let nextTile = this.tsuro.nextTile;
-    if ($("#show-suggest").is(":checked")) {
-      let tilePositions = this.tsuro.getSuggestPositions();
-      for (let tilePosition of tilePositions) {
-        let tileDiv = $("#board #tile-" + tilePosition);
-        let suggestDiv = $("<div>");
-        suggestDiv.attr("class", "suggest");
-        tileDiv.append(suggestDiv);
-      }
+    let suggestPositions = this.tsuro.getSuggestPositions();
+    for (let i=0; i<36; i++) {
+      $("#suggest-" + i).removeClass("suggest");
     }
-    if ($("#show-gameover").is(":checked") && this.tsuro.isGameover()) {
-      $("#gameover").css("display", "flex");
-    } else {
-      $("#gameover").css("display", "none");
+    for (let position of suggestPositions) {
+      $("#suggest-" + position).addClass("suggest");
     }
-    if ($("#show-gameover").is(":checked") && this.tsuro.isGameclear()) {
-      $("#gameclear").css("display", "flex");
+  }
+
+  renderResult() {
+    if ($("#show-result").prop("checked") && this.tsuro.isGameover()) {
+      $("#gameover").removeClass("hidden");
     } else {
-      $("#gameclear").css("display", "none");
+      $("#gameover").addClass("hidden");
+    }
+    if ($("#show-result").prop("checked") && this.tsuro.isGameclear()) {
+      $("#gameclear").removeClass("hidden");
+    } else {
+      $("#gameclear").addClass("hidden");
     }
   }
 
   renderInformation() {
-    if ($("#show-information").is(":checked")) {
-      for (let entry of this.tsuro.record.entries) {
-        if (!entry.withdrawn) {
-          let tileDiv = $("#board #tile-" + entry.tilePosition);
-          let tileInformationDiv = $("<div>");
-          tileInformationDiv.attr("class", "information");
-          tileInformationDiv.html((entry.round + 1) + ":<br>" + entry.toString(true));
-          tileDiv.append(tileInformationDiv);
-        }
+    for (let entry of this.tsuro.history.entries.slice(0, this.tsuro.history.current + 1)) {
+      if(entry.tilePosition) {
+        let informationDiv = $("#information-" + entry.tilePosition);
+        informationDiv.html((entry.round + 1) + ":<br>" + entry.toString(true));
       }
     }
   }
@@ -1023,40 +1097,24 @@ class Executor {
   renderNextTile() {
     let nextTile = this.tsuro.nextTile;
     let tileDiv = $("#next-tile");
-    tileDiv.empty();
+    let tileInformationDiv = $("#next-information");
     if (nextTile) {
-      let tileTextureDiv = $("<div>");
-      tileTextureDiv.attr("class", "texture");
-      tileTextureDiv.css("background-image", "url(\"image/" + (nextTile.number + 1) + ".png\")");
-      tileTextureDiv.css("transform", "rotate(" + (nextTile.rotation * 90) + "deg)");
-      tileDiv.append(tileTextureDiv);
+      tileDiv.css("background-image", "url(\"image/" + (nextTile.number + 1) + ".png\")");
+      tileDiv.css("transform", "rotate(" + (nextTile.rotation * 90) + "deg)");
     }
-  }
-
-  renderNextTileInformation() {
-    let nextTile = this.tsuro.nextTile;
-    if ($("#show-information").is(":checked")) {
-      let tileDiv = $("#next-tile");
-      if (nextTile) {
-        let tileInformationDiv = $("<div>");
-        let number = nextTile.number;
-        let rotation = ROTATION_SYMBOLS[nextTile.rotation];
-        let string = number + rotation;
-        tileInformationDiv.attr("class", "information");
-        tileInformationDiv.html(string);
-        tileDiv.append(tileInformationDiv);
-      }
+    if (nextTile) {
+      tileInformationDiv.html(nextTile.toString());
     }
   }
 
   renderDeck() {
     let deck = this.tsuro.dealer.deck;
     for (let i = 0 ; i < 35 ; i ++) {
-      let tileDiv = $("#deck #tile-" + i);
+      let tileDiv = $("#deck #decktile-" + i);
       tileDiv.empty();
     }
     for (let tile of deck) {
-      let tileDiv = $("#deck #tile-" + tile.number);
+      let tileDiv = $("#deck #decktile-" + tile.number);
       let tileTextureDiv = $("<div>");
       tileTextureDiv.attr("class", "texture");
       tileTextureDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
@@ -1123,9 +1181,9 @@ class Executor {
   }
 
   closeAnyDialogue() {
-    $("#newgame-dialogue").css("display", "none");
-    $("#settings-dialogue").css("display", "none");
-    $("#share-dialogue").css("display", "none");
+    $("#newgame-dialogue").addClass("hidden");
+    $("#settings-dialogue").addClass("hidden");
+    $("#share-dialogue").addClass("hidden");
   }
 
   tweet() {

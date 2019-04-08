@@ -105,10 +105,6 @@ button.tweet:before {
   content: "\F000";
 }
 
-button.top-row {
-  margin: 0px 5px 10px 5px;
-}
-
 textarea, input[type="text"] {
   width: 100%;
   margin: 0px;
@@ -176,7 +172,12 @@ div.card {
   padding: 20px 20px;
   border-radius: 15px;
   background-color: white;
+  display: flex;
   box-shadow: 0px 4px 8px 0px hsla(0, 0%, 20%, 0.2);
+}
+
+div.dialogue {
+  flex-direction: column;
 }
 
 div.input-group {
@@ -184,15 +185,20 @@ div.input-group {
   padding: 0px;
 }
 
+div.input-group >div.label {
+  font: italic 400 18px "Alegreya";
+  color: hsl(28, 54%, 33%);
+}
+
 div.button-group {
-  margin: 0px;
+  margin: 0px 0px 10px 0px;
   padding: 0px;
   text-align: center;
 }
 
-div.input-group >div.label {
-  font: italic 400 18px "Alegreya";
-  color: hsl(28, 54%, 33%);
+div.button-group:last-child,
+div.input-group:last-child {
+  margin: 0px 0px 0px 0px;
 }
 
 div.guide {
@@ -208,6 +214,7 @@ div.mask {
   justify-content: center;
   align-items: center;
   position: absolute;
+  display: flex;
   top: 0px;
   left: 0px;
   right: 0px;
@@ -216,35 +223,47 @@ div.mask {
 
 div.modal {
   line-height: 1;
-  display: none;
   position: fixed;
 }
 
-div.tile {
+div.hidden {
+  display: none;
+}
+
+td.cell {
   width: 100px;
   height: 100px;
-  background-color: hsl(28, 80%, 98%);
   position: relative;
 }
 
-div.tile.alternative {
+div.base {
+  width: 100%;
+  height: 100%;
+  background-color: hsl(28, 80%, 98%);
+  position: absolute;
+}
+div.base.alternative {
   background-color: hsl(28, 80%, 97%);
 }
 
-div.tile >div.texture,
-div.tile >div.suggest {
-  width: 100px;
-  height: 100px;
-  background-size: contain;
-  pointer-events: none;
+div.suggest {
+  width: 100%;
+  height: 100%;
+  background-color: hsla(180, 100%, 50%, 0.2);
   position: absolute;
 }
 
-div.tile >div.texture.hover {
+div.tile {
+  width: 100%;
+  height: 100%;
+  background-size: contain;
+  position: absolute;
+}
+div.tile.hover {
   opacity: 0.2;
 }
 
-div.tile >div.information {
+div.information {
   margin: 3px 0px 0px 5px;
   padding: 0px;
   font: 16px "Inconsolata", monospace;
@@ -252,10 +271,6 @@ div.tile >div.information {
   line-height: 1.2;
   text-shadow: 1px 1px 0px hsl(28, 54%, 33%), -1px 1px 0px hsl(28, 54%, 33%), 1px -1px 0px hsl(28, 54%, 33%), -1px -1px 0px hsl(28, 54%, 33%);
   position: absolute;
-}
-
-div.tile >div.suggest {
-  background-color: hsla(180, 100%, 50%, 0.2);
 }
 
 div.mini-tile {
@@ -302,7 +317,6 @@ div#content {
 div#content >div#mainboard-card {
   height: 700px;
   width: 700px;
-  display: flex;
   flex-direction: column;
   flex-grow: 0;
   flex-shrink: 0;
@@ -321,13 +335,11 @@ div#mainboard-card >div#board {
   position: relative;
 }
 
-div#board >div#tiles {
+div#board >table#tiles {
   width: 100%;
   height: 100%;
   margin: 0px;
   padding: 0px;
-  display: flex;
-  flex-wrap: wrap;
   flex-grow: 0;
   flex-shrink: 0;
 }
@@ -350,7 +362,6 @@ div#mainboard-card >div#gameclear {
   line-height: 1;
   border-radius: 15px;
   background-color: hsl(0, 0%, 0%, 0.5);
-  display: none;
   justify-content: center;
   align-items: center;
 }
@@ -378,7 +389,6 @@ div#right >div#buttons {
 
 div#right >div#next-card {
   margin: 0px 0px 25px 0px;
-  display: flex;
   flex-flow: column nowrap;
   align-items: center;
   flex-grow: 0;
@@ -397,9 +407,12 @@ div#next-card >div#next-deck-container {
 div#next-deck-container >div#next-wrapper {
 }
 
-div#next-wrapper >div#next-tile {
+div#next-wrapper >div#next {
+  width: 100px;
+  height: 100px;
   margin: 0px;
   padding: 0px;
+  position: relative;
 }
 
 div#next-deck-container >div#rest-round-wrapper {
@@ -451,7 +464,6 @@ div#queue-wrapper >div#queue {
 div#right >div#timer-card {
   margin: 0px 0px 25px 0px;
   padding: 0px;
-  display: flex;
   justify-content: center;
   flex-grow: 0;
   flex-shrink: 0;
@@ -470,7 +482,6 @@ div#right >div#timer-card >span#second {
 div#right >div#history-card {
   flex-basis: 100px;
   margin: 0;
-  display: flex;
   flex-direction: column;
   flex-grow: 2;
   flex-shrink: 0;
