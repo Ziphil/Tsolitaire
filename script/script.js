@@ -777,7 +777,7 @@ class Executor {
       let j = i;
       let tileDiv = $("<div>");
       let rowNumber = Math.floor(i / 6)
-      if ((rowNumber % 2 == 0 && i % 2 == 0) || (rowNumber % 2 == 1 && i % 2 == 1)) {
+      if ((rowNumber + i) % 2 == 0) {
         tileDiv.attr("class", "tile alternative");
       } else {
         tileDiv.attr("class", "tile");
