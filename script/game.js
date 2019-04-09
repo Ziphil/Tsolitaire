@@ -1,7 +1,7 @@
 //
 
 
-class Tsuro {
+class Game {
 
   constructor(random) {
     this.stones = INITIAL_STONES;

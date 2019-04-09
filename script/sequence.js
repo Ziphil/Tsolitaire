@@ -8,14 +8,14 @@ class Sequence {
       seed = Math.floor(Math.random() * 4294967296);
     }
     this.seed = seed;
-    this.tsuro = new Tsuro(new Random(seed));
+    this.game = new Game(new Random(seed));
     try {
       this.record = Record.parse(recordString);
-      this.record.play(this.tsuro);
+      this.record.play(this.game);
     } catch (exception) {
       alert("棋譜が異常です。新しいゲームを開始します。\nWrong record data.");
       console.log(exception);
-      this.tsuro = new Tsuro(new Random(seed));
+      this.game = new Game(new Random(seed));
       this.record = new Record();
     }
     this.timer = new Timer(recordString == "");
@@ -23,50 +23,50 @@ class Sequence {
   }
 
   startNextCombo() {
-    if (!this.tsuro.isGameclear()) {
+    if (!this.game.isGameclear()) {
       return;
     }
     if (!this.timer) {
       return;
     }
     this.laps.push(this.timer.count);
-    this.tsuro = new Tsuro("", "");
+    this.game = new Game("", "");
     this.timer = new Timer(true);
   }
 
   place(tilePosition) {
-    if (this.tsuro.place(tilePosition)) {
+    if (this.game.place(tilePosition)) {
       // 棋譜への記録は nextTile 更新前にやる
-      this.record.place(this.tsuro.nextTile, tilePosition, this.tsuro.dealer.round, this.timer.count);
-      this.tsuro.draw();
-      if (this.tsuro.isGameclear()) {
+      this.record.place(this.game.nextTile, tilePosition, this.game.dealer.round, this.timer.count);
+      this.game.draw();
+      if (this.game.isGameclear()) {
         this.timer.stop();
       }
     }
   }
 
   undo() {
-    if (this.tsuro.undo()) {
+    if (this.game.undo()) {
       this.record.undo(this.timer.count);
-      this.tsuro.draw();
+      this.game.draw();
     }
   }
 
   redo() {
-    if (this.tsuro.redo()) {
+    if (this.game.redo()) {
       this.record.redo(this.timer.count);
-      this.tsuro.draw();
+      this.game.draw();
     }
   }
 
   jumpTo(round) {
-    if (this.tsuro.jumpTo(round)) {
+    if (this.game.jumpTo(round)) {
       //this.record.jumpTo(round, this.timer.count);
-      this.tsuro.draw();
+      this.game.draw();
     }
   }
 
   rotate() {
-    this.tsuro.rotateNextTile();
+    this.game.rotateNextTile();
   }
 }

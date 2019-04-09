@@ -40,18 +40,18 @@ class RecordEntry {
     return string;
   }
 
-  action(tsuro) {
+  action(game) {
     if (this.type == 0 && !this.withdrawn) {
-      tsuro.dealer.nextTile = this.tile;
-      tsuro.nextTile = this.tile;
-      let result = tsuro.place(this.tilePosition);
+      game.dealer.nextTile = this.tile;
+      game.nextTile = this.tile;
+      let result = game.place(this.tilePosition);
       if (!result) {
         throw new Error("Invalid Move");
       }
     } else if (this.type == 1) {
-      tsuro.undo();
+      game.undo();
     } else if (this.type == 2) {
-      tsuro.redo();
+      game.redo();
     }
   }
 
@@ -90,11 +90,11 @@ class Record {
     return string;
   }
 
-  play(tsuro) {
+  play(game) {
     for (let entry of this.entries) {
-      entry.action(tsuro);
+      entry.action(game);
     }
-    tsuro.draw();
+    game.draw();
   }
 
   static parse(string) {

@@ -31,7 +31,7 @@ class Executor {
     }
     this.load(seed, recordString);
 
-    let settings = localStorage.getItem("tsuroSettings");
+    let settings = localStorage.getItem("tsolitaireSettings");
     if (settings) {
       settings = JSON.parse(settings);
       $("#show-timer").prop("checked", settings.showTimer);
@@ -262,7 +262,7 @@ class Executor {
       $(".information").addClass("hidden");
     }
     this.render();
-    localStorage.setItem("tsuroSettings", JSON.stringify({
+    localStorage.setItem("tsolitaireSettings", JSON.stringify({
       showTimer: $("#show-timer").prop("checked"),
       showSuggest: $("#show-suggest").prop("checked"),
       showDeck: $("#show-deck").prop("checked"),
@@ -320,8 +320,8 @@ class Executor {
   }
 
   renderTiles() {
-    let tiles = this.sequence.tsuro.board.tiles;
-    let nextTile = this.sequence.tsuro.nextTile;
+    let tiles = this.sequence.game.board.tiles;
+    let nextTile = this.sequence.game.nextTile;
     for (let i = 0 ; i < tiles.length ; i ++) {
       let tile = tiles[i];
       let tileDiv = $("#tile-" + i);
@@ -330,7 +330,7 @@ class Executor {
       if (tile) {
         tileDiv.css("background-image", "url(\"image/" + (tile.number + 1) + ".png\")");
         tileDiv.css("transform", "rotate(" + (tile.rotation * 90) + "deg)");
-      } else if (!this.sequence.tsuro.isGameclear() && i == this.hoveredTilePosition) {
+      } else if (!this.sequence.game.isGameclear() && i == this.hoveredTilePosition) {
         tileDiv.addClass("hover");
         tileDiv.css("background-image", "url(\"image/" + (nextTile.number + 1) + ".png\")");
         tileDiv.css("transform", "rotate(" + (nextTile.rotation * 90) + "deg)");
@@ -341,7 +341,7 @@ class Executor {
   }
 
   renderStones() {
-    let stones = this.sequence.tsuro.stones;
+    let stones = this.sequence.game.stones;
     for (let i = 0 ; i < stones.length ; i ++) {
       let stone = stones[i];
       let top = Math.floor(stone.tilePosition / 6) * 100 + TOP_SHIFT[stone.edgePosition];
@@ -353,7 +353,7 @@ class Executor {
   }
 
   renderSuggest() {
-    let suggestPositions = this.sequence.tsuro.getSuggestPositions();
+    let suggestPositions = this.sequence.game.getSuggestPositions();
     for (let i = 0 ; i < 36 ; i ++) {
       $("#suggest-" + i).removeClass("suggest");
     }
@@ -363,12 +363,12 @@ class Executor {
   }
 
   renderResult() {
-    if ($("#show-result").prop("checked") && this.sequence.tsuro.isGameover()) {
+    if ($("#show-result").prop("checked") && this.sequence.game.isGameover()) {
       $("#gameover").removeClass("hidden");
     } else {
       $("#gameover").addClass("hidden");
     }
-    if ($("#show-result").prop("checked") && this.sequence.tsuro.isGameclear()) {
+    if ($("#show-result").prop("checked") && this.sequence.game.isGameclear()) {
       $("#gameclear").removeClass("hidden");
       if(this.sequence.timer.count) {
         $("#next-combo-button-wrapper").removeClass("hidden");
@@ -384,7 +384,7 @@ class Executor {
     for (let i=0; i<36; i++) {
       $("#information-" + i).empty();
     }
-    for (let entry of this.sequence.tsuro.history.entries.slice(0, this.sequence.tsuro.history.current + 1)) {
+    for (let entry of this.sequence.game.history.entries.slice(0, this.sequence.game.history.current + 1)) {
       if (entry.tilePosition) {
         let informationDiv = $("#information-" + entry.tilePosition);
         informationDiv.html((entry.round + 1) + ":<br>" + entry.toString(true));
@@ -393,7 +393,7 @@ class Executor {
   }
 
   renderNextTile() {
-    let nextTile = this.sequence.tsuro.nextTile;
+    let nextTile = this.sequence.game.nextTile;
     let tileDiv = $("#next-tile");
     let tileInformationDiv = $("#next-information");
     if (nextTile) {
@@ -406,7 +406,7 @@ class Executor {
   }
 
   renderDeck() {
-    let deck = this.sequence.tsuro.dealer.deck;
+    let deck = this.sequence.game.dealer.deck;
     for (let i = 0 ; i < 35 ; i ++) {
       let tileDiv = $("#deck #decktile-" + i);
       tileDiv.empty();
@@ -422,8 +422,8 @@ class Executor {
   }
 
   renderQueue() {
-    let queue = this.sequence.tsuro.dealer.queue;
-    let round = this.sequence.tsuro.dealer.round;
+    let queue = this.sequence.game.dealer.queue;
+    let round = this.sequence.game.dealer.round;
     let queueDiv = $("#queue");
     queueDiv.empty();
     for (let tile of queue) {
@@ -452,8 +452,8 @@ class Executor {
   }
 
   renderHistory() {
-    let entries = this.sequence.tsuro.history.entries;
-    let round = this.sequence.tsuro.dealer.round;
+    let entries = this.sequence.game.history.entries;
+    let round = this.sequence.game.dealer.round;
     let historyUl = $("#history");
     historyUl.empty();
     for (let entry of entries) {
@@ -466,18 +466,18 @@ class Executor {
   }
 
   renderRest() {
-    let restRound = 35 - this.sequence.tsuro.dealer.round;
+    let restRound = 35 - this.sequence.game.dealer.round;
     let restRoundDiv = $("#rest-round");
     restRoundDiv.text(restRound);
   }
 
   renderButtons() {
-    if (this.sequence.tsuro.canUndo()) {
+    if (this.sequence.game.canUndo()) {
       $("#undo-button").attr("class", "");
     } else {
       $("#undo-button").attr("class", "disabled")
     }
-    if (this.sequence.tsuro.canRedo()) {
+    if (this.sequence.game.canRedo()) {
       $("#redo-button").attr("class", "");
     } else {
       $("#redo-button").attr("class", "disabled")
