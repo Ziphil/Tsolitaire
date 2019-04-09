@@ -8,14 +8,16 @@ class Sequence {
       seed = Math.floor(Math.random() * 4294967296);
     }
     this.seed = seed;
-    this.game = new Game(new Random(seed));
+    this.random = new Random(seed);
+    this.game = new Game(this.random);
     try {
       this.record = Record.parse(recordString);
       this.record.play(this.game);
     } catch (exception) {
       alert("棋譜が異常です。新しいゲームを開始します。\nWrong record data.");
       console.log(exception);
-      this.game = new Game(new Random(seed));
+      this.random = new Random(seed);
+      this.game = new Game(this.random);
       this.record = new Record();
     }
     this.timer = new Timer(recordString == "");
@@ -30,7 +32,8 @@ class Sequence {
       return;
     }
     this.laps.push(this.timer.count);
-    this.game = new Game("", "");
+    this.game = new Game(this.random);
+    this.record = new record();
     this.timer = new Timer(true);
   }
 
