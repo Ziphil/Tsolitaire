@@ -60,4 +60,4 @@ const RECORD_REGEXP = /(?:(Undo|Redo|(?:([0-9]+)\s*:\s*)?([0-9])\s*([A-Z])\s*([0
 const TWITTER_WIDTH = 560;
 const TWITTER_HEIGHT = 320;
 const TWITTER_MESSAGE = "Time: %t";
-const TWITTER_HASHTAG = "Tsuro";
+const TWITTER_HASHTAG = "Tsolitaire";
