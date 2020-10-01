@@ -489,8 +489,13 @@ div#timer-card >div#main-timer {
 }
 
 div#main-timer >span#minute,
-div#main-timer >span#second {
+div#main-timer >span#second,
+div#main-timer >span#milils {
   margin: 0px 5px;
+}
+
+div#main-timer span.decimal {
+  font-size: 70%;
 }
 
 div#timer-card >ul#laps {

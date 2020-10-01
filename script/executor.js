@@ -157,13 +157,17 @@ class Executor {
   prepareTimer() {
     setInterval(() => {
       let count = this.sequence.timer.count;
-      let minute = (count != null) ? ("0" + Math.floor(count / 60)).slice(-2) : "  ";
-      let second = (count != null) ? ("0" + (count % 60)).slice(-2) : "  ";
+      let minute = (count != null) ? ("0" + Math.floor(count / 60000)).slice(-2) : "  ";
+      let second = (count != null) ? ("0" + Math.floor((count % 60000) / 1000)).slice(-2) : "  ";
+      let millis = (count != null) ? ("00" + (count % 60000 % 1000)).slice(-3) : "   ";
       if ($("#minute").text() != minute) {
         $("#minute").text(minute);
       }
       if ($("#second").text() != second) {
         $("#second").text(second);
+      }
+      if ($("#millis").text() != millis) {
+        $("#millis").text(millis);
       }
     }, 50);
   }
@@ -498,12 +502,13 @@ class Executor {
 
   tweet() {
     let count = this.sequence.timer.count;
-    let minute = ("0" + Math.floor(count / 60)).slice(-2);
-    let second = ("0" + (count % 60)).slice(-2);
+    let minute = (count != null) ? ("0" + Math.floor(count / 60000)).slice(-2) : "  ";
+    let second = (count != null) ? ("0" + Math.floor((count % 60000) / 1000)).slice(-2) : "  ";
+    let millis = (count != null) ? ("00" + (count % 60000 % 1000)).slice(-3) : "   ";
     let url = this.generateURL();
     let option = "width=" + TWITTER_WIDTH + ",height=" + TWITTER_HEIGHT + ",menubar=no,toolbar=no,scrollbars=no";
     let href = "https://twitter.com/intent/tweet";
-    href += "?text=" + TWITTER_MESSAGE.replace(/%t/g, minute + ":" + second);
+    href += "?text=" + TWITTER_MESSAGE.replace(/%t/g, minute + ":" + second + "." + millis);
     href += "&url=" + encodeURIComponent(url);
     href += "&hashtags=" + TWITTER_HASHTAG;
     window.open(href, "_blank", option);

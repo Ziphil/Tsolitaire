@@ -18,9 +18,9 @@ class Timer {
     let beginDate = this.beginDate;
     if (beginDate) {
       let endDate = this.finishDate || new Date();
-      let count = Math.floor((endDate.getTime() - beginDate.getTime()) / 1000);
-      if (count > 3600) {
-        count = 3600;
+      let count = Math.floor((endDate.getTime() - beginDate.getTime()) / 1);
+      if (count > 3600000) {
+        count = 3600000;
       }
       return count;
     } else {
